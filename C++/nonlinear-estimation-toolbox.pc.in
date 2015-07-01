@@ -1,0 +1,6 @@
+Name: Nonlinear Estimation Toolbox
+Description: A C++ library for nonlinear state estimation.
+Requires: eigen3
+Version: ${TOOLBOX_MAJOR_VERSION}.${TOOLBOX_MINOR_VERSION}.${TOOLBOX_PATCH_VERSION}
+Cflags: -std=c++11 -I${CMAKE_INSTALL_PREFIX}/include/${TOOLBOX_FOLDER_NAME}
+Libs: -L${CMAKE_INSTALL_PREFIX}/lib/${TOOLBOX_FOLDER_NAME} -lQuadrature -lOptimization -lGLCD

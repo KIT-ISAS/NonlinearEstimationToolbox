@@ -1,0 +1,7 @@
+
+ADD_SUBDIRECTORY(Quadrature)
+
+ADD_SUBDIRECTORY(Optimization)
+
+ADD_SUBDIRECTORY(GLCD)
+
