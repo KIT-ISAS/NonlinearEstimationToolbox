@@ -383,7 +383,7 @@ classdef Utils
             %      State mean.
             %
             %   >> stateCovSqrt (Square matrix)
-            %      Square root of the state covariance.
+            %      Square root of the state covariance, e.g., the lower matrix of a Cholesky decomposition.
             %
             % Returns:
             %   << stateSamples (Matrix)
@@ -425,13 +425,13 @@ classdef Utils
             %      State mean.
             %
             %   >> stateCovSqrt (Square matrix)
-            %      Square root of the state covariance.
+            %      Square root of the state covariance, e.g., the lower matrix of a Cholesky decomposition.
             %
             %   >> noiseMean (Column vector)
             %      Noise mean.
             %
             %   >> noiseCovSqrt (Square matrix)
-            %      Square root of the noise covariance.
+            %      Square root of the noise covariance, e.g., the lower matrix of a Cholesky decomposition.
             %
             % Returns:
             %   << stateSamples (Matrix)
