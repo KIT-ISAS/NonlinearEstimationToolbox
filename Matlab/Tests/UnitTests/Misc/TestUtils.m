@@ -197,6 +197,59 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifySize(rndSamples, [3, numSamples]);
         end
         
+        function testRndOrthogonalMatrix(obj)
+            rndMat = Utils.rndOrthogonalMatrix(4);
+            
+            identity = rndMat * rndMat';
+            
+            obj.verifyEqual(identity, eye(4), 'AbsTol', 1e-8);
+        end
+        
+        function testGetStateSamples(obj)
+            sampling = GaussianSamplingUKF();
+            
+            stateMean = [2 3]';
+            stateCov  = [2 0.5; 0.5 1.2];
+            stateCovSqrt = chol(stateCov)';
+            
+            [stateSamples, ...
+             weights, ...
+             numSamples] = Utils.getStateSamples(sampling, stateMean, stateCovSqrt);
+            
+            s = stateCovSqrt * sqrt(2.5) * [zeros(2, 1) -eye(2) eye(2)];
+            s = bsxfun(@plus, s, stateMean);
+            
+            w = ones(1, 5) / 5;
+            
+            obj.verifyEqual(stateSamples, s, 'AbsTol', 1e-8);
+            obj.verifyEqual(weights, w, 'AbsTol', 1e-8);
+            obj.verifyEqual(numSamples, 5);
+        end
+        
+        function testGetStateNoiseSamples(obj)
+            sampling = GaussianSamplingUKF();
+            
+            stateMean    = 2;
+            stateCovSqrt = sqrt(2);
+            noiseMean    = 3;
+            noiseCovSqrt = sqrt(1.2);
+            
+            [stateSamples, ...
+             noiseSamples, ...
+             weights, ...
+             numSamples] = Utils.getStateNoiseSamples(sampling, stateMean, stateCovSqrt, ...
+                                                      noiseMean, noiseCovSqrt);
+            
+            s = stateCovSqrt * sqrt(2.5) * [0 -1  0 1 0] + stateMean;
+            n = noiseCovSqrt * sqrt(2.5) * [0  0 -1 0 1] + noiseMean;
+            w = ones(1, 5) / 5;
+            
+            obj.verifyEqual(stateSamples, s, 'AbsTol', 1e-8);
+            obj.verifyEqual(noiseSamples, n, 'AbsTol', 1e-8);
+            obj.verifyEqual(weights, w, 'AbsTol', 1e-8);
+            obj.verifyEqual(numSamples, 5);
+        end
+        
         function testDiffQuotientState(obj)
             nominalState = [-1.5 3.2]';
             
