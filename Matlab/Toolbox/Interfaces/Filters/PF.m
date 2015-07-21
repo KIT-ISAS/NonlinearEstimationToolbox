@@ -145,13 +145,13 @@ classdef PF < Filter
             end
             
             if Checks.isClass(state, 'DiracMixture')
-                obj.particles = state.getSamples();
-                obj.weights = state.getWeights();
+                % Directly use the Dirac mixture components as system state
+                [obj.particles, obj.weights] = state.getComponents();
             else
-                % Draw initial random samples
+                % Draw random particles
                 obj.particles = state.drawRndSamples(obj.numParticles);
                 
-                % Initially equally weighted samples
+                % Particles are equally weighted
                 obj.weights = repmat(1 / obj.numParticles, 1, obj.numParticles);
             end
             
