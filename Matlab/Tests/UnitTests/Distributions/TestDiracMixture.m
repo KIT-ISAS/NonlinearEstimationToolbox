@@ -28,20 +28,6 @@ classdef TestDiracMixture < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
-            dm = DiracMixture();
-            
-            dim      = 0;
-            numComps = 0;
-            samples  = [];
-            weights  = [];
-            mean     = [];
-            cov      = [];
-            covSqrt  = [];
-            
-            obj.verifyDM(dm, dim, numComps, samples, weights, mean, cov, covSqrt);
-        end
-        
         function testConstructorSamples(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));
@@ -82,7 +68,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             obj.verifyError(@() DiracMixture('test'), ...
                             'DiracMixture:InvalidSamples');
         end
-
+        
         function testConstructorInvalidWeights(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));

@@ -43,21 +43,15 @@ classdef DiracMixture < Distribution
             % Parameters
             %   >> samples (Matrix)
             %      Column-wise arranged sample positions.
-            %      Default: Empty matrix.
             %
-        	%   >> weights (Row vector)
+            %   >> weights (Row vector)
             %      Row-wise arranged weights of the samples.
             %      Default: All samples are equally weighted.
             
             if nargin == 2
                 obj.set(samples, weights)
-            elseif nargin == 1
-                obj.set(samples);
             else
-                obj.dimension     = 0;
-                obj.numComponents = 0;
-                obj.samples       = [];
-                obj.weights       = [];
+                obj.set(samples);
             end
             
             obj.mean       = [];
