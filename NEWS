@@ -1,0 +1,65 @@
+
+Changes in Nonlinear Estimation Toolbox 1.0.1
+=============================================
+
+* Added unit tests for
+  - SIRPF.SIRPF()
+  - SIRPF.setState()
+  - SIRPF.getPointEstimate()
+  - Utils.rndOrthogonalMatrix()
+  - Utils.getStateSamples()
+  - Utils.getStateNoiseSamples()
+  
+* Bugs fixed
+  - #1    SIRPF cannot handle DiracMixture distributions when setting the system state 
+  - #2    Inconsistent behavior when creating DiracMixture distributions
+
+
+Changes in Nonlinear Estimation Toolbox 1.0
+=============================================
+
+First toolbox release containing
+
+* Filters
+  - AnalyticKF
+  - CKF
+  - EKF
+  - EnKF
+  - GHKF
+  - GPF
+  - PGF
+  - RUKF
+  - S2KF
+  - SIRPF
+  - UKF
+  
+* Distributions
+  - DiracMixture
+  - Gaussian
+  - GaussianMixture
+  - JointDistribution
+  - Uniform
+  
+* Gaussian Sampling Techniques
+  - GaussianSamplingCKF
+  - GaussianSamplingGHQ
+  - GaussianSamplingLCD
+  - GaussianSamplingRnd
+  - GaussianSamplingRUKF
+  - GaussianSamplingUKF
+  
+* System Models
+  - AdditiveNoiseSystemModel
+  - AnalyticSystemModel
+  - MixedNoiseSystemModel
+  - SystemModel
+  - LinearSystemModel
+  
+* Measurement Models
+  - AdditiveNoiseMeasurementModel
+  - AnalyticMeasurementModel
+  - Likelihood
+  - MeasurementModel
+  - MixedNoiseMeasurementModel
+  - LinearMeasurementModel
+
