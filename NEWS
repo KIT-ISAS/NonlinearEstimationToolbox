@@ -1,4 +1,11 @@
 
+Changes in Nonlinear Estimation Toolbox 1.0.2
+=============================================
+
+* Bugs fixed
+  - #5    Better handle errors related to the GLCD MEX files
+
+
 Changes in Nonlinear Estimation Toolbox 1.0.1
 =============================================
 
