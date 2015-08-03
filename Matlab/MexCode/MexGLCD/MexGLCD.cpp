@@ -231,6 +231,6 @@ void mexFunction(int numOutputs, mxArray *outputs[],
         
         ss << ex.what();
         
-        mexErrMsgTxt(ss.str().c_str());
+        mexErrMsgIdAndTxt("GLCD:ComputationFailed", ss.str().c_str());
     }
 }
