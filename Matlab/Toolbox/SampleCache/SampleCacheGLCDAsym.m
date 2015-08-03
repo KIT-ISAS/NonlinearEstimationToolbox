@@ -74,9 +74,15 @@ classdef SampleCacheGLCDAsym < SampleCache
                     weights = repmat(weight, 1, numSamples);
                     
                     compute = false;
-                catch
-                    warning('SampleCacheGLCDAsym:ComputingGLCDFailed', ...
-                            'Computing Gaussian LCD samples failed. Trying again.');
+                catch ex
+                    if strcmp(ex.identifier, 'GLCD:ComputationFailed')
+                        % If computation failed, issue a warning and try again
+                        warning('SampleCacheGLCDAsym:ComputingGLCDFailed', ...
+                                'Computing Gaussian LCD samples failed. Trying again.');
+                    else
+                        % Forward all other exceptions
+                        rethrow(ex);
+                    end
                 end
             end
         end
