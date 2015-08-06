@@ -79,7 +79,7 @@ void LBFGS::updateDirection(const Eigen::VectorXd& parameters,
      *   2nd edition, Springer, 2006, page 178
      */
     
-    const unsigned int historySize = history.capacity();
+    const unsigned int historySize = getHistorySize();
     
     // Update history.
     Entry& entry = history[insertPos];
@@ -134,11 +134,6 @@ void LBFGS::setHistorySize(unsigned int historySize)
     }
     
     history.resize(historySize);
-}
-
-unsigned int LBFGS::getHistorySize() const
-{
-    return history.capacity();
 }
 
 }   // namespace Optimization

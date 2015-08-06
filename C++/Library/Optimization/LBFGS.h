@@ -41,7 +41,9 @@ class LBFGS : public QuasiNewton {
         
         void setHistorySize(unsigned int historySize);
         
-        unsigned int getHistorySize() const;
+        unsigned int getHistorySize() const {
+            return history.size();
+        }
         
         void operator()(const Function&         function,
                         const Eigen::VectorXd&	initialParameters,
