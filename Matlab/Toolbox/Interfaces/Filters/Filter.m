@@ -12,6 +12,7 @@ classdef Filter < handle & matlab.mixin.Copyable
     %   getStateDim      - Get the dimension of the current system state.
     %   predict          - Perform a time update (prediction step).
     %   update           - Perform a measurement update (filter step) using the given measurement(s).
+    %   step             - Perform a combined time and measurement update.
     %   getPointEstimate - Get a point estimate of the current system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -179,6 +180,59 @@ classdef Filter < handle & matlab.mixin.Copyable
                 obj.performUpdate(measModel, measurements);
             end
         end
+        
+        function runtime = step(obj, sysModel, measModel, measurements)
+            % Perform a combined time and measurement update.
+            %
+            % By default, this is equal to execute predict() followed by an update().
+            %
+            % However, each filter can overwrite this behavior with a custom implementation
+            % of a combined time and measurement update in order to improve estimation quality
+            % (e.g., done by the Auxiliary SIR-PF).
+            %
+            % Parameters:
+            %   >> sysModel (Arbitrary class (filter dependent))
+            %      System model that provides the mapping between the prior system
+            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %
+            %   >> measModel (Arbitrary class (filter dependent))
+            %      Measurement model that provides the mapping between measurements and the system state.
+            %
+            %   >> measurements (Matrix)
+            %      Column-wise arranged measurement vectors, where each column represents an individual
+            %      measurement. In case of two or more measurements (i.e., two or more columns), the
+            %      filter assumes that the measurements originate from the same measurement model and
+            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
+            %      measurements m1 and m2 the filter assumes
+            %
+            %          m1 = h(x, v) and m2 = h(x, v) .
+            %
+            %      The advantage is that one has to set the measurement noise v only for one
+            %      measurement, no matter how many measurements will be provided in one filter step.
+            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
+            %      However, in case of non-i.i.d. measurement noise
+            %
+            %          m1 = h(x, v1) and m2 = h(x, v2)
+            %
+            %      (e.g., existing correlations between noise for different measurements or in general
+            %      different noise for different measurements) one has to explicitly stack the
+            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
+            %      measurement vector m = [m1; m2].
+            %
+            % Returns:
+            %   << runtime (Scalar)
+            %      Time needed to perform the combined time and measurement update.
+            
+            obj.checkMeasurements(measurements);
+            
+            if nargout == 1
+                s = tic;
+                obj.performStep(sysModel, measModel, measurements);
+                runtime = toc(s);
+            else
+                obj.performStep(sysModel, measModel, measurements);
+            end
+        end
     end
     
     methods (Abstract)
@@ -219,6 +273,11 @@ classdef Filter < handle & matlab.mixin.Copyable
     end
     
     methods (Access = 'protected')
+        function performStep(obj, sysModel, measModel, measurements)
+            obj.performPrediction(sysModel);
+            obj.performUpdate(measModel, measurements);
+        end
+        
         function checkMeasurements(obj, measurements)
             if ~Checks.isMat(measurements)
                 obj.error('InvalidMeasurements', ...
