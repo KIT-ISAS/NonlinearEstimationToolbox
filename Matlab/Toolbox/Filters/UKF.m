@@ -112,7 +112,7 @@ classdef UKF < LRKF
             %   << scaling (Non-negative scalar)
             %      The current sample scaling factor.
             
-            scaling = obj.ukfSampling.getScaling();
+            scaling = obj.ukfSampling.getSampleScaling();
         end
     end
     
