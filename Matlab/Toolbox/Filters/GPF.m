@@ -127,8 +127,12 @@ classdef GPF < SampleBasedGaussianFilter
         end
         
         function predictAdditiveNoise(obj, sysModel)
-            % Generate additive noise joint moments
+            % Get additive noise moments
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            
+            dimNoise = size(noiseMean, 1);
+            
+            obj.checkAdditiveSysNoise(dimNoise);
             
             % Sample system state
             particles = obj.getStateParticles();
@@ -151,8 +155,12 @@ classdef GPF < SampleBasedGaussianFilter
         end
         
         function predictMixedNoise(obj, sysModel)
-            % Generate addtive noise joint moments
+            % Get additive noise moments
             [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
+            
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveSysNoise(dimAddNoise);
             
             % Sample system noise
             noise = sysModel.noise.drawRndSamples(obj.numParticles);
@@ -226,7 +234,7 @@ classdef GPF < SampleBasedGaussianFilter
             obj.stateCov     = updatedStateCov;
             obj.stateCovSqrt = covSqrt;
         end
-     	
+        
         function particles = getStateParticles(obj)
             % Generate Gaussian random samples
             particles = Utils.drawGaussianRndSamples(obj.stateMean, ...
