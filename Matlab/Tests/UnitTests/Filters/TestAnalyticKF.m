@@ -1,6 +1,6 @@
 
-classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
-    % Provides unit tests for the MixedNoiseMeasurementModel class.
+classdef TestAnalyticKF < matlab.unittest.TestCase
+    % Provides unit tests for the AnalyticKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -28,34 +28,49 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSimulateDefaultNumMeasurements(obj)
-        	measModel = MixedNoiseMeasModel();
-            measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
-            measModel.setNoise(Uniform([0 0 0], [1 1 1]));
+        function testConstructorDefault(obj)
+            f = AnalyticKF();
             
-            detMeas = measModel.measMatrix * TestUtilsMixedNoiseMeasurementModel.initMean;
-            
-            measurements = measModel.simulate(TestUtilsMixedNoiseMeasurementModel.initMean);
-            
-            obj.verifyEqual(size(measurements), [3 1]);
-            obj.verifyGreaterThanOrEqual(measurements, detMeas);
-            obj.verifyLessThanOrEqual(measurements, detMeas + 2);
+            obj.verifyEqual(f.getName(), 'Analytic KF');
         end
         
-        function testSimulate(obj)
-        	measModel = MixedNoiseMeasModel();
-            measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
-            measModel.setNoise(Uniform([0 0 0], [1 1 1]));
+        function testPredictLinearSysModel(obj)
+            f   = AnalyticKF();
+            tol = sqrt(eps);
             
-            detMeas = measModel.measMatrix * TestUtilsMixedNoiseMeasurementModel.initMean;
+            TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
+        end
+        
+        function testUpdateLinearMeasModel(obj)
+            f   = AnalyticKF();
+            tol = sqrt(eps);
             
-            n = 3;
+            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 1);
+        end
+        
+        function testUpdateLinearMeasModelMultiIter(obj)
+            f   = AnalyticKF();
+            tol = sqrt(eps);
             
-            measurements = measModel.simulate(TestUtilsMixedNoiseMeasurementModel.initMean, n);
+            f.setMaxNumIterations(3);
             
-            obj.verifyEqual(size(measurements), [3 n]);
-            obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
-            obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 2);
+            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 3);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeas(obj)
+            f   = AnalyticKF();
+            tol = sqrt(eps);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeasMultiIter(obj)
+            f   = AnalyticKF();
+            tol = sqrt(eps);
+            
+            f.setMaxNumIterations(3);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
         end
     end
 end

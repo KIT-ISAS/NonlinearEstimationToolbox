@@ -1,6 +1,6 @@
 
-classdef TestSIRPF < matlab.unittest.TestCase
-    % Provides unit tests for the SIRPF class.
+classdef TestGPF < matlab.unittest.TestCase
+    % Provides unit tests for the GPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -29,14 +29,15 @@ classdef TestSIRPF < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorDefault(obj)
-            f = SIRPF();
+            f = GPF();
             
-            obj.verifyEqual(f.getName(), 'SIR-PF');
+            obj.verifyEqual(f.getName(), 'GPF');
+            obj.verifyEqual(f.getNumParticles(), 1000);
         end
         
         
         function testPredictLinearSysModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -45,7 +46,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testPredictAddNoiseSysModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -54,7 +55,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testPredictSysModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -63,7 +64,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testPredictMixedNoisSysModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -73,7 +74,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -82,7 +83,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -92,7 +93,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = SIRPF();
+            f   = GPF();
             tol = 5 * 1e-2;
             
             f.setNumParticles(5000000);

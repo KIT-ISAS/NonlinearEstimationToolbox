@@ -1,6 +1,6 @@
 
-classdef TestSIRPF < matlab.unittest.TestCase
-    % Provides unit tests for the SIRPF class.
+classdef TestPGF < matlab.unittest.TestCase
+    % Provides unit tests for the PGF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -29,84 +29,85 @@ classdef TestSIRPF < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorDefault(obj)
-            f = SIRPF();
+            f = PGF();
             
-            obj.verifyEqual(f.getName(), 'SIR-PF');
+            obj.verifyEqual(f.getName(), 'PGF');
+            obj.verifyEqual(f.getMaxNumProgSteps(), 0);
         end
         
         
         function testPredictLinearSysModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = PGF();
+            tol = sqrt(eps);
             
-            f.setNumParticles(5000000);
-          	
             TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictAddNoiseSysModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
+            f   = PGF();
+            tol = sqrt(eps);
             
             TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictSysModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
+            f   = PGF();
+            tol = sqrt(eps);
             
             TestUtilsSystemModel.checkPrediction(obj,f, tol);
         end
         
         function testPredictMixedNoisSysModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
+            f   = PGF();
+            tol = sqrt(eps);
             
             TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
         end
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = PGF();
+            tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setNumSamples(201);
             
             TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
         
         function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = PGF();
+            tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setNumSamples(201);
             
             TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
         
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = SIRPF();
+            f   = PGF();
             tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setNumSamples(201);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = SIRPF();
+            f   = PGF();
             tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setNumSamples(201);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
     end
 end

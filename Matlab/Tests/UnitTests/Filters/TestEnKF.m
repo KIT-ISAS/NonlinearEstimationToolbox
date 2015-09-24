@@ -1,6 +1,6 @@
 
-classdef TestSIRPF < matlab.unittest.TestCase
-    % Provides unit tests for the SIRPF class.
+classdef TestEnKF < matlab.unittest.TestCase
+    % Provides unit tests for the EnKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -29,84 +29,128 @@ classdef TestSIRPF < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorDefault(obj)
-            f = SIRPF();
+            f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'SIR-PF');
+            obj.verifyEqual(f.getName(), 'EnKF');
         end
         
         
         function testPredictLinearSysModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
-          	
+            f.setEnsembleSize(1000000);
+            
             TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictAddNoiseSysModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
-            f.setNumParticles(1000000);
+            f.setEnsembleSize(1000000);
             
             TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictSysModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
-            f.setNumParticles(1000000);
+            f.setEnsembleSize(1000000);
             
-            TestUtilsSystemModel.checkPrediction(obj,f, tol);
+            TestUtilsSystemModel.checkPrediction(obj, f, tol);
         end
         
-        function testPredictMixedNoisSysModel(obj)
-            f   = SIRPF();
+        function testPredictMixedNoiseSysModel(obj)
+            f   = obj.initFilter();
             tol = 1e-2;
             
-            f.setNumParticles(1000000);
+            f.setEnsembleSize(1000000);
             
             TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
         end
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setEnsembleSize(5000000);
             
             TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
         end
-        
+
         function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = SIRPF();
-            tol = 1e-2;
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setEnsembleSize(5000000);
             
             TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
         end
         
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setEnsembleSize(5000000);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
-            f.setNumParticles(5000000);
+            f.setEnsembleSize(5000000);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+        
+        
+        function testUpdateMeasModel(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setEnsembleSize(5000000);
+            
+            TestUtilsMeasurementModel.checkUpdate(obj, f, tol);
+        end
+        
+        function testUpdateMeasModelMultiMeas(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setEnsembleSize(5000000);
+            
+            TestUtilsMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+        
+        
+        function testUpdateMixedNoiseMeasModel(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setEnsembleSize(5000000);
+            
+            TestUtilsMixedNoiseMeasurementModel.checkUpdate(obj, f, tol);
+        end
+        
+        function testUpdateMixedNoiseMeasModelMultiMeas(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setEnsembleSize(5000000);
+                      
+            TestUtilsMixedNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+    end
+    
+    methods (Access = 'private')
+        function f = initFilter(~)
+            f = EnKF();
         end
     end
 end

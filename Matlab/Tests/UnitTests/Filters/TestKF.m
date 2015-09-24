@@ -1,6 +1,6 @@
 
-classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
-    % Provides unit tests for the MixedNoiseSystemModel class.
+classdef TestKF < matlab.unittest.TestCase
+    % Provides unit tests for the KF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -28,18 +28,24 @@ classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSimulate(obj)
-        	sysModel = MixedNoiseSysModel();
-            sysModel.setAdditiveNoise(Uniform([0 0], [1 1]));
-            sysModel.setNoise(Uniform([0 0], [1 1]));
+        function testConstructor(obj)
+            f = KFStub();
             
-            detSimState = sysModel.sysMatrix * TestUtilsMixedNoiseSystemModel.initMean;
+            obj.verifyEqual(f.getName(), 'KFStub');
+            obj.verifyEqual(f.getMaxNumIterations(), 1);
+            obj.verifyEqual(f.getMeasValidationThreshold(), 1);
             
-            simState = sysModel.simulate(TestUtilsMixedNoiseSystemModel.initMean);
+            [measurement, ...
+             measMean, ...
+             measCov, ...
+             stateMeasCrossCov, ...
+             numIterations] = f.getLastUpdateData();
             
-            obj.verifyEqual(size(simState), [2 1]);
-            obj.verifyGreaterThanOrEqual(simState, detSimState);
-            obj.verifyLessThanOrEqual(simState, detSimState + 2);
+            obj.verifyEmpty(measurement);
+            obj.verifyEmpty(measMean);
+            obj.verifyEmpty(measCov);
+            obj.verifyEmpty(stateMeasCrossCov);
+            obj.verifyEqual(numIterations, 0);
         end
     end
 end

@@ -1,6 +1,6 @@
 
-classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
-    % Provides unit tests for the MixedNoiseSystemModel class.
+classdef TestUtilsAdditiveNoiseSystemModel
+    % Provides test utilities for the AdditiveNoiseSystemModel class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -27,19 +27,36 @@ classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods (Test)
-        function testSimulate(obj)
-        	sysModel = MixedNoiseSysModel();
-            sysModel.setAdditiveNoise(Uniform([0 0], [1 1]));
-            sysModel.setNoise(Uniform([0 0], [1 1]));
+    methods (Static)
+        function checkPrediction(test, f, tol)
+            if nargin < 3
+                tol = sqrt(eps);
+            end
             
-            detSimState = sysModel.sysMatrix * TestUtilsMixedNoiseSystemModel.initMean;
+        	sysModel = AddNoiseSysModel();
+            sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
             
-            simState = sysModel.simulate(TestUtilsMixedNoiseSystemModel.initMean);
+            mat                   = sysModel.sysMatrix;
+            [noiseMean, noiseCov] = TestUtilsAdditiveNoiseSystemModel.sysNoise.getMeanAndCovariance();
             
-            obj.verifyEqual(size(simState), [2 1]);
-            obj.verifyGreaterThanOrEqual(simState, detSimState);
-            obj.verifyLessThanOrEqual(simState, detSimState + 2);
+            trueMean = mat * TestUtilsAdditiveNoiseSystemModel.initMean + noiseMean;
+            trueCov  = mat * TestUtilsAdditiveNoiseSystemModel.initCov * mat' + noiseCov;
+            
+            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
+                                TestUtilsAdditiveNoiseSystemModel.initCov));
+            
+            f.predict(sysModel);
+            
+            [mean, cov] = f.getPointEstimate();
+            
+            test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
+    end
+    
+    properties (Constant)
+        initMean = [0.3 -pi]';
+        initCov  = [0.5 0.1; 0.1 3];
+        sysNoise = Gaussian([2 -1]', [2 -0.5; -0.5 1.3]);
     end
 end

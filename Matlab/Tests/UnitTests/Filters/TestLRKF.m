@@ -1,6 +1,6 @@
 
-classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
-    % Provides unit tests for the MixedNoiseSystemModel class.
+classdef TestLRKF < matlab.unittest.TestCase
+    % Provides unit tests for the LRKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -28,18 +28,11 @@ classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSimulate(obj)
-        	sysModel = MixedNoiseSysModel();
-            sysModel.setAdditiveNoise(Uniform([0 0], [1 1]));
-            sysModel.setNoise(Uniform([0 0], [1 1]));
+        function testConstructor(obj)
+            f = LRKFStub();
             
-            detSimState = sysModel.sysMatrix * TestUtilsMixedNoiseSystemModel.initMean;
-            
-            simState = sysModel.simulate(TestUtilsMixedNoiseSystemModel.initMean);
-            
-            obj.verifyEqual(size(simState), [2 1]);
-            obj.verifyGreaterThanOrEqual(simState, detSimState);
-            obj.verifyLessThanOrEqual(simState, detSimState + 2);
+            obj.verifyEqual(f.getName(), 'LRKFStub');
+            obj.verifyFalse(f.getUseAnalyticMeasurementModel());
         end
     end
 end

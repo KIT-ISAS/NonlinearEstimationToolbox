@@ -32,108 +32,13 @@ classdef TestAdditiveNoiseSystemModel < matlab.unittest.TestCase
             sysModel = AddNoiseSysModel();
             sysModel.setNoise(Uniform([0 0], [1 1]));
             
-            detSimState = sysModel.sysMatrix * obj.initMean;
+            detSimState = sysModel.sysMatrix * TestUtilsAdditiveNoiseSystemModel.initMean;
             
-            simState = sysModel.simulate(obj.initMean);
+            simState = sysModel.simulate(TestUtilsAdditiveNoiseSystemModel.initMean);
             
             obj.verifyEqual(size(simState), [2 1]);
             obj.verifyGreaterThanOrEqual(simState, detSimState);
             obj.verifyLessThanOrEqual(simState, detSimState + 1);
         end
-        
-        function testEKF(obj)
-            f = EKF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testCKF(obj)
-            f = CKF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testGHKF(obj)
-            f = GHKF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testRUKF(obj)
-            f = RUKF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testS2KF(obj)
-            f = S2KF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testUKF(obj)
-            f = UKF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function PGF(obj)
-            f = PGF();
-            
-            obj.checkPrediction(f);
-        end
-        
-        function testEnKF(obj)
-            f = EnKF();
-            f.setEnsembleSize(1000000);
-            
-            obj.checkPrediction(f, 1e-2);
-        end
-        
-        function testGPF(obj)
-            f = GPF();
-            f.setNumParticles(1000000);
-            
-            obj.checkPrediction(f, 1e-2);
-        end
-        
-        function testSIRPF(obj)
-            f = SIRPF();
-            f.setNumParticles(1000000);
-            
-            obj.checkPrediction(f, 1e-2);
-        end
-    end
-    
-    methods (Access = 'private')
-        function checkPrediction(obj, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
-        	sysModel = AddNoiseSysModel();
-            sysModel.setNoise(obj.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = obj.sysNoise.getMeanAndCovariance();
-            
-            trueMean = mat * obj.initMean + noiseMean;
-            trueCov  = mat * obj.initCov * mat' + noiseCov;
-            
-            f.setState(Gaussian(obj.initMean, obj.initCov));
-            
-            f.predict(sysModel);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            obj.verifyEqual(mean, trueMean, 'RelTol', tol);
-            obj.verifyEqual(cov, trueCov, 'RelTol', tol);
-        end
-    end
-    
-    properties (Constant)
-        initMean = [0.3 -pi]';
-        initCov  = [0.5 0.1; 0.1 3];
-        sysNoise = Gaussian([2 -1]', [2 -0.5; -0.5 1.3]);
     end
 end
