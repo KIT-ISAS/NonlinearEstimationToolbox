@@ -151,7 +151,7 @@ classdef PGF < SampleBasedGaussianFilter
             % Set the maximum number of allowed progression steps.
             %
             % If a measurement update exceeds the maximum number of allowed
-            % progression steps, the progression will be stopped an the 
+            % progression steps, the progression will be stopped and the
             % current intermediate Gaussian distribution will be set as the
             % posterior state estimate. This can be interpreted as not the
             % entire information of the given measurements were processed.
