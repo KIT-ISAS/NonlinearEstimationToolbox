@@ -264,17 +264,17 @@ classdef EnKF < Filter
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
-        	measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
+            % Propagate ensemble through measurement equation
+            meas = measModel.measurementEquation(obj.ensemble);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
+            
+            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
             a = 1;
             
             for i = 1:numMeas
                 b = i * dimMeas;
-                
-                % Propagate ensemble through measurement equation
-                meas = measModel.measurementEquation(obj.ensemble);
-                
-                % Check computed measurements
-                obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
                 
                 % Sample additive measurement noise
                 addNoiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
