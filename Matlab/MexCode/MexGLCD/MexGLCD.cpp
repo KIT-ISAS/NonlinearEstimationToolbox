@@ -168,7 +168,7 @@ void mexFunction(int numOutputs, mxArray *outputs[],
             const bool symmetric = *mxGetLogicals(inputs[2]);
             
             computation.setSymmetric(symmetric);
-	    }
+        }
         
         /* bMax */
         if (numInputs >= 4) {
