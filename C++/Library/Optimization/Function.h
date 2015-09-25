@@ -44,11 +44,11 @@ class ApproxDerivative {
         
         virtual ~ApproxDerivative() { }
         
-        void operator()(const Eigen::VectorXd&	parameters,
+        void operator()(const Eigen::VectorXd&  parameters,
                         double&                 funcValue,
                         Eigen::VectorXd&        gradient) {
             const Eigen::VectorXd::Index numParameters = parameters.size();
-        	const double epsilon    = std::sqrt(DBL_EPSILON);
+            const double epsilon    = std::sqrt(DBL_EPSILON);
             const double invEpsilon = 1.0 / epsilon;
             funcValue = objectiveFunction(parameters);
             

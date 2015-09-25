@@ -45,7 +45,7 @@ class LineSearch {
         
         virtual bool search(Function&               function,
                             const Eigen::VectorXd&  lastParameters, 
-                            const Eigen::VectorXd& 	lastGradient,
+                            const Eigen::VectorXd&  lastGradient,
                             const Eigen::VectorXd&  direction,
                             Eigen::VectorXd&        parameters,
                             double&                 funcValue,
@@ -100,7 +100,7 @@ class LineSearchNocedal : public LineSearch {
                   double&          funcValue,
                   Eigen::VectorXd& gradient,
                   double&          stepLength);
-    	
+        
         inline double evaluate(double           stepLength,
                                Eigen::VectorXd& parameters,
                                double&          funcValue,
@@ -122,7 +122,7 @@ class LineSearchNocedal : public LineSearch {
         
         inline bool checkWolfe(double gradDotDir) const {
             // Check the Wolfe condition (curvature condition).
-           	return gradDotDir >= testWolfe;
+            return gradDotDir >= testWolfe;
         }
         
     private:
@@ -131,13 +131,13 @@ class LineSearchNocedal : public LineSearch {
         double                  wolfeCoeff;
         
         Function*               function;
-        const Eigen::VectorXd*	initParameters;
-        const Eigen::VectorXd*	direction;        
+        const Eigen::VectorXd*  initParameters;
+        const Eigen::VectorXd*  direction;        
         double                  initFuncValue;
         unsigned int            numIterations;
         double                  testArmijo;
         double                  testWolfe;
-    	
+        
 };
 
 }   // namespace Optimization

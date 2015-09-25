@@ -36,7 +36,7 @@ namespace GLCD {
 
 MCvMDistance::MCvMDistance(unsigned int d) :
     dim        (d),
- 	halfDim    (d * 0.5),
+    halfDim    (d * 0.5),
     quadrature (1000)
 {
     quadrature.setAbsTol(0);

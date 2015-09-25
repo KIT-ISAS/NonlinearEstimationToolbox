@@ -49,7 +49,7 @@ void BFGS::operator()(const Function&           function,
     QuasiNewton::operator()(function, initialParameters, result);
 }
 
-void BFGS::initialDirection(const Eigen::VectorXd&	gradient,
+void BFGS::initialDirection(const Eigen::VectorXd&  gradient,
                             Eigen::VectorXd&        direction)
 {
     // Compute initial hessian H_0 = 1 / ||gradient|| * I

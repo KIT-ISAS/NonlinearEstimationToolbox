@@ -33,7 +33,7 @@ namespace GLCD {
 
 MCvMDistanceSymEven::MCvMDistanceSymEven(unsigned int d,
                                          unsigned int n) :
-	MCvMDistanceSym (d, n, 1.0 / (2.0 * n))
+    MCvMDistanceSym (d, n, 1.0 / (2.0 * n))
 {
 
 }

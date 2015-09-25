@@ -41,16 +41,16 @@ class BFGS : public QuasiNewton {
         void operator()(const Function&         function,
                         const Eigen::VectorXd&  initialParameters,
                         Result&                 result) override;
-      	
+        
     private:
-        void initialDirection(const Eigen::VectorXd&	gradient,
+        void initialDirection(const Eigen::VectorXd&    gradient,
                               Eigen::VectorXd&          direction);
         
         void updateDirection(const Eigen::VectorXd&     parameters,
                              const Eigen::VectorXd&     gradient,
                              const Eigen::VectorXd&     lastParameters,
                              const Eigen::VectorXd&     lastGradient,
-                             unsigned int              	numIterations,
+                             unsigned int               numIterations,
                              Eigen::VectorXd&           direction);
         
     private:

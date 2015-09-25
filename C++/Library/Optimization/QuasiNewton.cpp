@@ -174,7 +174,7 @@ void QuasiNewton::operator()(const Function&        function,
         updateDirection(parameters, gradient,
                         lastParameters, lastGradient,
                         numIterations, direction);
-	}
+    }
 }
 
 void QuasiNewton::setLineSearch(LineSearch::Ptr lineSearch)

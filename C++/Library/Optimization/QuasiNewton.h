@@ -78,14 +78,14 @@ class QuasiNewton {
         virtual void initialDirection(const Eigen::VectorXd&    gradient,
                                       Eigen::VectorXd&          direction) = 0;
         
-        virtual void updateDirection(const Eigen::VectorXd&	parameters,
+        virtual void updateDirection(const Eigen::VectorXd& parameters,
                                      const Eigen::VectorXd& gradient,
                                      const Eigen::VectorXd& lastParameters,
                                      const Eigen::VectorXd& lastGradient,
                                      unsigned int           numIterations,
                                      Eigen::VectorXd&       direction) = 0;
         
-        void evaluateObjectiveFunction(const Eigen::VectorXd&	parameters,
+        void evaluateObjectiveFunction(const Eigen::VectorXd&   parameters,
                                        double&                  funcValue,
                                        Eigen::VectorXd&         gradient);
         
