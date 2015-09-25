@@ -178,7 +178,7 @@ classdef S2KF < LRKF
             %
             % Parameters:
             %   >> useSymmetric (Logcial scalar)
-     	    %      If true, the symmetric Gaussian LCD sampling scheme is used.
+            %      If true, the symmetric Gaussian LCD sampling scheme is used.
             %      Otherwise, the asymmetric one is used.
             
             obj.samplingPrediction.setSymmetricMode(useSymmetric);

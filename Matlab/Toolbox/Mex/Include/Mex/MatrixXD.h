@@ -191,9 +191,9 @@ class ConstMatrixXD {
             
             const int64_t offset = reqSlice.head(sliceOffsets.size()).dot(sliceOffsets);
             
-        	const Scalar* sliceData = &matData[offset];
+            const Scalar* sliceData = &matData[offset];
             
-        	return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
+            return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -203,9 +203,9 @@ class ConstMatrixXD {
             mxAssert(element < numElements && element >= 0,
                      "Requested slice is out of range");
             
-        	const Scalar* sliceData = &matData[element];
+            const Scalar* sliceData = &matData[element];
             
-        	return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
+            return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -269,8 +269,8 @@ class ConstMatrixXD {
         Dimensions          sliceOffsets;
         Dimensions          sliceMins;
         Dimensions          sliceMaxs;
-        int64_t           	numElements;
-        int64_t           	sliceSize;
+        int64_t             numElements;
+        int64_t             sliceSize;
         
 };
 
@@ -281,20 +281,20 @@ class MatrixBaseXD {
         using ConstSliceBase = Eigen::Map<const Eigen::Matrix<Scalar, r, c>, 
                                           ForceAlign ? Eigen::Aligned : isEigenAligned>;
         
-     	typedef ConstSliceBase<false> ConstSlice;
+        typedef ConstSliceBase<false> ConstSlice;
         
         template<bool ForceAlign> 
         using SliceBase = Eigen::Map<Eigen::Matrix<Scalar, r, c>, 
                                      ForceAlign ? Eigen::Aligned : isEigenAligned>;
         
-     	typedef SliceBase<false> Slice;
+        typedef SliceBase<false> Slice;
         
     public:
         // Usage: MatrixBaseXD mat{3, 4, 5, 6, 7};
         MatrixBaseXD(std::initializer_list<int64_t> reqDims) :
             dimensions(createDims(reqDims)) {
             Utils::checkRows<r>(rows());
-           	Utils::checkCols<c>(cols());
+            Utils::checkCols<c>(cols());
             
             createData();
         }
@@ -302,7 +302,7 @@ class MatrixBaseXD {
         MatrixBaseXD(const Dimensions& reqDims) :
             dimensions(createDims(reqDims)) {
             Utils::checkRows<r>(rows());
-           	Utils::checkCols<c>(cols());
+            Utils::checkCols<c>(cols());
             
             createData();
         }
@@ -312,10 +312,10 @@ class MatrixBaseXD {
                      const Dimensions& reqSliceDims) :
             dimensions(createDims(numRows, numCols, reqSliceDims)) {
             Utils::checkRows<r>(rows());
-           	Utils::checkCols<c>(cols());
+            Utils::checkCols<c>(cols());
             
             createData();
-     	}
+        }
         
         MatrixBaseXD(mxArray* array) :
             mxData(array),
@@ -379,9 +379,9 @@ class MatrixBaseXD {
             
             const int64_t offset = reqSlice.head(sliceOffsets.size()).dot(sliceOffsets);
             
-        	Scalar* sliceData = &matData[offset];
+            Scalar* sliceData = &matData[offset];
             
-        	return SliceBase<ForceAlign>(sliceData, rows(), cols());
+            return SliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -393,7 +393,7 @@ class MatrixBaseXD {
             
             Scalar* sliceData = &matData[element];
             
-        	return SliceBase<ForceAlign>(sliceData, rows(), cols());
+            return SliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -403,9 +403,9 @@ class MatrixBaseXD {
             
             const int64_t offset = reqSlice.head(sliceOffsets.size()).dot(sliceOffsets);
             
-        	const Scalar* sliceData = &matData[offset];
+            const Scalar* sliceData = &matData[offset];
             
-        	return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
+            return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -415,9 +415,9 @@ class MatrixBaseXD {
             mxAssert(element < numElements && element >= 0,
                      "Requested slice is out of range");
             
-        	const Scalar* sliceData = &matData[element];
+            const Scalar* sliceData = &matData[element];
             
-        	return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
+            return ConstSliceBase<ForceAlign>(sliceData, rows(), cols());
         }
         
         template<bool ForceAlign = false>
@@ -465,7 +465,7 @@ class MatrixBaseXD {
             return mxData;
         }
         
-       	operator const mxArray*() const {
+        operator const mxArray*() const {
             return mxData;
         }
         
@@ -554,8 +554,8 @@ class MatrixBaseXD {
         Dimensions      sliceOffsets;
         Dimensions      sliceMins;
         Dimensions      sliceMaxs;
-        int64_t      	numElements;
-        int64_t       	sliceSize;
+        int64_t         numElements;
+        int64_t         sliceSize;
         
 };
 
@@ -582,7 +582,7 @@ typedef ConstMatrixXDX<>        ConstMatrixXDXd;
 
 typedef MatrixXDX<>             MatrixXDXd;
 
-typedef OutputMatrixXDX<>    	OutputMatrixXDXd;
+typedef OutputMatrixXDX<>       OutputMatrixXDXd;
 
 }   // namespace Mex
 

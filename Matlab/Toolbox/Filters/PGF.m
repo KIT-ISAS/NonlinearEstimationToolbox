@@ -298,7 +298,7 @@ classdef PGF < SampleBasedGaussianFilter
                 
                 % Increment gamma
                 gamma = gamma + deltaGamma;
-            	
+                
                 % Increment step counter
                 numSteps = numSteps + 1;
             end

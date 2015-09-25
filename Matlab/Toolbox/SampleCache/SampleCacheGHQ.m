@@ -136,7 +136,7 @@ classdef SampleCacheGHQ < SampleCache
     
     methods (Static, Access = 'private')
         function cartProd = cartesianProduct(data, dim)
-         	g = cell(dim, 1);
+            g = cell(dim, 1);
             
             [g{:}] = ndgrid(data);
             

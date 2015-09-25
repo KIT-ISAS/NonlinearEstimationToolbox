@@ -330,7 +330,7 @@ classdef Utils
             
             idx = zeros(1, numSamples);
             
-        	u1 = rand(1);
+            u1 = rand(1);
             
             i = 1;
             

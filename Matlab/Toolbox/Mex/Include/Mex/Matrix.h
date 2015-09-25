@@ -49,7 +49,7 @@ class ConstMatrix : public Eigen::Map<const Eigen::Matrix<Scalar, r, c>, Eigen::
                       mxGetM(array),
                       mxGetN(array)),
             mxData(array) { }
-      	
+        
         void print() const {
             std::cout << *this << std::endl << std::endl;
         }
@@ -81,12 +81,12 @@ class MatrixBase : public Eigen::Map<Eigen::Matrix<Scalar, r, c>, Eigen::Aligned
             BaseClass(createMxArray(),
                       r,
                       c) { }
-      	
+        
         MatrixBase(Index dim) :
             BaseClass(createVectorMxArray(dim),
                       r == Eigen::Dynamic ? dim : r,
                       c == Eigen::Dynamic ? dim : c) { }
-    	
+        
         MatrixBase(Index numRows,
                    Index numCols) :
             BaseClass(createMxArray(numRows, numCols),
@@ -98,14 +98,14 @@ class MatrixBase : public Eigen::Map<Eigen::Matrix<Scalar, r, c>, Eigen::Aligned
                       mxGetM(array),
                       mxGetN(array)),
             mxData(array) { }
-      	
+        
         MatrixBase(const MatrixBase& mat) :
             BaseClass(createMxArray(mat.rows(), mat.cols()),
                       mat.rows(),
                       mat.cols()) {
             BaseClass::operator=(mat);
         }
-     	
+        
         template<typename Derived>
         MatrixBase(const Eigen::MatrixBase<Derived>& mat) :
             BaseClass(createMxArray(mat.rows(), mat.cols()),
@@ -258,11 +258,11 @@ typedef OutputMatrixX<>     OutputMatrixXd;
 
 typedef ConstVectorX<>      ConstVectorXd;
 typedef VectorX<>           VectorXd;
-typedef OutputVectorX<> 	OutputVectorXd;
+typedef OutputVectorX<>     OutputVectorXd;
 
 typedef ConstRowVectorX<>   ConstRowVectorXd;
 typedef RowVectorX<>        RowVectorXd;
-typedef OutputRowVectorX<>	OutputRowVectorXd;
+typedef OutputRowVectorX<>  OutputRowVectorXd;
 
 }   // namespace Mex
 

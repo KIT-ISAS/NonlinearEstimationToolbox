@@ -49,12 +49,12 @@ classdef GaussianMixture < Distribution
             %      Slice-wise arranged covariance matrices of the Gaussian mixture components.
             %      Default: 1.
             %
-        	%   >> weights (Row vector)
+            %   >> weights (Row vector)
             %      Row-wise arranged weights of the Gaussian mixture components.
             %      Default: All Gaussian mixture components are equally weighted.
             
             if nargin == 3
-              	obj.set(means, covariances, weights);
+                obj.set(means, covariances, weights);
             elseif nargin == 2
                 obj.set(means, covariances);
             else
@@ -139,7 +139,7 @@ classdef GaussianMixture < Distribution
                     rndSamples(:, a:b) = Utils.drawGaussianRndSamples(obj.means(:, i), ...
                                                                       obj.covSqrts(:, :, i), ...
                                                                       numCompSamples);
-                  	
+                    
                     a = b + 1;
                 end
             end
@@ -198,7 +198,7 @@ classdef GaussianMixture < Distribution
             %   << covariances (3D matrix containing positive definite matrices)
             %      Slice-wise arranged covariance matrices of the Gaussian mixture components.
             %
-        	%   << weights (Row vector)
+            %   << weights (Row vector)
             %      Row-wise arranged weights of the Gaussian mixture components.
             
             means       = obj.means;

@@ -122,9 +122,9 @@ classdef MixedNoiseMeasurementModel < handle
             end
             
             addNoiseSamples = obj.additiveNoise.drawRndSamples(numMeasurements);
-         	noiseSamples    = obj.noise.drawRndSamples(numMeasurements);
+            noiseSamples    = obj.noise.drawRndSamples(numMeasurements);
             
-        	measurements = obj.measurementEquation(repmat(state, 1, numMeasurements), noiseSamples);
+            measurements = obj.measurementEquation(repmat(state, 1, numMeasurements), noiseSamples);
             measurements = measurements + addNoiseSamples;
         end
     end

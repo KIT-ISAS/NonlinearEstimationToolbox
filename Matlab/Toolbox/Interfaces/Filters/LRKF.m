@@ -133,7 +133,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
             %      update will be performed.
             
             if ~Checks.isFlag(useAnalyticMeasModel)
-            	obj.error('InvalidFlag', ...
+                obj.error('InvalidFlag', ...
                           'useAnalyticMeasModel must be a logical scalar.');
             end
             
@@ -187,8 +187,8 @@ classdef LRKF < KF & SampleBasedGaussianFilter
             end
         end
         
-     	function updateArbitraryNoise(obj, measModel, measurements)
-          	[dimMeas, numMeas]           = size(measurements);
+        function updateArbitraryNoise(obj, measModel, measurements)
+            [dimMeas, numMeas]           = size(measurements);
             [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
             dimNoise     = size(noiseMean, 1);
             noiseMean    = repmat(noiseMean, numMeas, 1);
@@ -199,7 +199,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
                              dimNoise, dimMeas, numMeas, noiseMean, noiseCovSqrt);
         end
         
-     	function updateAdditiveNoise(obj, measModel, measurements)
+        function updateAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
@@ -238,7 +238,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
                                                       iterStateMean, iterStateCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-        	measSamples = nan(dimMeas * numMeas, numSamples);
+            measSamples = nan(dimMeas * numMeas, numSamples);
             a = 1; c = 1;
             
             for i = 1:numMeas
@@ -313,7 +313,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
                                                       iterStateMean, iterStateCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-        	measSamples = nan(dimMeas * numMeas, numSamples);
+            measSamples = nan(dimMeas * numMeas, numSamples);
             a = 1; c = 1;
             
             for i = 1:numMeas
@@ -335,7 +335,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterStateMean, stateSamples, ...
                                                               measSamples, weights);
-        	
+            
             % Compute measurement mean
             measMean = measMean + repmat(addNoiseMean, numMeas, 1);
             

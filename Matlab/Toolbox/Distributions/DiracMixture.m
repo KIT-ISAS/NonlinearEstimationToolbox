@@ -69,8 +69,8 @@ classdef DiracMixture < Distribution
                 [obj.mean, obj.covariance] = Utils.getMeanAndCov(obj.samples, obj.weights);
             end
             
-           	mean       = obj.mean;
-           	covariance = obj.covariance;
+            mean       = obj.mean;
+            covariance = obj.covariance;
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
@@ -116,7 +116,7 @@ classdef DiracMixture < Distribution
             %   << samples (Matrix)
             %      Column-wise arranged sample positions.
             %
-        	%   << weights (Row vector)
+            %   << weights (Row vector)
             %      Row-wise arranged weights of the samples.
             
             samples = obj.samples;

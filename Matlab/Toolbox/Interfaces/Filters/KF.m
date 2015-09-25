@@ -210,7 +210,7 @@ classdef KF < GaussianFilter
                 try
                     [iterStateMean, iterStateCov] = Utils.kalmanUpdate(obj.stateMean, obj.stateCov, stackedMeas, ...
                                                                        measMean, measCov, stateMeasCrossCov);
-                 	
+                    
                     % Check intermediate state covariance is valid
                     [isPosDef, iterStateCovSqrt] = Checks.isCov(iterStateCov);
                     
@@ -287,7 +287,7 @@ classdef KF < GaussianFilter
                                         measCov, ...
                                         stateMeasCrossCov, ...
                                         dimStackedMeas);
-        	
+            
             if iterNum > 1
                 [measMean, measCov, ...
                  stateMeasCrossCov] = obj.momentCorrection(iterStateMean, iterStateCov, ...

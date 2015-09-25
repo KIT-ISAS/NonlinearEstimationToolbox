@@ -85,7 +85,7 @@ classdef SampleBasedGaussianFilter < GaussianFilter
             %      will be performed.
             
             if ~Checks.isFlag(useAnalyticSysModel)
-            	obj.error('InvalidFlag', ...
+                obj.error('InvalidFlag', ...
                           'useAnalyticSysModel must be a logical scalar.');
             end
             
@@ -127,7 +127,7 @@ classdef SampleBasedGaussianFilter < GaussianFilter
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
                 obj.predictMixedNoise(sysModel);
             else
-            	obj.errorSysModel('AnalyticSystemModel (if enabled, see setUseAnalyticSystemModel())', ...
+                obj.errorSysModel('AnalyticSystemModel (if enabled, see setUseAnalyticSystemModel())', ...
                                   'LinearSystemModel', ...
                                   'SystemModel', ...
                                   'AdditiveNoiseSystemModel', ...
@@ -184,7 +184,7 @@ classdef SampleBasedGaussianFilter < GaussianFilter
             
             % Compute predicted state covariance
             predictedStateCov = cov + addNoiseCov;
-          	
+            
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
@@ -199,7 +199,7 @@ classdef SampleBasedGaussianFilter < GaussianFilter
              numSamples] = Utils.getStateNoiseSamples(sampling, ...
                                                       obj.stateMean, obj.stateCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
-          	
+            
             % Propagate samples through system equation
             predictedStates = sysModel.systemEquation(stateSamples, noiseSamples);
             

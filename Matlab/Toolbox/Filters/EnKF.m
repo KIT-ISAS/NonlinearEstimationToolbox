@@ -53,7 +53,7 @@ classdef EnKF < Filter
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-	methods
+    methods
         function obj = EnKF(name)
             % Class constructor.
             %
@@ -83,7 +83,7 @@ classdef EnKF < Filter
             
             obj.setEnsembleSize(1000);
         end
-		
+        
         function setEnsembleSize(obj, ensembleSize)
             % Set the size of the ensemble (i.e., the number of samples).
             % 
@@ -106,7 +106,7 @@ classdef EnKF < Filter
                 obj.resample(ensembleSize);
             end
         end
-		
+        
         function ensembleSize = getEnsembleSize(obj)
             % Get the current ensemble size of the filter.
             %
@@ -170,11 +170,11 @@ classdef EnKF < Filter
             noise = sysModel.noise.drawRndSamples(obj.ensembleSize);
             
             % Propagate ensemble and noise through system equation 
-           	predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
+            predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
             
             % Check predicted ensemble
             obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-         	
+            
             % Save new state estimate
             obj.ensemble = predictedEnsemble;
         end
@@ -182,7 +182,7 @@ classdef EnKF < Filter
         function predictAdditiveNoise(obj, sysModel)
             % Sample additive system noise
             noise = sysModel.noise.drawRndSamples(obj.ensembleSize);
-         	
+            
             dimNoise = size(noise, 1);
             
             obj.checkAdditiveSysNoise(dimNoise);
@@ -192,7 +192,7 @@ classdef EnKF < Filter
             
             % Check predicted ensemble
             obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-         	
+            
             % Save new state estimate
             obj.ensemble = predictedEnsemble + noise;
         end
@@ -209,11 +209,11 @@ classdef EnKF < Filter
             obj.checkAdditiveSysNoise(dimAddNoise);
             
             % Propagate ensemble and noise through system equation 
-           	predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
-         	
+            predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
+            
             % Check predicted ensemble
             obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-         	
+            
             % Save new state estimate
             obj.ensemble = predictedEnsemble + addNoise;
         end
@@ -232,10 +232,10 @@ classdef EnKF < Filter
             end
         end
         
-     	function updateArbitraryNoise(obj, measModel, measurements)
+        function updateArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas] = size(measurements);
             
-        	measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
+            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
             a = 1;
             
             for i = 1:numMeas
@@ -293,7 +293,7 @@ classdef EnKF < Filter
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
-        	measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
+            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
             a = 1;
             
             for i = 1:numMeas
@@ -325,7 +325,7 @@ classdef EnKF < Filter
             [~, measCov, ensembleMeasCrossCov] = Utils.getMeanCovAndCrossCov(ensembleMean, ...
                                                                              obj.ensemble, ...
                                                                              measSamples);
-          	
+            
             [~, isNonPosDef] = chol(measCov);
             
             if isNonPosDef

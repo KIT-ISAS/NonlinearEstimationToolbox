@@ -46,5 +46,5 @@ function compileMex(varargin)
     includes   = { ['-I' includeDir] };
     
     % Call MEX compiler
-   	mex(options{:}, includes{:}, varargin{:});
+    mex(options{:}, includes{:}, varargin{:});
 end

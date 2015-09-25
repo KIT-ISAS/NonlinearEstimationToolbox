@@ -101,11 +101,11 @@ classdef SIRPF < PF
             noise = sysModel.noise.drawRndSamples(obj.numParticles);
             
             % Propagate particles and noise through system equation 
-           	predictedParticles = sysModel.systemEquation(obj.particles, noise);
+            predictedParticles = sysModel.systemEquation(obj.particles, noise);
             
             % Check predicted particles
             obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-         	
+            
             % Save new state estimate
             obj.particles = predictedParticles;
         end
@@ -119,11 +119,11 @@ classdef SIRPF < PF
             obj.checkAdditiveSysNoise(dimNoise);
             
             % Propagate particles and noise through system equation 
-           	predictedParticles = sysModel.systemEquation(obj.particles);
+            predictedParticles = sysModel.systemEquation(obj.particles);
             
             % Check predicted particles
             obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-         	
+            
             % Save new state estimate
             obj.particles = predictedParticles + noise;
         end
@@ -140,11 +140,11 @@ classdef SIRPF < PF
             obj.checkAdditiveSysNoise(dimAddNoise);
             
             % Propagate particles and noise through system equation 
-           	predictedParticles = sysModel.systemEquation(obj.particles, noise);
-         	
+            predictedParticles = sysModel.systemEquation(obj.particles, noise);
+            
             % Check predicted particles
             obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-         	
+            
             % Save new state estimate
             obj.particles = predictedParticles + addNoise;
         end
@@ -167,7 +167,7 @@ classdef SIRPF < PF
             % Evaluate logaritmic likelihood
             logValues = measModel.logLikelihood(obj.particles, measurements);
             
-           	obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
+            obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
             
             % Compute likelihohod values
             maxLogValue = max(logValues);

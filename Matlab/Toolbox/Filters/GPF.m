@@ -200,7 +200,7 @@ classdef GPF < SampleBasedGaussianFilter
             % Evaluate logaritmic likelihood
             logValues = measModel.logLikelihood(particles, measurements);
             
-           	obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
+            obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
             
             % Compute likelihohod values
             maxLogValue = max(logValues);

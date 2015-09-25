@@ -163,7 +163,7 @@ classdef JointDistribution < Distribution
             %   << numDists (Scalar)
             %      The number of distributions forming the joint distribution.
             %
-        	%   << dimDists (Row vector)
+            %   << dimDists (Row vector)
             %      Row-wise arranged dimensions of the distributions forming the joint distribution.
             
             dists    = obj.dists;

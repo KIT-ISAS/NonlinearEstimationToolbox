@@ -168,7 +168,7 @@ classdef Filter < handle & matlab.mixin.Copyable
             % Returns:
             %   << runtime (Scalar)
             %      Time needed to perform the measurement update.
-          	
+            
             obj.checkMeasurements(measurements);
             
             if nargout == 1
@@ -297,14 +297,14 @@ classdef Filter < handle & matlab.mixin.Copyable
             reason = sprintf(reason, varargin{:});
             
             obj.warning('IgnoringPrediction', ...
-              		    '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
+                        '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
         end
         
         function warnIgnoreMeas(obj, reason, varargin)
             reason = sprintf(reason, varargin{:});
             
             obj.warning('IgnoringMeasurement', ...
-              		    '%s\nIgnoring measurement and leaving state estimate unchanged.', reason);
+                        '%s\nIgnoring measurement and leaving state estimate unchanged.', reason);
         end
         
         function error(obj, id, msg, varargin)

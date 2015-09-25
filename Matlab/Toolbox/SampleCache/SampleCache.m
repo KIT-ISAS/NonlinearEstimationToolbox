@@ -32,7 +32,7 @@ classdef SampleCache < handle & matlab.mixin.Copyable
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-	methods
+    methods
         function obj = SampleCache(sampleCachePath)
             % Class constructor.
             %
@@ -170,7 +170,7 @@ classdef SampleCache < handle & matlab.mixin.Copyable
                       'numSamples must be a positive scalar.');
             end
             
-        	numSamples = ceil(numSamples);
+            numSamples = ceil(numSamples);
             
             obj.checkDimAndNumSamplesCombination(dimension, numSamples);
         end

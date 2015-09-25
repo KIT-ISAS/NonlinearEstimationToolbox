@@ -95,9 +95,9 @@ classdef EKF < KF
         function predictArbitraryNoise(obj, sysModel)
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
-          	
+            
             % Linearize system model around current state mean and noise mean
-        	[stateJacobian, ...
+            [stateJacobian, ...
              noiseJacobian] = sysModel.derivative(obj.stateMean, noiseMean);
             
             % Check computed derivatives
@@ -121,7 +121,7 @@ classdef EKF < KF
             obj.checkAdditiveSysNoise(dimNoise);
             
             % Linearize system model around current state mean
-        	stateJacobian = sysModel.derivative(obj.stateMean);
+            stateJacobian = sysModel.derivative(obj.stateMean);
             
             % Check computed derivative
             obj.checkStateJacobian(stateJacobian, obj.dimState);
@@ -144,7 +144,7 @@ classdef EKF < KF
             obj.checkAdditiveSysNoise(dimAddNoise);
             
             % Linearize system model around current state mean and noise mean
-        	[stateJacobian, ...
+            [stateJacobian, ...
              noiseJacobian] = sysModel.derivative(obj.stateMean, noiseMean);
             
             % Check computed derivatives
@@ -158,13 +158,13 @@ classdef EKF < KF
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
                                 noiseJacobian * noiseCov * noiseJacobian' + ...
                                 addNoiseCov;
-          	
+            
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
         function performUpdate(obj, measModel, measurements)
             if Checks.isClass(measModel, 'LinearMeasurementModel')
-             	obj.updateAnalytic(measModel, measurements);
+                obj.updateAnalytic(measModel, measurements);
             elseif Checks.isClass(measModel, 'MeasurementModel')
                 obj.updateArbitraryNoise(measModel, measurements);
             elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
@@ -180,7 +180,7 @@ classdef EKF < KF
         end
         
         function updateArbitraryNoise(obj, measModel, measurements)
-           	[dimMeas, numMeas]    = size(measurements);
+            [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
@@ -190,7 +190,7 @@ classdef EKF < KF
         end
         
         function updateAdditiveNoise(obj, measModel, measurements)
-           	[dimMeas, numMeas]    = size(measurements);
+            [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             

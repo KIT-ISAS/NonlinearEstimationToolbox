@@ -126,7 +126,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             %      Otherwise, samples from the sample cache will be used.
             
             if ~Checks.isFlag(onlineMode)
-            	error('GaussianSamplingLCD:InvalidInput', ...
+                error('GaussianSamplingLCD:InvalidInput', ...
                       'onlineMode must be a logical scalar.');
             end
             
@@ -144,11 +144,11 @@ classdef GaussianSamplingLCD < GaussianSampling
             %
             % Parameters:
             %   >> useSymmetric (Logcial scalar)
-     	    %      If true, the symmetric Gaussian LCD sampling scheme is used.
+            %      If true, the symmetric Gaussian LCD sampling scheme is used.
             %      Otherwise, the asymmetric one is used.
             
             if ~Checks.isFlag(useSymmetric)
-            	error('GaussianSamplingLCD:InvalidInput', ...
+                error('GaussianSamplingLCD:InvalidInput', ...
                       'useSymmetric must be a logical scalar.');
             end
             
@@ -169,7 +169,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             
             numSamples = obj.computeNumSamples(dimension);
             
-         	[samples, weights] = obj.computingMethod(dimension, numSamples);
+            [samples, weights] = obj.computingMethod(dimension, numSamples);
         end
     end
     
@@ -229,7 +229,7 @@ classdef GaussianSamplingLCD < GaussianSampling
         % Linear factor to determine the number of samples.
         numSamplesFactor;
         
-     	% If true, the symmetric Gaussian LCD sampling scheme is used.
+        % If true, the symmetric Gaussian LCD sampling scheme is used.
         % Otherwise, the asymmetric one is used.
         useSymmetric;
         
