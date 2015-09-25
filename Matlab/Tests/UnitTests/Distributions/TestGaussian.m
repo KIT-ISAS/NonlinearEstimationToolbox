@@ -88,7 +88,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             
             obj.verifyError(@() Gaussian(mean, 1), ...
                             'Gaussian:InvalidCovariance');
-        	
+            
             obj.verifyError(@() Gaussian(mean, [1.5 -1]), ...
                             'Gaussian:InvalidCovariance');
             
@@ -135,7 +135,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             
             obj.verifyError(@() g.drawRndSamples(-3.4), ...
                             'Gaussian:InvalidNumberOfSamples');
-        	
+            
             obj.verifyError(@() g.drawRndSamples(eye(2)), ...
                             'Gaussian:InvalidNumberOfSamples');
             
@@ -206,7 +206,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             
             obj.verifyError(@() g.logPdf([0.1 -0.5 13.4]), ...
                             'Distribution:InvalidValues');
-           	
+            
             obj.verifyError(@() g.logPdf(ones(3, 10)), ...
                             'Distribution:InvalidValues');
             

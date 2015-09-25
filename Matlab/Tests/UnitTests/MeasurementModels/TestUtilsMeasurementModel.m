@@ -34,7 +34,7 @@ classdef TestUtilsMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = MeasModel();
+            measModel = MeasModel();
             measModel.setNoise(TestUtilsMeasurementModel.measNoise);
             
             mat                   = measModel.measMatrix;
@@ -74,7 +74,7 @@ classdef TestUtilsMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = MeasModel();
+            measModel = MeasModel();
             measModel.setNoise(TestUtilsMeasurementModel.measNoise);
             
             mat                   = measModel.measMatrix;

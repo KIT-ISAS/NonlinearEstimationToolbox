@@ -133,7 +133,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() GaussianMixture(mean, eye(3)), ...
                             'GaussianMixture:InvalidCovariances');
-         	
+            
             obj.verifyError(@() GaussianMixture(mean, 'test'), ...
                             'GaussianMixture:InvalidCovariances');
             
@@ -150,7 +150,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() GaussianMixture(means, cat(3, diag([0.1 3]), [2 0.5; 0.5 1.2], eye(2))), ...
                             'GaussianMixture:InvalidCovariances');
-          	
+            
             obj.verifyError(@() GaussianMixture(means, 'test'), ...
                             'GaussianMixture:InvalidCovariances');
         end
@@ -170,7 +170,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() GaussianMixture(means, covs, ones(1, 2, 2)), ...
                             'GaussianMixture:InvalidWeights');
-         	
+            
             obj.verifyError(@() GaussianMixture(means, covs, [0 0]), ...
                             'GaussianMixture:InvalidWeights');
             
@@ -209,7 +209,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() gm.drawRndSamples(-3.4), ...
                             'GaussianMixture:InvalidNumberOfSamples');
-        	
+            
             obj.verifyError(@() gm.drawRndSamples(eye(2)), ...
                             'GaussianMixture:InvalidNumberOfSamples');
             
@@ -231,7 +231,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             gm = GaussianMixture(means, covs, weights);
             
-          	values = [0.1 -0.5 13.4
+            values = [0.1 -0.5 13.4
                       0.9 -10   5  ];
             
             logValues = gm.logPdf(values);
@@ -258,7 +258,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() gm.logPdf([0.1 -0.5 13.4]), ...
                             'Distribution:InvalidValues');
-           	
+            
             obj.verifyError(@() gm.logPdf(ones(3, 10)), ...
                             'Distribution:InvalidValues');
             

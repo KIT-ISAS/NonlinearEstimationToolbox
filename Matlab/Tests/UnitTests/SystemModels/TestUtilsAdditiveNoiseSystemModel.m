@@ -33,7 +33,7 @@ classdef TestUtilsAdditiveNoiseSystemModel
                 tol = sqrt(eps);
             end
             
-        	sysModel = AddNoiseSysModel();
+            sysModel = AddNoiseSysModel();
             sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
             
             mat                   = sysModel.sysMatrix;

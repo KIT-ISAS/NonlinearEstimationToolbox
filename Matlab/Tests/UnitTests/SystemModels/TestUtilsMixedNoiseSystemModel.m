@@ -33,7 +33,7 @@ classdef TestUtilsMixedNoiseSystemModel
                 tol = sqrt(eps);
             end
             
-        	sysModel = MixedNoiseSysModel();
+            sysModel = MixedNoiseSysModel();
             sysModel.setAdditiveNoise(TestUtilsMixedNoiseSystemModel.addSysNoise);
             sysModel.setNoise(TestUtilsMixedNoiseSystemModel.sysNoise);
             

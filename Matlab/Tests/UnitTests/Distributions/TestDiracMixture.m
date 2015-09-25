@@ -84,7 +84,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() DiracMixture(samples, ones(1, 7, 2)), ...
                             'DiracMixture:InvalidWeights');
-         	
+            
             obj.verifyError(@() DiracMixture(samples, zeros(1, 7)), ...
                             'DiracMixture:InvalidWeights');
             
@@ -124,7 +124,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             
             obj.verifyError(@() dm.drawRndSamples(-3.4), ...
                             'DiracMixture:InvalidNumberOfSamples');
-        	
+            
             obj.verifyError(@() dm.drawRndSamples(eye(2)), ...
                             'DiracMixture:InvalidNumberOfSamples');
             
@@ -146,7 +146,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
     
     methods (Access = 'private')
         function verifyDM(obj, dm, dim, numComps, samples, weights, mean, cov, covSqrt)
-          	absTol = 1e-12;
+            absTol = 1e-12;
             
             d = dm.getDimension();
             obj.verifyEqual(d, dim);

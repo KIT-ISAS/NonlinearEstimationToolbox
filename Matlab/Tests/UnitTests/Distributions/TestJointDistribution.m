@@ -83,7 +83,7 @@ classdef TestJointDistribution < matlab.unittest.TestCase
             
             obj.verifyError(@() JointDistribution(ones(2, 3)), ...
                             'JointDistribution:InvalidDistributions');
-        	
+            
             obj.verifyError(@() JointDistribution({ Gaussian(), ones(2, 3) }), ...
                             'JointDistribution:InvalidDistributions');
         end
@@ -108,7 +108,7 @@ classdef TestJointDistribution < matlab.unittest.TestCase
             
             obj.verifyError(@() j.drawRndSamples(-3.4), ...
                             'JointDistribution:InvalidNumberOfSamples');
-        	
+            
             obj.verifyError(@() j.drawRndSamples(eye(2)), ...
                             'JointDistribution:InvalidNumberOfSamples');
             

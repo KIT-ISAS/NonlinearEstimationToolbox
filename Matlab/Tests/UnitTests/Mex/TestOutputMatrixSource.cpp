@@ -209,7 +209,7 @@ class TestOutputMatrix {
                 TestUtils::checkException(ex, expMsg);
             }
             
-        	mxDestroyArray(invalidTypeArray);
+            mxDestroyArray(invalidTypeArray);
         }
         
         void testInvalidSizeArray() {

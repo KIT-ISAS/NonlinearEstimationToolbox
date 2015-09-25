@@ -53,11 +53,11 @@ classdef TestUtilsLinearMeasurementModel
             [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = TestUtilsLinearMeasurementModel.checkUpdateConfig(true, true, test, f, tol);
             TestUtilsLinearMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, trueCrossCov, test, f, tol, numIter);
         end
-  	end
+    end
     
     methods (Static, Access = 'private')
         function [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = checkUpdateConfig(measMatrix, multiMeas, test, f, tol)
-        	measModel = LinearMeasurementModel();
+            measModel = LinearMeasurementModel();
             
             if measMatrix
                 measModel.setMeasurementMatrix(TestUtilsLinearMeasurementModel.measMatrix);
@@ -85,7 +85,7 @@ classdef TestUtilsLinearMeasurementModel
                     measurements = TestUtilsLinearMeasurementModel.measurement3D;
                 end
             else
-             	measModel.setNoise(TestUtilsLinearMeasurementModel.measNoise2D);
+                measModel.setNoise(TestUtilsLinearMeasurementModel.measNoise2D);
                 
                 [noiseMean, noiseCov] = TestUtilsLinearMeasurementModel.measNoise2D.getMeanAndCovariance();
                 
@@ -112,7 +112,7 @@ classdef TestUtilsLinearMeasurementModel
             
             trueMean = TestUtilsLinearMeasurementModel.initMean + K * (measurements(:) - trueMeasMean);
             trueCov  = TestUtilsLinearMeasurementModel.initCov  - K * trueCrossCov';
-         	
+            
             f.setState(Gaussian(TestUtilsAdditiveNoiseMeasurementModel.initMean, ...
                                 TestUtilsAdditiveNoiseMeasurementModel.initCov));
             
@@ -153,7 +153,7 @@ classdef TestUtilsLinearMeasurementModel
                                              -0.5  1.3 0.0
                                               0.2  0.0 3.0]);
         measurement2D  = [ 3 -4]';
-     	measurement3D  = [15 -0.9 -3]'; 
+        measurement3D  = [15 -0.9 -3]';
         measurements2D = [ 3  3.3
                           -4 -3.9];                            
         measurements3D = [ 15  15.2

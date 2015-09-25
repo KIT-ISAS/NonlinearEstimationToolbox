@@ -68,7 +68,7 @@ classdef TestUtils < matlab.unittest.TestCase
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
                                                               measSamples);
-         	
+            
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
             obj.verifyEqual(stateMeasCrossCov, truestateMeasCrossCov);
@@ -88,7 +88,7 @@ classdef TestUtils < matlab.unittest.TestCase
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
                                                               measSamples, weights);
-         	
+            
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
             obj.verifyEqual(stateMeasCrossCov, truestateMeasCrossCov);
@@ -119,10 +119,10 @@ classdef TestUtils < matlab.unittest.TestCase
             stateMean         = [];
             stateCov          = [];
             measurement       = [];
-         	measMean          = [];
+            measMean          = [];
             measCov           = ones(2, 2);
             stateMeasCrossCov = [];
-          	
+            
             obj.verifyError(@() Utils.kalmanUpdate(stateMean, stateCov, measurement, ...
                                                    measMean, measCov, stateMeasCrossCov), ...
                             'Utils:InvalidMeasurementCovariance');
@@ -141,7 +141,7 @@ classdef TestUtils < matlab.unittest.TestCase
                        0 0 0 0 1 2
                        0 0 0 0 3 4];
             
-         	obj.verifyEqual(blockMat, trueMat);
+            obj.verifyEqual(blockMat, trueMat);
         end
         
         function testBaseBlockDiag(obj)
@@ -149,7 +149,7 @@ classdef TestUtils < matlab.unittest.TestCase
             matDiag = [2 -1; 3 -2];
             n       = 3;
             
-        	blockMat = Utils.baseBlockDiag(matBase, matDiag, n);
+            blockMat = Utils.baseBlockDiag(matBase, matDiag, n);
             
             trueMat = [3 1 1 2 1 2
                        6 2 3 4 3 4
@@ -158,7 +158,7 @@ classdef TestUtils < matlab.unittest.TestCase
                        1 2 1 2 3 1
                        3 4 3 4 6 2];
             
-         	obj.verifyEqual(blockMat, trueMat);
+            obj.verifyEqual(blockMat, trueMat);
         end
         
         function testDrawGaussianRndSamples(obj)
@@ -296,7 +296,7 @@ classdef TestUtils < matlab.unittest.TestCase
             stateJacobian = [2 * states(1, :) .* states(2, :).^3 .* noise.^2 states(1, :).^2 .* 3 * states(2, :).^2 .* noise.^2
                              1                                               cos(states(2, :)) .* sqrt(noise)                  ];
             
-         	noiseJacobian = [states(1, :).^2 .* states(2, :).^3 .* 2 * noise
+            noiseJacobian = [states(1, :).^2 .* states(2, :).^3 .* 2 * noise
                              sin(states(2, :)) .* 0.5 * noise.^(-0.5)       ];
         end
     end

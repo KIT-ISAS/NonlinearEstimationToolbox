@@ -29,7 +29,7 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
     
     methods (Test)
         function testSimulateDefaultNumMeasurements(obj)
-        	measModel = MixedNoiseMeasModel();
+            measModel = MixedNoiseMeasModel();
             measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             
@@ -43,7 +43,7 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
         end
         
         function testSimulate(obj)
-        	measModel = MixedNoiseMeasModel();
+            measModel = MixedNoiseMeasModel();
             measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             

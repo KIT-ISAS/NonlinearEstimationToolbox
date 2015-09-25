@@ -81,7 +81,7 @@ classdef TestUtilsLinearSystemModel
         
         
         function checkPredictionConfig(sysMat, input, noiseMat, test, f, tol)
-        	sysModel = LinearSystemModel();
+            sysModel = LinearSystemModel();
             sysModel.setNoise(TestUtilsLinearSystemModel.sysNoise);
             
             [noiseMean, noiseCov] = TestUtilsLinearSystemModel.sysNoise.getMeanAndCovariance();
@@ -92,7 +92,7 @@ classdef TestUtilsLinearSystemModel
                 trueMean = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initMean;
                 trueCov  = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initCov * TestUtilsLinearSystemModel.sysMatrix';
             else
-               	trueMean = TestUtilsLinearSystemModel.initMean;
+                trueMean = TestUtilsLinearSystemModel.initMean;
                 trueCov  = TestUtilsLinearSystemModel.initCov;
             end
             

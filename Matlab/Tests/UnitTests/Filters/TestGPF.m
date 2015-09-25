@@ -41,7 +41,7 @@ classdef TestGPF < matlab.unittest.TestCase
             tol = 1e-2;
             
             f.setNumParticles(5000000);
-          	
+            
             TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
         end
         

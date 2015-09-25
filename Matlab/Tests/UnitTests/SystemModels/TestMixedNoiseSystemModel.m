@@ -29,7 +29,7 @@ classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
     
     methods (Test)
         function testSimulate(obj)
-        	sysModel = MixedNoiseSysModel();
+            sysModel = MixedNoiseSysModel();
             sysModel.setAdditiveNoise(Uniform([0 0], [1 1]));
             sysModel.setNoise(Uniform([0 0], [1 1]));
             

@@ -86,10 +86,10 @@ classdef TestUniform < matlab.unittest.TestCase
         function testConstructorAGreaterEqualB(obj)
             obj.verifyError(@() Uniform(2, 2), ...
                             'Uniform:InvalidMinimum');
-        	
+            
             obj.verifyError(@() Uniform(2, -1), ...
                             'Uniform:InvalidMinimum');
-           	
+            
             obj.verifyError(@() Uniform([-1 2], [-2 3]), ...
                             'Uniform:InvalidMinimum');
         end
@@ -115,7 +115,7 @@ classdef TestUniform < matlab.unittest.TestCase
             
             obj.verifyError(@() u.drawRndSamples(-3.4), ...
                             'Uniform:InvalidNumberOfSamples');
-        	
+            
             obj.verifyError(@() u.drawRndSamples(eye(2)), ...
                             'Uniform:InvalidNumberOfSamples');
             

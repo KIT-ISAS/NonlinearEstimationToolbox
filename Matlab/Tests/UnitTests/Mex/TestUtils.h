@@ -7,7 +7,7 @@
 class TestUtils {
     public:
         static std::string MissedExName() {
-         	return std::string("Missed expected exception."); 
+            return std::string("Missed expected exception.");
         }
         
         static void checkException(const std::exception& ex,

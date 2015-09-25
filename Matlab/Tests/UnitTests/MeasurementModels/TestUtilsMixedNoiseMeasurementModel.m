@@ -33,7 +33,7 @@ classdef TestUtilsMixedNoiseMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = MixedNoiseMeasModel();
+            measModel = MixedNoiseMeasModel();
             measModel.setAdditiveNoise(TestUtilsMixedNoiseMeasurementModel.addMeasNoise);
             measModel.setNoise(TestUtilsMixedNoiseMeasurementModel.measNoise);
             
@@ -75,7 +75,7 @@ classdef TestUtilsMixedNoiseMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = MixedNoiseMeasModel();
+            measModel = MixedNoiseMeasModel();
             measModel.setAdditiveNoise(TestUtilsMixedNoiseMeasurementModel.addMeasNoise);
             measModel.setNoise(TestUtilsMixedNoiseMeasurementModel.measNoise);
             

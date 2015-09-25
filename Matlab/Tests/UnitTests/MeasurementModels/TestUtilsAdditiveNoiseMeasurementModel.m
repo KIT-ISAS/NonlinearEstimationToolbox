@@ -33,7 +33,7 @@ classdef TestUtilsAdditiveNoiseMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = AddNoiseMeasModel();
+            measModel = AddNoiseMeasModel();
             measModel.setNoise(TestUtilsAdditiveNoiseMeasurementModel.measNoise);
             
             mat                   = measModel.measMatrix;
@@ -73,7 +73,7 @@ classdef TestUtilsAdditiveNoiseMeasurementModel
                 tol = sqrt(eps);
             end
             
-        	measModel = AddNoiseMeasModel();
+            measModel = AddNoiseMeasModel();
             measModel.setNoise(TestUtilsAdditiveNoiseMeasurementModel.measNoise);
             
             mat                   = measModel.measMatrix;

@@ -375,7 +375,7 @@ class TestOutputMatrixXD {
         }
         
         void testInvalidTypeArray() {
-           	const mwSize trueDims[3] = { 2, 3, 5 };
+            const mwSize trueDims[3] = { 2, 3, 5 };
             
             mxArray* invalidTypeArray = mxCreateNumericArray(3, trueDims, mxCHAR_CLASS, mxREAL);
             
