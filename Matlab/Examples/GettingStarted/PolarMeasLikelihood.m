@@ -13,7 +13,7 @@ classdef PolarMeasLikelihood < Likelihood
             h = [sqrt(x.^2 + y.^2)
                  atan2(y, x)      ];
              
-           	% Compute differences y - h(x)
+            % Compute differences y - h(x)
             diffs = bsxfun(@minus, measurements, h);
             
             % Evaluate the measurement noise logarithmic pdf

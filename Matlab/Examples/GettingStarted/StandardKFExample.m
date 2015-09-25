@@ -22,7 +22,7 @@ function StandardKFExample()
     % System noise matrix B
     sysNoiseMatrix = [T
                       1];
-   	
+    
     % Time-invariant, zero-mean Gaussian white noise w
     sysNoise = Gaussian(0, 0.1^2);
     

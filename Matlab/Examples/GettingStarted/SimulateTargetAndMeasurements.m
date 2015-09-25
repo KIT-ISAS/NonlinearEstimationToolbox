@@ -18,7 +18,7 @@ function SimulateTargetAndMeasurements()
     measNoise = Gaussian(zeros(2, 1), [1e-2 1e-4]);
     
     measModel.setNoise(measNoise);
-	
+    
     % Initial state estimate
     initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1]);
     
