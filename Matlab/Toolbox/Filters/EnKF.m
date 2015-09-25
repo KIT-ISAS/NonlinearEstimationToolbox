@@ -187,8 +187,8 @@ classdef EnKF < Filter
             
             obj.checkAdditiveSysNoise(dimNoise);
             
-            % Propagate ensemble and noise through system equation 
-           	predictedEnsemble = sysModel.systemEquation(obj.ensemble);
+            % Propagate ensemble through system equation
+            predictedEnsemble = sysModel.systemEquation(obj.ensemble);
             
             % Check predicted ensemble
             obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
@@ -270,14 +270,14 @@ classdef EnKF < Filter
             for i = 1:numMeas
                 b = i * dimMeas;
                 
-                % Propagate ensemble and noise through measurement equation
+                % Propagate ensemble through measurement equation
                 meas = measModel.measurementEquation(obj.ensemble);
                 
                 % Check computed measurements
                 obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
                 
                 % Sample additive measurement noise
-                addNoiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize); 
+                addNoiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
                 
                 measSamples(a:b, :) = meas + addNoiseSamples;
                 
@@ -309,7 +309,7 @@ classdef EnKF < Filter
                 obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
                 
                 % Sample additive measurement noise
-                addNoiseSamples = measModel.additiveNoise.drawRndSamples(obj.ensembleSize); 
+                addNoiseSamples = measModel.additiveNoise.drawRndSamples(obj.ensembleSize);
                 
                 measSamples(a:b, :) = meas + addNoiseSamples;
                 
