@@ -29,14 +29,14 @@ classdef TestSIRPF < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorDefault(obj)
-            f = SIRPF();
+            f = obj.initFilter();
             
             obj.verifyEqual(f.getName(), 'SIR-PF');
         end
         
         
         function testPredictLinearSysModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -45,7 +45,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testPredictAddNoiseSysModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -54,7 +54,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testPredictSysModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -62,8 +62,8 @@ classdef TestSIRPF < matlab.unittest.TestCase
             TestUtilsSystemModel.checkPrediction(obj,f, tol);
         end
         
-        function testPredictMixedNoisSysModel(obj)
-            f   = SIRPF();
+        function testPredictMixedNoiseSysModel(obj)
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(1000000);
@@ -73,7 +73,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -82,7 +82,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 1e-2;
             
             f.setNumParticles(5000000);
@@ -92,7 +92,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumParticles(5000000);
@@ -101,12 +101,18 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = SIRPF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumParticles(5000000);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+    end
+    
+    methods (Access = 'private')
+        function f = initFilter(~)
+            f = SIRPF();
         end
     end
 end
