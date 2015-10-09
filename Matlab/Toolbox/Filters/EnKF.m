@@ -12,6 +12,7 @@ classdef EnKF < BasePF
     %   getStateDim      - Get the dimension of the current system state.
     %   predict          - Perform a time update (prediction step).
     %   update           - Perform a measurement update (filter step) using the given measurement(s).
+    %   step             - Perform a combined time and measurement update.
     %   getPointEstimate - Get a point estimate of the current system state.
     %   setEnsembleSize  - Set the size of the ensemble (i.e., the number of samples).
     %   getEnsembleSize  - Get the current ensemble size of the filter.

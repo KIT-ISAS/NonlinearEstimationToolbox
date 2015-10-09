@@ -15,6 +15,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     %   getStateDim                    - Get the dimension of the current system state.
     %   predict                        - Perform a time update (prediction step).
     %   update                         - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                           - Perform a combined time and measurement update.
     %   getPointEstimate               - Get a point estimate of the current system state.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
     %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
