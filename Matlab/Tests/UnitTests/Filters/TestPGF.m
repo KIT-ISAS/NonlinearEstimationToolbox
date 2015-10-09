@@ -29,7 +29,7 @@ classdef TestPGF < matlab.unittest.TestCase
     
     methods (Test)
         function testConstructorDefault(obj)
-            f = PGF();
+            f = obj.initFilter();
             
             obj.verifyEqual(f.getName(), 'PGF');
             obj.verifyEqual(f.getMaxNumProgSteps(), 0);
@@ -37,28 +37,28 @@ classdef TestPGF < matlab.unittest.TestCase
         
         
         function testPredictLinearSysModel(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = sqrt(eps);
             
             TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictAddNoiseSysModel(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = sqrt(eps);
             
             TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
         end
         
         function testPredictSysModel(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = sqrt(eps);
             
             TestUtilsSystemModel.checkPrediction(obj,f, tol);
         end
         
-        function testPredictMixedNoisSysModel(obj)
-            f   = PGF();
+        function testPredictMixedNoiseSysModel(obj)
+            f   = obj.initFilter();
             tol = sqrt(eps);
             
             TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
@@ -66,7 +66,7 @@ classdef TestPGF < matlab.unittest.TestCase
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumSamples(201);
@@ -77,7 +77,7 @@ classdef TestPGF < matlab.unittest.TestCase
         end
         
         function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumSamples(201);
@@ -89,7 +89,7 @@ classdef TestPGF < matlab.unittest.TestCase
         
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumSamples(201);
@@ -100,7 +100,7 @@ classdef TestPGF < matlab.unittest.TestCase
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = PGF();
+            f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setNumSamples(201);
@@ -108,6 +108,12 @@ classdef TestPGF < matlab.unittest.TestCase
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
             
             obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+        end
+    end
+    
+    methods (Access = 'private')
+        function f = initFilter(~)
+            f = PGF();
         end
     end
 end
