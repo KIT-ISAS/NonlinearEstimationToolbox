@@ -84,69 +84,16 @@ classdef SIRPF < PF
             %   Section 3.5.1
             
             if Checks.isClass(sysModel, 'SystemModel')
-                obj.predictArbitraryNoise(sysModel);
+                obj.particles = obj.predictParticlesArbitraryNoise(sysModel, obj.particles, obj.numParticles);
             elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
-                obj.predictAdditiveNoise(sysModel);
+                obj.particles = obj.predictParticlesAdditiveNoise(sysModel, obj.particles, obj.numParticles);
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
-                obj.predictMixedNoise(sysModel);
+                obj.particles = obj.predictParticlesMixedNoise(sysModel, obj.particles, obj.numParticles);
             else
                 obj.errorSysModel('System model', ...
                                   'Additive noise system model', ...
                                   'Mixed noise system model');
             end
-        end
-        
-        function predictArbitraryNoise(obj, sysModel)
-            % Sample system noise
-            noise = sysModel.noise.drawRndSamples(obj.numParticles);
-            
-            % Propagate particles and noise through system equation 
-            predictedParticles = sysModel.systemEquation(obj.particles, noise);
-            
-            % Check predicted particles
-            obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-            
-            % Save new state estimate
-            obj.particles = predictedParticles;
-        end
-        
-        function predictAdditiveNoise(obj, sysModel)
-            % Sample additive system noise
-            noise = sysModel.noise.drawRndSamples(obj.numParticles);
-            
-            dimNoise = size(noise, 1);
-            
-            obj.checkAdditiveSysNoise(dimNoise);
-            
-            % Propagate particles and noise through system equation 
-            predictedParticles = sysModel.systemEquation(obj.particles);
-            
-            % Check predicted particles
-            obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-            
-            % Save new state estimate
-            obj.particles = predictedParticles + noise;
-        end
-        
-        function predictMixedNoise(obj, sysModel)
-            % Sample system noise
-            noise = sysModel.noise.drawRndSamples(obj.numParticles);
-            
-            % Sample additive system noise
-            addNoise = sysModel.additiveNoise.drawRndSamples(obj.numParticles);
-            
-            dimAddNoise = size(addNoise, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            % Propagate particles and noise through system equation 
-            predictedParticles = sysModel.systemEquation(obj.particles, noise);
-            
-            % Check predicted particles
-            obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-            
-            % Save new state estimate
-            obj.particles = predictedParticles + addNoise;
         end
         
         function performUpdate(obj, measModel, measurements)
@@ -164,17 +111,8 @@ classdef SIRPF < PF
             %   Artech House Publishers, 2004,
             %   Section 3.5.1
             
-            % Evaluate logaritmic likelihood
-            logValues = measModel.logLikelihood(obj.particles, measurements);
-            
-            obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
-            
-            % Compute likelihohod values
-            maxLogValue = max(logValues);
-            
-            logValues = logValues - maxLogValue;
-            
-            values = exp(logValues);
+            % Evaluate likelihood
+            values = obj.evaluateLikelihood(measModel, measurements, obj.particles, obj.numParticles);
             
             % Multiply prior weights with likelihood evaluations
             values = values .* obj.weights;
@@ -187,6 +125,7 @@ classdef SIRPF < PF
                 return;
             end
             
+            % Save new particle weights
             obj.weights = values / sumWeights;
             
             % Resample if necessary
