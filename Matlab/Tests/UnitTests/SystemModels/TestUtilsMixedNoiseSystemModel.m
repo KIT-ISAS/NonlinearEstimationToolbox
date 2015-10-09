@@ -59,7 +59,7 @@ classdef TestUtilsMixedNoiseSystemModel
     properties (Constant)
         initMean    = [0.3 -pi]';
         initCov     = [0.5 0.1; 0.1 3];
-        addSysNoise = Gaussian([2 -1]', [2 -0.5; -0.5 1.3]);
-        sysNoise    = Gaussian([-5, 3]', diag([0.98, 2.1]));
+        addSysNoise = Gaussian([2 -1]', 0.01 * [2 -0.5; -0.5 1.3]);
+        sysNoise    = Gaussian([0, 3]', 0.1 * diag([0.5, 0.1]));
     end
 end
