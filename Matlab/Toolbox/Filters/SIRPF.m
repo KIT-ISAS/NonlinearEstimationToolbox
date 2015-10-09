@@ -150,12 +150,6 @@ classdef SIRPF < PF
         end
         
         function performUpdate(obj, measModel, measurements)
-            % Implements the measurement update described in:
-            %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,
-            %   Beyond the Kalman Filter: Particle filters for Tracking Applications,
-            %   Artech House Publishers, 2004,
-            %   Section 3.5.1
-            
             if Checks.isClass(measModel, 'Likelihood')
                 obj.updateLikelihood(measModel, measurements);
             else
@@ -164,6 +158,12 @@ classdef SIRPF < PF
         end
         
         function updateLikelihood(obj, measModel, measurements)
+            % Implements the measurement update described in:
+            %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,
+            %   Beyond the Kalman Filter: Particle filters for Tracking Applications,
+            %   Artech House Publishers, 2004,
+            %   Section 3.5.1
+            
             % Evaluate logaritmic likelihood
             logValues = measModel.logLikelihood(obj.particles, measurements);
             
