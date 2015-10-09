@@ -194,9 +194,11 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             end
         end
         
-        function updateLikelihood(obj, measModel, measurements)
-            % Sample state
-            particles = obj.getStateParticles();
+        function updateLikelihood(obj, measModel, measurements, particles)
+            if nargin < 4
+                % By default, sample the current system state
+                particles = obj.getStateParticles();
+            end
             
             % Evaluate likelihood
             values = obj.evaluateLikelihood(measModel, measurements, particles, obj.numParticles);
@@ -235,7 +237,7 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
         end
     end
     
-    properties (Access = 'private')
+    properties (SetAccess = 'private', GetAccess = 'protected')
         % Number of particles to use during prediction and update.
         numParticles;
     end
