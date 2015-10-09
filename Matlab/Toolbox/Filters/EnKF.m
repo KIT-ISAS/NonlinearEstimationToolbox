@@ -1,5 +1,5 @@
 
-classdef EnKF < Filter
+classdef EnKF < BasePF
     % The Ensemble Kalman Filter (EnKF).
     %
     % EnKF Methods:
@@ -76,7 +76,7 @@ classdef EnKF < Filter
             end
             
             % Call superclass constructor
-            obj = obj@Filter(name);
+            obj = obj@BasePF(name);
             
             obj.dimState = 0;
             obj.ensemble = [];
@@ -153,69 +153,16 @@ classdef EnKF < Filter
     methods (Access = 'protected')
         function performPrediction(obj, sysModel)
             if Checks.isClass(sysModel, 'SystemModel')
-                obj.predictArbitraryNoise(sysModel);
+                obj.ensemble = obj.predictParticlesArbitraryNoise(sysModel, obj.ensemble, obj.ensembleSize);
             elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
-                obj.predictAdditiveNoise(sysModel);
+                obj.ensemble = obj.predictParticlesAdditiveNoise(sysModel, obj.ensemble, obj.ensembleSize);
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
-                obj.predictMixedNoise(sysModel);
+                obj.ensemble = obj.predictParticlesMixedNoise(sysModel, obj.ensemble, obj.ensembleSize);
             else
                 obj.errorSysModel('System model', ...
                                   'Additive noise system model', ...
                                   'Mixed noise system model');
             end
-        end
-        
-        function predictArbitraryNoise(obj, sysModel)
-            % Sample system noise
-            noise = sysModel.noise.drawRndSamples(obj.ensembleSize);
-            
-            % Propagate ensemble and noise through system equation 
-            predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
-            
-            % Check predicted ensemble
-            obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-            
-            % Save new state estimate
-            obj.ensemble = predictedEnsemble;
-        end
-        
-        function predictAdditiveNoise(obj, sysModel)
-            % Sample additive system noise
-            noise = sysModel.noise.drawRndSamples(obj.ensembleSize);
-            
-            dimNoise = size(noise, 1);
-            
-            obj.checkAdditiveSysNoise(dimNoise);
-            
-            % Propagate ensemble through system equation
-            predictedEnsemble = sysModel.systemEquation(obj.ensemble);
-            
-            % Check predicted ensemble
-            obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-            
-            % Save new state estimate
-            obj.ensemble = predictedEnsemble + noise;
-        end
-        
-        function predictMixedNoise(obj, sysModel)
-            % Sample system noise
-            noise = sysModel.noise.drawRndSamples(obj.ensembleSize);
-            
-            % Sample additive system noise
-            addNoise = sysModel.additiveNoise.drawRndSamples(obj.ensembleSize);
-            
-            dimAddNoise = size(addNoise, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            % Propagate ensemble and noise through system equation 
-            predictedEnsemble = sysModel.systemEquation(obj.ensemble, noise);
-            
-            % Check predicted ensemble
-            obj.checkPredictedStateSamples(predictedEnsemble, obj.ensembleSize);
-            
-            % Save new state estimate
-            obj.ensemble = predictedEnsemble + addNoise;
         end
         
         function performUpdate(obj, measModel, measurements)
