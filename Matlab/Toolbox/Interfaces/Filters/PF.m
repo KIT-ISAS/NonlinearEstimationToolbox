@@ -1,9 +1,6 @@
 
-classdef PF < Filter
-    % Abstract base class for  Particle filters (PFs).
-    %
-    % This type of filter represents the system state estimate in form of a set of weighted
-    % particles (samples).
+classdef PF < BasePF
+    % Abstract base class for Particle Filters where the state estimate is a set of weighted particles.
     %
     % PF Methods:
     %   PF                         - Class constructor.
@@ -63,7 +60,7 @@ classdef PF < Filter
             %      A new PF instance.
             
             % Call superclass constructor
-            obj = obj@Filter(name);
+            obj = obj@BasePF(name);
             
             obj.dimState  = 0;
             obj.particles = [];
