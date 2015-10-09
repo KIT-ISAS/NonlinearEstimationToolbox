@@ -1,5 +1,5 @@
 
-classdef GPF < SampleBasedGaussianFilter
+classdef GPF < BasePF & SampleBasedGaussianFilter
     % The Gaussian Particle Filter (GPF).
     %
     % GPF Methods:
@@ -71,7 +71,8 @@ classdef GPF < SampleBasedGaussianFilter
                 name = 'GPF';
             end
             
-            % Call superclass constructor
+            % Call superclass constructors
+            obj = obj@BasePF(name);
             obj = obj@SampleBasedGaussianFilter(name);
             
             obj.setNumParticles(1000);
@@ -197,17 +198,8 @@ classdef GPF < SampleBasedGaussianFilter
             % Sample state
             particles = obj.getStateParticles();
             
-            % Evaluate logaritmic likelihood
-            logValues = measModel.logLikelihood(particles, measurements);
-            
-            obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
-            
-            % Compute likelihohod values
-            maxLogValue = max(logValues);
-            
-            logValues = logValues - maxLogValue;
-            
-            values = exp(logValues);
+            % Evaluate likelihood
+            values = obj.evaluateLikelihood(measModel, measurements, particles, obj.numParticles);
             
             % Normalize particle weights
             sumWeights = sum(values);
