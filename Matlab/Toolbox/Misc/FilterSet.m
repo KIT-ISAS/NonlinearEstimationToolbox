@@ -389,33 +389,23 @@ classdef FilterSet < handle
         end
         
         function forAllFilters(obj, func, varargin)
-            cellfun(@(f) FilterSet.executeFilterFunc(f, func, varargin{:}), obj.filters);
+            cellfun(@(f) func(f, varargin{:}), obj.filters);
         end
         
         function runtimes = forAllFiltersRuntime(obj, func, varargin)
-            runtimes = cellfun(@(f) FilterSet.executeFilterFuncRuntime(f, func, varargin{:}), obj.filters);
+            runtimes = cellfun(@(f) func(f, varargin{:}), obj.filters);
         end
         
         function executeFilter(obj, id, func, varargin)
             filter = obj.get(id);
             
-            FilterSet.executeFilterFunc(filter, func, varargin{:});
+            func(filter, varargin{:});
         end
         
         function runtimes = executeFilterRuntime(obj, id, func, varargin)
             filter = obj.get(id);
             
-            runtimes = FilterSet.executeFilterFuncRuntime(filter, func, varargin{:});
-        end
-    end
-    
-    methods (Static, Access = 'private')
-        function executeFilterFunc(filter, func, varargin)
-            func(filter, varargin{:});
-        end
-        
-        function runtime = executeFilterFuncRuntime(filter, func, varargin)
-            runtime = func(filter, varargin{:});
+            runtimes = func(filter, varargin{:});
         end
     end
     
