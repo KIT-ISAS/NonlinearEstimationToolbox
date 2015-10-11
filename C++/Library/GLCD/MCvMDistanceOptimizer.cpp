@@ -32,7 +32,7 @@ namespace GLCD {
 
 MCvMDistanceOptimizer::MCvMDistanceOptimizer()
 {
-    setHistorySize(100);
+    setHistorySize(10);
     
     setMaxNumIterations(10000);
     
