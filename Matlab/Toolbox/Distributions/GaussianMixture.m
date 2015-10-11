@@ -154,28 +154,34 @@ classdef GaussianMixture < Distribution
                 obj.invCovSqrts = nan(obj.dimension, obj.dimension, obj.numComponents);
                 obj.logPdfConst = nan(1, obj.numComponents);
                 
+                logWeights = log(obj.weights);
+                
                 for i = 1:obj.numComponents
                     obj.invCovSqrts(:, :, i) = obj.covSqrts(:, :, i) \ eye(obj.dimension);
                     
                     logSqrtDetCov = sum(log(diag(obj.covSqrts(:, :, i))));
                     
-                    obj.logPdfConst(i) = logSqrtDetCov + logNormConst;
+                    obj.logPdfConst(i) = logWeights(i) - (logSqrtDetCov + logNormConst);
                 end
             end
             
-            totalValues = zeros(1, size(values, 2));
+            compValues = nan(obj.numComponents, size(values, 2));
             
             for i = 1:obj.numComponents
                 s = bsxfun(@minus, values, obj.means(:, i));
                 
                 v = obj.invCovSqrts(:, :, i) * s;
                 
-                compValues = exp(-0.5 * sum(v.^2, 1) - obj.logPdfConst(i));
-                
-                totalValues = totalValues + obj.weights(i) * compValues;
+                compValues(i, :) = obj.logPdfConst(i) - 0.5 * sum(v.^2, 1);
             end
             
-            logValues = log(totalValues);
+            maxLogCompValues = max(compValues);
+            
+            compValues = bsxfun(@minus, compValues, maxLogCompValues);
+            
+            compValues = exp(compValues);
+            
+            logValues = maxLogCompValues + log(sum(compValues));
         end
         
         function numComponents = getNumComponents(obj)
