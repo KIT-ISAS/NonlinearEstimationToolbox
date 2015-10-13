@@ -39,15 +39,15 @@ function StandardKFExample()
     %
     %  * If no system noise matrix is provided, it is assumed that
     %
-    %       dim(w(w)) == dim(x(k))
+    %       dim(w(k)) == dim(x(k))
     %
-    %    and the system noise matrix will be set to the identity of 
+    %    and the system noise matrix will be set to the identity of
     %    appropriate dimensions.
     %
     % * Hence, if both matrices are not set, the LinearSystemModel acts
     %   like a random walk system model.
     %
-    % * It is possible to pass the system and noise matrices directly to 
+    % * It is possible to pass the system and noise matrices directly to
     %   the class constructor of the LinearSystemModel to avoid the
     %   additional set methods.
     %
