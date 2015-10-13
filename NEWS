@@ -1,4 +1,30 @@
 
+Changes in Nonlinear Estimation Toolbox 1.1
+=============================================
+
+* Added a Filter.step() method in order to perform combined time and measurement updates
+* Added also a FilterSet.step() method
+* Added new abstract base class BasePF for particle filters
+* Added a Gaussian Particle Filter with combined time and measurement update (CGPF)
+* Added the Auxiliary SIR Particle Filter (ASIRPF)
+* Added unit tests for CGPF
+* Added unit tests for ASIRPF
+* Added unit tests for the GaussianFilter, SampleBasedGaussianFilter, KF, LRKF, and PF interfaces
+* Added missing additive noise dimensionality checks to GPF the when dealing with AdditiveNoiseSystemModel or MixedNoiseSystemModel
+* For better code reuse and reliability, EnKF, SIRPF, ASIRPF, and CGPF now use the same code for state predictions, and SIRPF and GPF the same code for likelihood evaluations
+* Improved the numerical stability of the GaussianMixture logarithmic pdf
+* Utils.resampling() and Utils.systematicResampling() now additionally return the indices of the samples that were resampled from
+* Updated the Eigen linear algebra library to version 3.2.6
+* Fixed bug in UKF.getSampleScaling()
+* Fixed bug in L-BFGS C++ code
+* Fixed bug in GPF unit test
+* Updated GLCD MEX files for Windows and Linux
+* Various code cleanups
+
+* Bugs fixed
+  - #3    Add the Auxiliary SIR Particle Filter to the toolbox
+  
+  
 Changes in Nonlinear Estimation Toolbox 1.0.2
 =============================================
 
