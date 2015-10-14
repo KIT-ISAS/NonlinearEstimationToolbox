@@ -40,18 +40,18 @@ class MCvMDistanceSymOdd : public MCvMDistanceSym {
         
         ~MCvMDistanceSymOdd();
         
-        virtual void setBMax(double bMax) override;
+        void setBMax(double bMax) override;
         
-        void setParameters(const Eigen::MatrixXd& parameters);
+        void setParameters(const Eigen::MatrixXd& parameters) override;
         
-        Eigen::MatrixXd getSamples() const;
+        Eigen::MatrixXd getSamples() const override;
         
     protected:
-        void computeD2(double& D2);
+        void computeD2(double& D2) override;
         
-        void computeD3(double& D3);
+        void computeD3(double& D3) override;
         
-        void computeGrad2(Eigen::MatrixXd& grad2);
+        void computeGrad2(Eigen::MatrixXd& grad2) override;
         
     private:
         double computeQuadConstD2(double b) const;

@@ -40,14 +40,14 @@ class MCvMDistanceSymEven : public MCvMDistanceSym {
         
         ~MCvMDistanceSymEven();
         
-        Eigen::MatrixXd getSamples() const;
+        Eigen::MatrixXd getSamples() const override;
         
     protected:
-        void computeD2(double& D2);
+        void computeD2(double& D2) override;
         
-        void computeD3(double& D3);
+        void computeD3(double& D3) override;
         
-        void computeGrad2(Eigen::MatrixXd& grad1);
+        void computeGrad2(Eigen::MatrixXd& grad1) override;
         
 };
 

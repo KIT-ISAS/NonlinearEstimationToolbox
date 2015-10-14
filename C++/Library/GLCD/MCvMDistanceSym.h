@@ -42,12 +42,12 @@ class MCvMDistanceSym : public MCvMDistance {
         
         ~MCvMDistanceSym();
         
-        void setParameters(const Eigen::MatrixXd& parameters);
+        void setParameters(const Eigen::MatrixXd& parameters) override;
         
     protected:
-        bool checkParameters(const Eigen::MatrixXd& parameters) const;
+        bool checkParameters(const Eigen::MatrixXd& parameters) const override;
         
-        void computeGrad1(Eigen::MatrixXd& grad1);
+        void computeGrad1(Eigen::MatrixXd& grad1) override;
         
     protected:
         void computeD2Base(double& D2);

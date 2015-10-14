@@ -40,20 +40,20 @@ class MCvMDistanceAsym : public MCvMDistance {
         
         ~MCvMDistanceAsym();
         
-        void setParameters(const Eigen::MatrixXd& parameters);
+        void setParameters(const Eigen::MatrixXd& parameters) override;
         
-        Eigen::MatrixXd getSamples() const;
+        Eigen::MatrixXd getSamples() const override;
         
     protected:
-        bool checkParameters(const Eigen::MatrixXd& parameters) const;
+        bool checkParameters(const Eigen::MatrixXd& parameters) const override;
         
-        void computeD2(double& D2);
+        void computeD2(double& D2) override;
         
-        void computeD3(double& D3);
+        void computeD3(double& D3) override;
         
-        void computeGrad1(Eigen::MatrixXd& grad1);
+        void computeGrad1(Eigen::MatrixXd& grad1) override;
         
-        void computeGrad2(Eigen::MatrixXd& grad2);
+        void computeGrad2(Eigen::MatrixXd& grad2) override;
         
     private:
         double computeQuadD2(double b) const;
