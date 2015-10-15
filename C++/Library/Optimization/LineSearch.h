@@ -67,7 +67,7 @@ class LineSearchNocedal : public LineSearch {
                     Eigen::VectorXd&        parameters,
                     double&                 funcValue,
                     Eigen::VectorXd&        gradient,
-                    double&                 stepLength);
+                    double&                 stepLength) override;
         
         /* The maximum number of allowed line search iterations.
          *  The default value is 1,000.

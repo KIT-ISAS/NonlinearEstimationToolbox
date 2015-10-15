@@ -47,7 +47,7 @@ static void objFuncAnalyticDerivative(const Eigen::VectorXd&   parameters,
 
 class ObjFuncApproxDerivative : public Optimization::ApproxDerivative {
     public:
-        double objectiveFunction(const Eigen::VectorXd& parameters) {
+        double objectiveFunction(const Eigen::VectorXd& parameters) override {
             return objFunc(parameters);
         }
         
