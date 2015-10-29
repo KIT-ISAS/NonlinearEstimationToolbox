@@ -80,7 +80,7 @@ classdef AnalyticKF < KF
     methods (Access = 'protected')
         function performPrediction(obj, sysModel)
             if ~Checks.isClass(sysModel, 'AnalyticSystemModel')
-                obj.errorSysModel('Analytic system model');
+                obj.errorSysModel('AnalyticSystemModel');
             end
             
             obj.predictAnalytic(sysModel);
@@ -88,7 +88,7 @@ classdef AnalyticKF < KF
         
         function performUpdate(obj, measModel, measurements)
             if ~Checks.isClass(measModel, 'AnalyticMeasurementModel')
-                obj.errorMeasModel('Analytic measurement model');
+                obj.errorMeasModel('AnalyticMeasurementModel');
             end
             
             obj.updateAnalytic(measModel, measurements);
