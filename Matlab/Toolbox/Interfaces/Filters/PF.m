@@ -145,6 +145,9 @@ classdef PF < BasePF
             if Checks.isClass(state, 'DiracMixture')
                 % Directly use the Dirac mixture components as system state
                 [obj.particles, obj.weights] = state.getComponents();
+                
+                % We also have to update the number of particles used by the particle filter
+                obj.numParticles = state.getNumComponents();
             else
                 % Draw random particles
                 obj.particles = state.drawRndSamples(obj.numParticles);
