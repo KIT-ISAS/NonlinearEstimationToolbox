@@ -110,6 +110,9 @@ classdef ASIRPF < SIRPF
                 obj.errorMeasModel('Likelihood');
             end
             
+            % First, resample if necessary
+            obj.resampleByESS();
+            
             % Predict particles from last time step
             predictedParticles = predictParticles(sysModel, obj.particles, obj.numParticles);
             

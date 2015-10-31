@@ -85,16 +85,22 @@ classdef SIRPF < PF
             %   Section 3.5.1
             
             if Checks.isClass(sysModel, 'SystemModel')
-                obj.particles = obj.predictParticlesArbitraryNoise(sysModel, obj.particles, obj.numParticles);
+                predictParticles = @obj.predictParticlesArbitraryNoise;
             elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
-                obj.particles = obj.predictParticlesAdditiveNoise(sysModel, obj.particles, obj.numParticles);
+                predictParticles = @obj.predictParticlesAdditiveNoise;
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
-                obj.particles = obj.predictParticlesMixedNoise(sysModel, obj.particles, obj.numParticles);
+                predictParticles = @obj.predictParticlesMixedNoise;
             else
                 obj.errorSysModel('SystemModel', ...
                                   'AdditiveNoiseSystemModel', ...
                                   'MixedNoiseSystemModel');
             end
+            
+            % First, resample if necessary
+            obj.resampleByESS();
+            
+            % Then, perform the state prediction
+            obj.particles = predictParticles(sysModel, obj.particles, obj.numParticles);
         end
         
         function performUpdate(obj, measModel, measurements)
@@ -112,6 +118,9 @@ classdef SIRPF < PF
             %   Artech House Publishers, 2004,
             %   Section 3.5.1
             
+            % First, resample if necessary
+            obj.resampleByESS();
+            
             % Evaluate likelihood
             values = obj.evaluateLikelihood(measModel, measurements, obj.particles, obj.numParticles);
             
@@ -128,10 +137,12 @@ classdef SIRPF < PF
             
             % Save new particle weights
             obj.weights = values / sumWeights;
-            
-            % Resample if necessary
+        end
+        
+        function resampleByESS(obj)
             normalizedESS = obj.getNormalizedESS();
             
+            % Only resample if necessary according to the (normalized) ESS
             if normalizedESS < obj.minAllowedNormalizedESS
                 obj.resample();
             end
