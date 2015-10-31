@@ -86,6 +86,7 @@ classdef TestPF < matlab.unittest.TestCase
             
             obj.verifyEqual(samples, s);
             obj.verifyEqual(weights, w / sum(w));
+            obj.verifyEqual(f.getNumParticles(), 3);
         end
         
         function testSetStateJointDistribution(obj)
