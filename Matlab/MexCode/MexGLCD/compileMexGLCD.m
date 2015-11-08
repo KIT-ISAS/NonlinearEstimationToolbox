@@ -48,5 +48,5 @@ function compileMexGLCD()
     
     inclueDirs = { ['-I' cppSource] };
     
-    compileMex('-output', 'GLCD', inclueDirs{:}, sources{:});
+    compileMexOpenMP('-output', 'GLCD', inclueDirs{:}, sources{:});
 end

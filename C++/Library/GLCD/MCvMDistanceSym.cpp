@@ -116,6 +116,7 @@ void MCvMDistanceSym::computeD3Base(double& D3)
     double D3a = 0;
     double D3b = 0;
     
+    #pragma omp parallel for reduction(+:D3a, D3b)
     for (unsigned int i = 0; i < numHalfSamples; i++) {
         for (unsigned int j = 0; j < numHalfSamples; j++) {
             const double snMinus  = (halfSamples.col(i) - halfSamples.col(j)).squaredNorm();
@@ -141,6 +142,7 @@ void MCvMDistanceSym::computeGrad2Base(Eigen::MatrixXd& grad2)
     
     grad2.setZero();
     
+    #pragma omp parallel for private(minus, plus)
     for (unsigned int e = 0; e < numHalfSamples; e++) {
         for (unsigned int i = 0; i < numHalfSamples; i++) {
             minus = halfSamples.col(e) - halfSamples.col(i);

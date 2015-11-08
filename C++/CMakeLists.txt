@@ -25,7 +25,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 # Set Compiler Flags
 #######################################
 
-SET(COMPILE_FLAGS "-Wall -std=c++11 -Wfatal-errors")
+SET(COMPILE_FLAGS "-Wall -std=c++11 -Wfatal-errors -fopenmp")
 
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COMPILE_FLAGS}")
 
