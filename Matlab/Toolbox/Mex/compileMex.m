@@ -27,15 +27,16 @@ function compileMex(varargin)
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    if isunix()
-        % Linux specific compiler flags
+    if ispc()
+        % Windows specific compiler flags
+        options = {  };
+    else
+        % Linux and Mac OS specific compiler flags
         cxxFlags = '-std=c++11 -Wall -Wfatal-errors';
         ldFlags  = '';
         
         options  = { ['CXXFLAGS=$CXXFLAGS ' cxxFlags], ...
                      ['LDFLAGS=$LDFLAGS ' ldFlags] };
-    else
-        options  = {  };
     end
     
     % Enable the MATLAB large-array-handling API
