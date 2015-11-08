@@ -36,16 +36,18 @@ namespace GLCD {
 
 Computation::Computation()
 {
-    setBMax(70);
+    // Default bMax value
+    setBMax(200);
     
+    // By default, use point symmetric sampling
     setSymmetric(true);
 }
-        
+
 Computation::~Computation()
 {
 
 }
-        
+
 void Computation::setSymmetric(bool useSymmetric)
 {
     this->useSymmetric = useSymmetric;
@@ -55,7 +57,7 @@ void Computation::setBMax(double bMax)
 {
     this->bMax = bMax;
 }
-        
+
 Optimization::Result Computation::operator()(int dimension,
                                              int numSamples,
                                              Eigen::MatrixXd& initialParameters,
