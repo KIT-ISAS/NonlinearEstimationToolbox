@@ -117,13 +117,9 @@ void MCvMDistanceSym::computeD3Base(double& D3)
     double D3b = 0;
     
     for (unsigned int i = 0; i < numHalfSamples; i++) {
-        const Eigen::VectorXd& samplei = halfSamples.col(i);
-        
         for (unsigned int j = 0; j < numHalfSamples; j++) {
-            const Eigen::VectorXd& samplej = halfSamples.col(j);
-            
-            const double snMinus  = (samplei - samplej).squaredNorm();
-            const double snPlus   = (samplei + samplej).squaredNorm();
+            const double snMinus  = (halfSamples.col(i) - halfSamples.col(j)).squaredNorm();
+            const double snPlus   = (halfSamples.col(i) + halfSamples.col(j)).squaredNorm();
             
             const double csnMinus = coeffSquaredNorm * snMinus;
             const double csnPlus  = coeffSquaredNorm * snPlus;
@@ -146,13 +142,9 @@ void MCvMDistanceSym::computeGrad2Base(Eigen::MatrixXd& grad2)
     grad2.setZero();
     
     for (unsigned int e = 0; e < numHalfSamples; e++) {
-        const Eigen::VectorXd& samplee = halfSamples.col(e);
-        
         for (unsigned int i = 0; i < numHalfSamples; i++) {
-            const Eigen::VectorXd& samplei = halfSamples.col(i);
-            
-            minus = samplee - samplei;
-            plus  = samplee + samplei;
+            minus = halfSamples.col(e) - halfSamples.col(i);
+            plus  = halfSamples.col(e) + halfSamples.col(i);
             
             const double csnMinus = coeffSquaredNorm * minus.squaredNorm();       
             const double csnPlus  = coeffSquaredNorm * plus.squaredNorm();

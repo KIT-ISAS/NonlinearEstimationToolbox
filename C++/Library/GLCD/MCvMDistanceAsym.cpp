@@ -99,12 +99,8 @@ void MCvMDistanceAsym::computeD3(double& D3)
     double D3b = 0;
     
     for (unsigned int i = 0; i < numSamples; i++) {
-        const Eigen::VectorXd& samplei = samples.col(i);
-        
         for (unsigned int j = 0; j < numSamples; j++) {
-            const Eigen::VectorXd& samplej = samples.col(j);
-            
-            const double snMinus  = (samplei - samplej).squaredNorm();
+            const double snMinus  = (samples.col(i) - samples.col(j)).squaredNorm();
             const double csnMinus = coeffSquaredNorm * snMinus;
             
             D3a += std::exp(csnMinus);
@@ -146,12 +142,8 @@ void MCvMDistanceAsym::computeGrad2(Eigen::MatrixXd& grad2)
     grad2.setZero();
     
     for (unsigned int e = 0; e < numSamples; e++) {
-        const Eigen::VectorXd& samplee = samples.col(e);
-        
         for (unsigned int i = 0; i < numSamples; i++) {
-            const Eigen::VectorXd& samplei = samples.col(i);
-            
-            minus = samplee - samplei;
+            minus = samples.col(e) - samples.col(i);
             
             const double csnMinus = coeffSquaredNorm * minus.squaredNorm();       
             
