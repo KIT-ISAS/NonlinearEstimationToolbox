@@ -47,9 +47,9 @@ Eigen::MatrixXd MCvMDistanceSymEven::getSamples() const
 {
     Eigen::MatrixXd samples(dim, 2 * numHalfSamples);
     
-    unsigned int j = 0;
+    int j = 0;
     
-    for (unsigned int i = 0; i < numHalfSamples; ++i) {
+    for (int i = 0; i < numHalfSamples; ++i) {
         samples.col(j++) =  halfSamples.col(i);
         samples.col(j++) = -halfSamples.col(i);
     }

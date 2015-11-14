@@ -62,7 +62,7 @@ class MCvMDistanceSym : public MCvMDistance {
         double computeQuadGrad1(double b) const;
         
     protected:
-        const unsigned int      numHalfSamples;
+        const int               numHalfSamples;
         const double            sampleWeight;
         const double            sampleWeightSquared;
         

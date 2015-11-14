@@ -94,7 +94,7 @@ void MCvMDistanceSym::computeGrad1(Eigen::MatrixXd& grad1)
     grad1.resize(dim, numHalfSamples);
     
     /* The numeric integration needs to be done for every sample individually */
-    for (unsigned int i = 0; i < numHalfSamples; i++) {
+    for (int i = 0; i < numHalfSamples; i++) {
         double quad;
         
         grad1SquaredNorm = squaredNorms(i);
@@ -117,8 +117,8 @@ void MCvMDistanceSym::computeD3Base(double& D3)
     double D3b = 0;
     
     #pragma omp parallel for reduction(+:D3a, D3b)
-    for (unsigned int i = 0; i < numHalfSamples; i++) {
-        for (unsigned int j = 0; j < numHalfSamples; j++) {
+    for (int i = 0; i < numHalfSamples; i++) {
+        for (int j = 0; j < numHalfSamples; j++) {
             const double snMinus  = (halfSamples.col(i) - halfSamples.col(j)).squaredNorm();
             const double snPlus   = (halfSamples.col(i) + halfSamples.col(j)).squaredNorm();
             
@@ -143,8 +143,8 @@ void MCvMDistanceSym::computeGrad2Base(Eigen::MatrixXd& grad2)
     grad2.setZero();
     
     #pragma omp parallel for private(minus, plus)
-    for (unsigned int e = 0; e < numHalfSamples; e++) {
-        for (unsigned int i = 0; i < numHalfSamples; i++) {
+    for (int e = 0; e < numHalfSamples; e++) {
+        for (int i = 0; i < numHalfSamples; i++) {
             minus = halfSamples.col(e) - halfSamples.col(i);
             plus  = halfSamples.col(e) + halfSamples.col(i);
             

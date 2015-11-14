@@ -99,8 +99,8 @@ void MCvMDistanceAsym::computeD3(double& D3)
     double D3b = 0;
     
     #pragma omp parallel for reduction(+:D3a, D3b)
-    for (unsigned int i = 0; i < numSamples; i++) {
-        for (unsigned int j = 0; j < numSamples; j++) {
+    for (int i = 0; i < numSamples; i++) {
+        for (int j = 0; j < numSamples; j++) {
             const double snMinus  = (samples.col(i) - samples.col(j)).squaredNorm();
             const double csnMinus = coeffSquaredNorm * snMinus;
             
@@ -117,7 +117,7 @@ void MCvMDistanceAsym::computeGrad1(Eigen::MatrixXd& grad1)
     grad1.resize(dim, numSamples);
     
     /* The numeric integration needs to be done for every sample individually */
-    for (unsigned int i = 0; i < numSamples; i++) {
+    for (int i = 0; i < numSamples; i++) {
         double quad;
         
         grad1SquaredNorm = squaredNorms(i);
@@ -143,11 +143,11 @@ void MCvMDistanceAsym::computeGrad2(Eigen::MatrixXd& grad2)
     grad2.setZero();
     
     #pragma omp parallel for private(minus)
-    for (unsigned int e = 0; e < numSamples; e++) {
-        for (unsigned int i = 0; i < numSamples; i++) {
+    for (int e = 0; e < numSamples; e++) {
+        for (int i = 0; i < numSamples; i++) {
             minus = samples.col(e) - samples.col(i);
             
-            const double csnMinus = coeffSquaredNorm * minus.squaredNorm();       
+            const double csnMinus = coeffSquaredNorm * minus.squaredNorm();
             
             grad2.col(e) += minus * expInt(csnMinus);
         }
