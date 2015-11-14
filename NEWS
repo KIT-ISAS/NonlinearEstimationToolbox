@@ -1,4 +1,19 @@
 
+Changes in Nonlinear Estimation Toolbox 1.2
+=============================================
+
+* Unified naming scheme in error messages for supported system models and measurement models
+* Fixed bug in PF: number of particles was not updated when setting the system state with a DiracMixture
+* Moved the resamling step of SIRPF and ASIRPF from the end of the measurement update to the beginning of predict(), update(), and step() to obtain more accurate point estimates
+* Default compiler flags in compileMex() function are now also set when compiling on Mac OS
+* Added compileMexOpenMP() function that automatically enables OpenMP when compiling a MEX file
+* Fixed some warnings in C++ code
+* Updated the Eigen linear algebra library to version 3.2.7
+* Enabled OpenMP when computing Gaussian LCD samples
+* Set default bMax value to 200 when computing Gaussian LCD samples
+* Updated GLCD MEX files for Windows and Linux
+
+
 Changes in Nonlinear Estimation Toolbox 1.1
 =============================================
 
