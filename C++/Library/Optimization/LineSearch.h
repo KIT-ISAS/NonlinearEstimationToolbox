@@ -92,10 +92,7 @@ class LineSearchNocedal : public LineSearch {
     private:
         bool zoom(double           stepLengthLo, 
                   double           funcValueLo,
-                  double           gradDotDirLo,
                   double           stepLengthHi,
-                  double           funcValueHi,
-                  double           gradDotDirHi,
                   Eigen::VectorXd& parameters,
                   double&          funcValue,
                   Eigen::VectorXd& gradient,

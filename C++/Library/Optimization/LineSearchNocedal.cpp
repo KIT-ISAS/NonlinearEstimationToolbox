@@ -80,7 +80,6 @@ bool LineSearchNocedal::search(Function&                function,
     
     double lastStepLength = 0.0;
     double lastFuncValue  = initFuncValue;
-    double lastGradDotDir = initGradDotDir;
     
     while (true) {
         ++numIterations;
@@ -89,8 +88,7 @@ bool LineSearchNocedal::search(Function&                function,
         const double gradDotDir = evaluate(stepLength, parameters, funcValue, gradient);
         
         if (!checkArmijo(stepLength, funcValue) || funcValue >= lastFuncValue) {
-            return zoom(lastStepLength, lastFuncValue, lastGradDotDir,
-                        stepLength, funcValue, gradDotDir,
+            return zoom(lastStepLength, lastFuncValue, stepLength,
                         parameters, funcValue, gradient, stepLength);
         }
         
@@ -100,8 +98,7 @@ bool LineSearchNocedal::search(Function&                function,
         }
         
         if (gradDotDir >= 0.0) {
-            return zoom(stepLength, funcValue, gradDotDir,
-                        lastStepLength, lastFuncValue, lastGradDotDir,
+            return zoom(stepLength, funcValue, lastStepLength,
                         parameters, funcValue, gradient, stepLength);
         }
         
@@ -112,7 +109,6 @@ bool LineSearchNocedal::search(Function&                function,
         
         lastStepLength = stepLength;
         lastFuncValue  = funcValue;
-        lastGradDotDir = gradDotDir;
         
         // Extrapolate step length in exponential fashion.
         stepLength = 2.0 * stepLength;
@@ -124,12 +120,9 @@ bool LineSearchNocedal::search(Function&                function,
     }
 }
 
-bool LineSearchNocedal::zoom(double           stepLengthLo, ////
-                             double           funcValueLo,  // Smaller function value, not smaller step length!
-                             double           gradDotDirLo, ////
-                             double           stepLengthHi, ////
-                             double           funcValueHi,  // Larger function value, not larger step length!
-                             double           gradDotDirHi, ////
+bool LineSearchNocedal::zoom(double           stepLengthLo, // Smaller function value, not smaller step length!
+                             double           funcValueLo,
+                             double           stepLengthHi, // Larger function value, not larger step length!
                              Eigen::VectorXd& parameters,
                              double&          funcValue,
                              Eigen::VectorXd& gradient,
@@ -159,8 +152,6 @@ bool LineSearchNocedal::zoom(double           stepLengthLo, ////
         if (!checkArmijo(stepLength, funcValue) || funcValue >= funcValueLo) {
             // Change upper bound.
             stepLengthHi = stepLength;
-            funcValueHi  = funcValue;
-            gradDotDirHi = gradDotDir;
         } else {
             if (checkWolfe(gradDotDir)) {
                 // Line search was successful.
@@ -170,14 +161,11 @@ bool LineSearchNocedal::zoom(double           stepLengthLo, ////
             if (gradDotDir * (stepLengthHi - stepLengthLo) >= 0) {
                 // Change upper bound.
                 stepLengthHi = stepLengthLo;
-                funcValueHi  = funcValueLo;
-                gradDotDirHi = gradDotDirLo;
             }
             
             // Change lower bound.
             stepLengthLo = stepLength;
             funcValueLo  = funcValue;
-            gradDotDirLo = gradDotDir;
         }
         
         if (numIterations > maxNumIterations) {
