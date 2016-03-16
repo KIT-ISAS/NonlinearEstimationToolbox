@@ -103,7 +103,12 @@ void LBFGS::updateDirection(const Eigen::VectorXd& parameters,
         
         direction -= entry.alpha * entry.y;
         
-        j = (j - 1 + historySize) % historySize;
+        // Go backwards in history, i.e., from the newer entries to the older ones
+        if (j >= 1) {
+            --j;
+        } else {
+            j = historySize - 1;
+        }
     }
     
     // direction = H^0_k * direction, with H^0_k = gamma * I
@@ -112,7 +117,12 @@ void LBFGS::updateDirection(const Eigen::VectorXd& parameters,
     direction *= gamma;
     
     for (unsigned int i = 0; i < bound; ++i) {
-        j = (j + 1) % historySize;
+        // Go forward in history, i.e., from the older entries to the newer ones
+        if (j < (historySize - 1)) {
+            ++j;
+        } else {
+            j = 0;
+        }
         
         const Entry& entry = history[j];
         
