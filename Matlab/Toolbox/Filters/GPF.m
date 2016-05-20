@@ -222,6 +222,7 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             
             if ~isPosDef
                 obj.warnIgnoreMeas('Updated state covariance is not positive definite.');
+                return;
             end
             
             % Save new state estimate
