@@ -6,6 +6,7 @@ classdef Utils
     %   getMeanAndCov             - Compute sample mean and sample covariance.
     %   getMeanCovAndCrossCov     - Compute sample mean, covariance, and cross-covariance.
     %   kalmanUpdate              - Perform a Kalman update.
+    %   decomposedStateUpdate     - Perform an update for a system state decomposed into two parts A and B.
     %   blockDiag                 - Create a block diagonal matrix.
     %   baseBlockDiag             - Create a block diagonal matrix.
     %   drawGaussianRndSamples    - Draw random samples from a multivariate Gaussian distribution.
@@ -202,6 +203,53 @@ classdef Utils
             
             % Compute updated state covariance
             updatedStateCov = stateCov - A * A';
+        end
+        
+        function [updatedStateMean, ...
+                  updatedStateCov] = decomposedStateUpdate(stateMean, stateCov, ...
+                                                           updatedStateMeanA, updatedStateCovA)
+            % Perform an update for a system state decomposed into two parts A and B.
+            %
+            % Parameters:
+            %   >> stateMean (Column vector)
+            %      Prior mean of the entire state.
+            %
+            %   >> stateCov (Positive definite matrix)
+            %      Prior covariance matrix of the entire state.
+            %
+            %   >> updatedStateMeanA (Column vector)
+            %      Already updated mean of subspace A.
+            %
+            %   >> updatedStateCovA (Positive definite matrix)
+            %      Already updated covariance matrix of subspace A.
+            %
+            % Returns:
+            %   << updatedStateMean (Column vector)
+            %      Posterior mean of the entire state.
+            %
+            %   << updatedStateCov (Positive definite matrix)
+            %      Posterior covariance matrix of the entire state.
+            
+            D = size(updatedStateMeanA, 1);
+            
+            priorStateMeanA = stateMean(1:D);
+            priorStateMeanB = stateMean(D+1:end);
+            priorStateCovA  = stateCov(1:D, 1:D);
+            priorStateCovB  = stateCov(D+1:end, D+1:end);
+            priorStateCovBA = stateCov(D+1:end, 1:D);
+            
+            % Computed updated mean, covariance, and cross-covariance for the subspace B
+            K                 = priorStateCovBA / priorStateCovA;
+            updatedStateMeanB = priorStateMeanB + K * (updatedStateMeanA - priorStateMeanA);
+            updatedStateCovB  = priorStateCovB + K * (updatedStateCovA - priorStateCovA) * K';
+            updatedStateCovBA = K * updatedStateCovA;
+            
+            % Construct updated state mean and covariance
+            updatedStateMean = [updatedStateMeanA
+                                updatedStateMeanB];
+            
+            updatedStateCov = [updatedStateCovA  updatedStateCovBA'
+                               updatedStateCovBA updatedStateCovB  ];
         end
         
         function blockMat = blockDiag(matrix, numRepetitions)
