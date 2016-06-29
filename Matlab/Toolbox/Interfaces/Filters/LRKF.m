@@ -17,6 +17,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     %   update                         - Perform a measurement update (filter step) using the given measurement(s).
     %   step                           - Perform a combined time and measurement update.
     %   getPointEstimate               - Get a point estimate of the current system state.
+    %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
     %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).

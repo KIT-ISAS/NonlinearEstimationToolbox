@@ -5,17 +5,18 @@ classdef GaussianFilter < Filter
     % This type of filter approximates the estimate of the system state as a Gaussian distribution.
     %
     % GaussianFilter Methods:
-    %   GaussianFilter   - Class constructor.
-    %   getName          - Get the filter name / description.
-    %   setColor         - Set the filter color / plotting properties.
-    %   getColor         - Get the current filter color / plotting properties.
-    %   setState         - Set the system state.
-    %   getState         - Get the current system state.
-    %   getStateDim      - Get the dimension of the current system state.
-    %   predict          - Perform a time update (prediction step).
-    %   update           - Perform a measurement update (filter step) using the given measurement(s).
-    %   step             - Perform a combined time and measurement update.
-    %   getPointEstimate - Get a point estimate of the current system state.
+    %   GaussianFilter    - Class constructor.
+    %   getName           - Get the filter name / description.
+    %   setColor          - Set the filter color / plotting properties.
+    %   getColor          - Get the current filter color / plotting properties.
+    %   setState          - Set the system state.
+    %   getState          - Get the current system state.
+    %   getStateDim       - Get the dimension of the current system state.
+    %   predict           - Perform a time update (prediction step).
+    %   update            - Perform a measurement update (filter step) using the given measurement(s).
+    %   step              - Perform a combined time and measurement update.
+    %   getPointEstimate  - Get a point estimate of the current system state.
+    %   setStateDecompDim - Set the dimension of the unobservable part of the system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -60,6 +61,10 @@ classdef GaussianFilter < Filter
             
             % Call superclass constructor
             obj = obj@Filter(name);
+            
+            % By default, it is assumed that the entire system state is
+            % required by the measurement model/likelihood function.
+            obj.setStateDecompDim(0);
         end
         
         function setState(obj, state)
@@ -89,6 +94,44 @@ classdef GaussianFilter < Filter
             
             pointEstimate = obj.stateMean;
             uncertainty   = obj.stateCov;
+        end
+        
+        function setStateDecompDim(obj, dim)
+            % Set the dimension of the unobservable part of the system state.
+            %
+            % Consider a measurement model/likelihood function that only
+            % depends on the subspace o of the entire system state [o, u]',
+            % called the observable part. Due to the Gaussian state
+            % estimate, the filter step can be divided into two parts.
+            % First, the filter step of the respective filter is used to
+            % only update the state estimate of the observable part o.
+            % Second, the updated estimate of the entire state can now be
+            % computed in closed-form based on the updated estimate for the
+            % subspace o and the prior state estimate.
+            %
+            % For example, consider a 5D system state [a, b, c, d, e]'. If
+            % the dimension of the unobservable part is set to two, the
+            % observable part is o = [a, b, c]' and the unobservable part
+            % is u = [d, e]'. That is, it is assumed that the unobservable
+            % part comprises the last dimensions of the system state.
+            %
+            % A value of zero means that the entire system state is
+            % required by the measurement model/likelihood function (i.e.,
+            % the usual case).
+            %
+            % By default, the dimension of the unobservable part is set to
+            % zero.
+            %
+            % Parameters:
+            %   >> dim (Non-negative scalar)
+            %      The new dimension of the unobservable part of the system state.
+            
+            if ~Checks.isNonNegativeScalar(dim)
+                obj.error('InvalidDimension', ...
+                          'dim must be a non-negative scalar.');
+            end
+            
+            obj.stateDecompDim = ceil(dim);
         end
     end
     
@@ -153,5 +196,8 @@ classdef GaussianFilter < Filter
         
         % Sqrt of the current system covariance matrix.
         stateCovSqrt;
+        
+        % Dimension of the unobservable part of the system state.
+        stateDecompDim;
     end
 end
