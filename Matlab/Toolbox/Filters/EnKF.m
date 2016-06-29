@@ -69,8 +69,8 @@ classdef EnKF < BasePF
             %      Default name: 'EnKF'.
             %
             % Returns:
-            %   << obj (AnalyticKF)
-            %      A new AnalyticKF instance.
+            %   << obj (EnKF)
+            %      A new EnKF instance.
             
             if nargin < 1
                 name = 'EnKF';
