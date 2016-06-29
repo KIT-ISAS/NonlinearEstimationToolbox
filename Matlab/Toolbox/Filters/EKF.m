@@ -63,8 +63,8 @@ classdef EKF < KF
             %      Default name: 'EKF'.
             %
             % Returns:
-            %   << obj (AnalyticKF)
-            %      A new AnalyticKF instance.
+            %   << obj (EKF)
+            %      A new EKF instance.
             
             if nargin < 1
                 name = 'EKF';
