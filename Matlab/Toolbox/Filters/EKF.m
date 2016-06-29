@@ -185,9 +185,12 @@ classdef EKF < KF
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
+            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
+                         obj.momentFuncArbitraryNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+                                                      measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov);
+            
             % Perform state update
-            obj.kalmanUpdate(measModel, measurements, @obj.momentFuncArbitraryNoise, ...
-                             dimNoise, dimMeas, numMeas, noiseMean, noiseCov);
+            obj.kalmanUpdate(measurements, momentFunc);
         end
         
         function updateAdditiveNoise(obj, measModel, measurements)
@@ -197,9 +200,12 @@ classdef EKF < KF
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
+            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
+                         obj.momentFuncAdditiveNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+                                                     measModel, dimMeas, numMeas, noiseMean, noiseCov);
+            
             % Perform state update
-            obj.kalmanUpdate(measModel, measurements, @obj.momentFuncAdditiveNoise, ...
-                             dimMeas, numMeas, noiseMean, noiseCov);
+            obj.kalmanUpdate(measurements, momentFunc);
         end
         
         function updateMixedNoise(obj, measModel, measurements)
@@ -211,14 +217,18 @@ classdef EKF < KF
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
+            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
+                         obj.momentFuncMixedNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+                                                  measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
+                                                  addNoiseCov, noiseMean, noiseCov);
+            
             % Perform state update
-            obj.kalmanUpdate(measModel, measurements, @obj.momentFuncMixedNoise, ...
-                             dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCov);
+            obj.kalmanUpdate(measurements, momentFunc);
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, measModel, ~, iterStateMean, ~, ~, ...
-                                                                dimNoise, dimMeas, numMeas, noiseMean, noiseCov)
+                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, ~, iterStateMean, ~, ~, ...
+                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov)
             % Linearize measurement model around current state mean and noise mean
             [stateJacobian, ...
              noiseJacobian] = measModel.derivative(iterStateMean, noiseMean);
@@ -246,8 +256,8 @@ classdef EKF < KF
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, measModel, ~, iterStateMean, ~, ~, ...
-                                                               dimMeas, numMeas, noiseMean, noiseCov)
+                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, ~, iterStateMean, ~, ~, ...
+                                                               measModel, dimMeas, numMeas, noiseMean, noiseCov)
             % Linearize measurement model around current state mean
             stateJacobian = measModel.derivative(iterStateMean);
             
@@ -272,8 +282,8 @@ classdef EKF < KF
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMixedNoise(obj, measModel, ~, iterStateMean, ~, ~, ...
-                                                            dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCov)
+                  stateMeasCrossCov] = momentFuncMixedNoise(obj, ~, iterStateMean, ~, ~, ...
+                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCov)
             % Linearize measurement model around current state mean and noise mean
             [stateJacobian, ...
              noiseJacobian] = measModel.derivative(iterStateMean, noiseMean);
