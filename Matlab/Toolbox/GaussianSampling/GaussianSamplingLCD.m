@@ -14,7 +14,7 @@ classdef GaussianSamplingLCD < GaussianSampling
     % Literature:
     %   Jannik Steinbring, Martin Pander, Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
-    %   arXiv preprint: Systems and Control (cs.SY), June 2015.
+    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
     %
     %   Jannik Steinbring and Uwe D. Hanebeck,
     %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
