@@ -115,6 +115,212 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
+        function testDecomposedStateUpdatePriorUncorrelated(obj)
+            % 1D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7  0.0  0.0
+                          0.0  1.3 -0.3
+                          0.0 -0.3  2.0];
+            
+            updatedStateMeanA = 3.0;
+            updatedStateCovA  = 0.9;
+            
+            trueMean = [ 3.0 -1.0 -2.0]';
+            trueCov  = [ 0.9  0.0  0.0
+                         0.0  1.3 -0.3
+                         0.0 -0.3  2.0];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+            
+            % 2D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.0
+                         -0.5  1.3  0.0
+                          0.0  0.0  2.0];
+            
+            updatedStateMeanA = [ 3.0 2.0]';
+            updatedStateCovA  = [ 0.9 -0.1
+                                 -0.1  1.0];
+            
+            trueMean = [ 3.0  2.0 -2.0]';
+            trueCov  = [ 0.9 -0.1  0.0
+                        -0.1  1.0  0.0
+                         0.0  0.0  2.0];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testDecomposedStateUpdateMeanChanged(obj)
+            % 1D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            updatedStateMeanA = -3.0;
+            updatedStateCovA  =  1.7;
+            
+            stateMeanB = [-1.0 -2.0]' + ([-0.5  0.1]' / 1.7) * (-3.0 - 1.0);
+            trueMean   = [-3.0 stateMeanB']';
+            trueCov    = [ 1.7 -0.5  0.1
+                          -0.5  1.3 -0.3
+                           0.1 -0.3  2.0];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+            
+            % 2D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            updatedStateMeanA = [ 3.0 2.0]';
+            updatedStateCovA  = [ 1.7 -0.5
+                                 -0.5  1.3];
+            
+            stateMeanB = -2.0 + ([0.1 -0.3] / [ 1.7 -0.5
+                                               -0.5  1.3]) * ([ 3.0 2.0]' - [ 1.0 -1.0]');
+            trueMean   = [ 3.0 2.0 stateMeanB']';
+            trueCov    = [ 1.7 -0.5  0.1
+                          -0.5  1.3 -0.3
+                           0.1 -0.3  2.0];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testDecomposedStateUpdateCovChanged(obj)
+            % 1D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            updatedStateMeanA =  1.0;
+            updatedStateCovA  =  0.9;
+            
+            K          = [-0.5  0.1]' / 1.7;
+            covBA      = K * 0.9;
+            covB       = [ 1.3 -0.3
+                          -0.3  2.0] + K * (0.9 - 1.7) * K';
+            trueMean   = [ 1.0 -1.0 -2.0]';
+            trueCov    = [ 0.9  covBA'
+                          covBA covB  ];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+            
+            % 2D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            updatedStateMeanA = [ 1.0 -1.0]';
+            updatedStateCovA  = [ 0.9 -0.1
+                                 -0.1  1.0];
+            
+            K          = [ 0.1 -0.3] / [ 1.7 -0.5
+                                        -0.5  1.3];
+            covBA      = K * [ 0.9 -0.1
+                              -0.1  1.0];
+            covB       = 2.0 + K * ([ 0.9 -0.1
+                                     -0.1  1.0] - [ 1.7 -0.5
+                                                   -0.5  1.3]) * K';
+            trueMean   = [ 1.0 -1.0 -2.0]';
+            trueCov    = [[ 0.9 -0.1
+                           -0.1  1.0] covBA'
+                           covBA      covB  ];
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testDecomposedStateUpdateEquivalentToKalmanUpdate(obj)
+            % 1D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            H                 = [ 1.0  0.0  0.0
+                                 -0.5  0.0  0.0];
+            R                 = diag([2, 0.5]);
+            measurement       = [-2 3]';
+            measMean          = H * stateMean;
+            measCov           = H * stateCov * H' + R;
+            stateMeasCrossCov = stateCov * H';
+            
+            K        = stateMeasCrossCov / measCov;
+            trueMean = stateMean + K * (measurement - measMean);
+            trueCov  = (eye(3) - K * H) * stateCov;
+            
+            updatedStateMeanA = trueMean(1);
+            updatedStateCovA  = trueCov(1);
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+            
+            % 2D subspace A
+            stateMean = [ 1.0 -1.0 -2.0]';
+            stateCov  = [ 1.7 -0.5  0.1
+                         -0.5  1.3 -0.3
+                          0.1 -0.3  2.0];
+            
+            H                 = [ 1.0  1.0  0.0
+                                 -0.5  0.0  0.0];
+            R                 = diag([2, 0.5]);
+            measurement       = [-2 3]';
+            measMean          = H * stateMean;
+            measCov           = H * stateCov * H' + R;
+            stateMeasCrossCov = stateCov * H';
+            
+            K        = stateMeasCrossCov / measCov;
+            trueMean = stateMean + K * (measurement - measMean);
+            trueCov  = (eye(3) - K * H) * stateCov;
+            
+            updatedStateMeanA = trueMean(1:2);
+            updatedStateCovA  = trueCov(1:2, 1:2);
+            
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
+                                                            updatedStateMeanA, updatedStateCovA);
+            
+            obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
+        end
+        
         function testKalmanUpdateInvalidMeasCov(obj)
             stateMean         = [];
             stateCov          = [];
