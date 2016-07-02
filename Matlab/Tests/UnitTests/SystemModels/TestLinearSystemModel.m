@@ -137,5 +137,51 @@ classdef TestLinearSystemModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(simState, detSimState);
             obj.verifyLessThanOrEqual(simState, detSimState + 1);
         end
+        
+        
+        function testDerivative(obj)
+            sysMatrix = [1 1 2
+                         0 1 0
+                         2 1 2];
+            
+            sysNoiseMatrix = [1 0
+                              0 1
+                              0 1];
+            
+            sysModel = LinearSystemModel(sysMatrix, sysNoiseMatrix);
+            
+            [stateJacobian, ...
+             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0]');
+            
+            obj.verifyEqual(stateJacobian, sysMatrix);
+            obj.verifyEqual(noiseJacobian, sysNoiseMatrix);
+            
+            obj.verifyError(@() sysModel.derivative([3 -2]', [0 0]'), ...
+                            'LinearSystemModel:IncompatibleSystemMatrix');
+            obj.verifyError(@() sysModel.derivative([3 -2 1]', 0), ...
+                            'LinearSystemModel:IncompatibleSystemNoiseMatrix');
+            
+            sysModel = LinearSystemModel([], sysNoiseMatrix);
+            
+            [stateJacobian, ...
+             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0]');
+            
+            obj.verifyEqual(stateJacobian, eye(3));
+            obj.verifyEqual(noiseJacobian, sysNoiseMatrix);
+            
+            obj.verifyError(@() sysModel.derivative([3 -2]', [0 0]'), ...
+                            'LinearSystemModel:IncompatibleSystemNoiseMatrix');
+            
+            sysModel = LinearSystemModel();
+            
+            [stateJacobian, ...
+             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0 0]');
+            
+            obj.verifyEqual(stateJacobian, eye(3));
+            obj.verifyEqual(noiseJacobian, eye(3));
+            
+            obj.verifyError(@() sysModel.derivative([3 -2 1]', 0), ...
+                            'LinearSystemModel:IncompatibleSystemNoise');
+        end
     end
 end
