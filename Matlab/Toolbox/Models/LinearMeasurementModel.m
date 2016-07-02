@@ -80,17 +80,25 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
     end
     
     methods (Sealed)
+        function stateJacobian = derivative(obj, nominalState)
+            dimState = size(nominalState, 1);
+            
+            if isempty(obj.measMatrix)
+                stateJacobian = eye(dimState);
+            else
+                obj.checkMeasMatrix(dimState);
+                
+                stateJacobian = obj.measMatrix;
+            end
+        end
+        
         function measurements = measurementEquation(obj, stateSamples)
             if isempty(obj.measMatrix)
                 measurements = stateSamples;
             else
-                dimState           = size(stateSamples, 1);
-                dimMeasMatrixState = size(obj.measMatrix, 2);
+                dimState = size(stateSamples, 1);
                 
-                if dimState ~= dimMeasMatrixState
-                    error('LinearMeasurementModel:IncompatibleMeasurementMatrix', ...
-                          'System state and measurement matrix with incompatible dimensions.');
-                end
+                obj.checkMeasMatrix(dimState);
                 
                 measurements = obj.measMatrix * stateSamples;
             end
@@ -103,10 +111,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
             dimState = size(stateMean, 1);
             
             if isempty(obj.measMatrix)
-                if dimNoise ~= dimState
-                    error('LinearMeasurementModel:IncompatibleMeasurementNoise', ...
-                          'System state and measurement noise with incompatible dimensions.');
-                end
+                obj.checkMeasNoise(dimState, dimNoise);
                 
                 % Measurement mean
                 measMean = stateMean + noiseMean;
@@ -117,17 +122,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
                 % State measurement cross-covariance
                 stateMeasCrossCov = stateCov;
             else
-                [dimMeasMatrixMeas, dimMeasMatrixState] = size(obj.measMatrix);
-                
-                if dimState ~= dimMeasMatrixState
-                    error('LinearMeasurementModel:IncompatibleMeasurementMatrix', ...
-                          'System state and measurement matrix with incompatible dimensions.');
-                end
-                
-                if dimNoise ~= dimMeasMatrixMeas
-                    error('LinearMeasurementModel:IncompatibleMeasurementMatrix', ...
-                          'Measurement noise and measurement matrix with incompatible dimensions.');
-                end
+                obj.checkMeasMatrix(dimState, dimNoise);
                 
                 % Measurement mean
                 measMean = obj.measMatrix * stateMean + noiseMean;
@@ -142,6 +137,31 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
             measMean          = repmat(measMean, numMeas, 1);
             measCov           = Utils.baseBlockDiag(measCov, noiseCov, numMeas);
             stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
+        end
+    end
+    
+    methods (Access = 'private')
+        function checkMeasMatrix(obj, dimState, dimNoise)
+            [dimMeasMatrixMeas, dimMeasMatrixState] = size(obj.measMatrix);
+            
+            if dimState ~= dimMeasMatrixState
+                error('LinearMeasurementModel:IncompatibleMeasurementMatrix', ...
+                      'System state and measurement matrix with incompatible dimensions.');
+            end
+            
+            if nargin == 3
+                if dimNoise ~= dimMeasMatrixMeas
+                    error('LinearMeasurementModel:IncompatibleMeasurementMatrix', ...
+                          'Measurement noise and measurement matrix with incompatible dimensions.');
+                end
+            end
+        end
+        
+        function checkMeasNoise(~, dimState, dimNoise)
+            if dimNoise ~= dimState
+                error('LinearMeasurementModel:IncompatibleMeasurementNoise', ...
+                      'System state and measurement noise with incompatible dimensions.');
+            end
         end
     end
     
