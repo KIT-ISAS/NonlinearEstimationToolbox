@@ -89,5 +89,26 @@ classdef TestLinearMeasurementModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
             obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 1);
         end
+        
+        
+        function testDerivative(obj)
+            measMatrix = [1 1 0
+                          0 1 2];
+            
+            measModel = LinearMeasurementModel(measMatrix);
+            
+            stateJacobian = measModel.derivative([3 -2 1]');
+            
+            obj.verifyEqual(stateJacobian, measMatrix);
+            
+            obj.verifyError(@() measModel.derivative([3 -2]'), ...
+                            'LinearMeasurementModel:IncompatibleMeasurementMatrix');
+            
+            measModel = LinearMeasurementModel();
+            
+            stateJacobian = measModel.derivative([3 -2 1]');
+            
+            obj.verifyEqual(stateJacobian, eye(3));
+        end
     end
 end
