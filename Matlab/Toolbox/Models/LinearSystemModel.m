@@ -135,6 +135,30 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
     end
     
     methods (Sealed)
+        function [stateJacobian, ...
+                  noiseJacobian] = derivative(obj, nominalState, nominalNoise)
+            dimState = size(nominalState, 1);
+            dimNoise = size(nominalNoise, 1);
+            
+            if isempty(obj.sysMatrix)
+                stateJacobian = eye(dimState);
+            else
+                obj.checkSysMatrix(dimState);
+                
+                stateJacobian = obj.sysMatrix;
+            end
+            
+            if isempty(obj.sysNoiseMatrix)
+                obj.checkSysNoise(dimState, dimNoise);
+                
+                noiseJacobian = eye(dimState);
+            else
+                obj.checkSysNoiseMatrix(dimState, dimNoise);
+                
+                noiseJacobian = obj.sysNoiseMatrix;
+            end
+        end
+        
         function predictedStates = systemEquation(obj, stateSamples, noiseSamples)
             dimState = size(stateSamples, 1);
             dimNoise = size(noiseSamples, 1);
