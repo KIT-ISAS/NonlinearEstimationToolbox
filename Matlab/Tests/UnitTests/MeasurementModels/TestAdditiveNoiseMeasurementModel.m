@@ -55,5 +55,16 @@ classdef TestAdditiveNoiseMeasurementModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
             obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 1);
         end
+        
+        
+        function testDerivative(obj)
+            measModel = AddNoiseMeasModel();
+            
+            nominalState = [-3 0.5]';
+            
+            stateJacobian = measModel.derivative(nominalState);
+            
+            obj.verifyEqual(stateJacobian, measModel.measMatrix, 'AbsTol', 1e-8);
+        end
     end
 end
