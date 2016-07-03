@@ -57,5 +57,19 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
             obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 2);
         end
+        
+        
+        function testDerivative(obj)
+            measModel = MixedNoiseMeasModel();
+            
+            nominalState = [-3 0.5]';
+            nominalNoise = [1 -0.7 2.3]';
+            
+            [stateJacobian, ...
+             noiseJacobian] = measModel.derivative(nominalState, nominalNoise);
+            
+            obj.verifyEqual(stateJacobian, measModel.measMatrix, 'AbsTol', 1e-8);
+            obj.verifyEqual(noiseJacobian, eye(3), 'AbsTol', 1e-8);
+        end
     end
 end
