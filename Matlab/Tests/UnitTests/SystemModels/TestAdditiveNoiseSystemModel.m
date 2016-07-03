@@ -40,5 +40,16 @@ classdef TestAdditiveNoiseSystemModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(simState, detSimState);
             obj.verifyLessThanOrEqual(simState, detSimState + 1);
         end
+        
+        
+        function testDerivative(obj)
+            sysModel = AddNoiseSysModel();
+            
+            nominalState = [-3 0.5]';
+            
+            stateJacobian = sysModel.derivative(nominalState);
+            
+            obj.verifyEqual(stateJacobian, sysModel.sysMatrix, 'AbsTol', 1e-8);
+        end
     end
 end
