@@ -40,5 +40,19 @@ classdef TestSystemModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(simState, detSimState);
             obj.verifyLessThanOrEqual(simState, detSimState + 1);
         end
+        
+        
+        function testDerivative(obj)
+            sysModel = SysModel();
+            
+            nominalState = [-3 0.5]';
+            nominalNoise = [1 -0.7]';
+            
+            [stateJacobian, ...
+             noiseJacobian] = sysModel.derivative(nominalState, nominalNoise);
+            
+            obj.verifyEqual(stateJacobian, sysModel.sysMatrix, 'AbsTol', 1e-8);
+            obj.verifyEqual(noiseJacobian, eye(2), 'AbsTol', 1e-8);
+        end
     end
 end
