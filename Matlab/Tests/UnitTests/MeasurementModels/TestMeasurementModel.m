@@ -55,5 +55,19 @@ classdef TestMeasurementModel < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
             obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 1);
         end
+        
+        
+        function testDerivative(obj)
+            measModel = MeasModel();
+            
+            nominalState = [-3 0.5]';
+            nominalNoise = [1 -0.7 2.3]';
+            
+            [stateJacobian, ...
+             noiseJacobian] = measModel.derivative(nominalState, nominalNoise);
+            
+            obj.verifyEqual(stateJacobian, measModel.measMatrix, 'AbsTol', 1e-8);
+            obj.verifyEqual(noiseJacobian, eye(3), 'AbsTol', 1e-8);
+        end
     end
 end
