@@ -9,7 +9,7 @@ PROJECT(NonlinearEstimationToolbox)
 
 set(TOOLBOX_MAJOR_VERSION 1)
 set(TOOLBOX_MINOR_VERSION 2)
-set(TOOLBOX_PATCH_VERSION 0)
+set(TOOLBOX_PATCH_VERSION 1)
 
 set(TOOLBOX_FOLDER_NAME "nonlinear-estimation-toolbox")
 
