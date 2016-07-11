@@ -217,7 +217,28 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
                             'GaussianMixture:InvalidNumberOfSamples');
         end
         
-        function testLogPdf(obj)
+        function testLogPdfOneComponent(obj)
+            mean   = [1 0.4]';
+            cov    = [2 0.5; 0.5 1.2];
+            weight = 1;
+            
+            gm = GaussianMixture(mean, cov, weight);
+            
+            values = [0.1 -0.5 13.4
+                      0.9 -10   5  ];
+            
+            logValues = gm.logPdf(values);
+            
+            obj.verifySize(logValues, [1, 3]);
+            
+            v = obj.gaussian2d(mean, cov, values);
+            
+            trueLogValues = log(v);
+            
+            obj.verifyEqual(logValues, trueLogValues, 'AbsTol', 1e-10);
+        end
+        
+        function testLogPdfTwoComponents(obj)
             m1 = [1 0.4]';
             m2 = [-2 3.4]';
             c1 = diag([0.1 3]);
