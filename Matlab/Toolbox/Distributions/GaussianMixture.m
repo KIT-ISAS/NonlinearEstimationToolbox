@@ -181,7 +181,7 @@ classdef GaussianMixture < Distribution
             
             compValues = exp(compValues);
             
-            logValues = maxLogCompValues + log(sum(compValues));
+            logValues = maxLogCompValues + log(sum(compValues, 1));
         end
         
         function numComponents = getNumComponents(obj)
