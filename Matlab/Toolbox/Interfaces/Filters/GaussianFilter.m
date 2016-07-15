@@ -17,6 +17,7 @@ classdef GaussianFilter < Filter
     %   step              - Perform a combined time and measurement update.
     %   getPointEstimate  - Get a point estimate of the current system state.
     %   setStateDecompDim - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim - Get the dimension of the unobservable part of the system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -132,6 +133,16 @@ classdef GaussianFilter < Filter
             end
             
             obj.stateDecompDim = ceil(dim);
+        end
+        
+        function dim = getStateDecompDim(obj)
+            % Get the dimension of the unobservable part of the system state.
+            %
+            % Returns:
+            %   << dim (Non-negative scalar)
+            %      Dimension of the unobservable part of the system state.
+            
+            dim = obj.stateDecompDim;
         end
     end
     
