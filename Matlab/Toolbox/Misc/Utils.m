@@ -15,7 +15,7 @@ classdef Utils
     %   rndOrthogonalMatrix       - Creates a random orthogonal matrix of the specified dimension.
     %   getStateSamples           - Get a set of samples approximating a Gaussian distributed system state.
     %   getStateNoiseSamples      - Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
-    %   diffQuotientState         - Compute the state difference quotient of a function at the given nominal system state.
+    %   diffQuotientState         - Compute first-order and second-order difference quotients of a function at the given nominal system state.
     %   diffQuotientStateAndNoise - Compute the state and noise difference quotient of a function at the given nominal sytem state and noise.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -516,39 +516,90 @@ classdef Utils
             noiseSamples = bsxfun(@plus, noiseSamples, noiseMean);
         end
         
-        function stateJacobian = diffQuotientState(func, nominalState, step)
-            % Compute the state difference quotient of a function at the given nominal system state.
+        function [stateJacobian, stateHessianTensor] = diffQuotientState(func, nominalState, step)
+            % Compute first-order and second-order difference quotients of a function at the given nominal system state.
             %
             % Parameters:
             %   >> func (Function handle)
             %      System/Measurement function.
             %
             %   >> nominalState (Column vector)
-            %      Nominal system state to compute the Jacobian.
+            %      Nominal system state.
             %
             %   >> step (Positive scalar)
-            %      Step size to compute the finite difference.
-            %      Default: sqrt(eps)
+            %      Step size for computing the difference quotients.
+            %      Default: eps^(1/4)
             %
             % Returns:
             %   << stateJacobian (Square matrix)
-            %      Jacobian of the system state variables.
+            %      First-order difference quotients of the system state
+            %      variables, i.e., an approxiamtion of the Jacobian.
+            %
+            %   << stateHessianTensor (3D matrix)
+            %      Set of second-order difference quotients of the system
+            %      state variables, i.e., approxiamtions of the Hessians.
             
             % Default value for step
             if nargin < 3
-                step = sqrt(eps);
+                step = eps^(1/4);
             end
             
             dimState = size(nominalState, 1);
             
-            % State jacobian
-            stateSamples = bsxfun(@plus, [zeros(dimState, 1) step * eye(dimState)], nominalState);
+            % State Jacobian
+            stateSamples = bsxfun(@plus, [step*eye(dimState) -step*eye(dimState) zeros(dimState, 1)], nominalState);
             
             values = func(stateSamples);
             
-            deltaStates = bsxfun(@minus, values(:, 2:end), values(:, 1));
+            idx           = 1:dimState;
+            stateJacobian = values(:, idx) - values(:, dimState + idx);
+            stateJacobian = stateJacobian / (2 * step);
             
-            stateJacobian = deltaStates / step;
+            % State Hessians
+            if nargout == 2
+                L     = (dimState * (dimState + 1)) * 0.5 - dimState;
+                steps = zeros(dimState, L);
+                
+                a = 1;
+                b = dimState - 1;
+                for i = 1:dimState - 1
+                    d = dimState - i;
+                    
+                    steps(i,         a:b) = step;
+                    steps(i + 1:end, a:b) = step * eye(d);
+                    
+                    a = b + 1;
+                    b = a + d - 2;
+                end
+                
+                stateSamples = bsxfun(@plus, [steps -steps], nominalState);
+                
+                values2 = func(stateSamples);
+                
+                a = 2 * values(:, end);
+                b = bsxfun(@plus, values2(:, 1:L) + values2(:, L + 1:end), a);
+                c = values(:, idx) + values(:, dimState + idx);
+                d = bsxfun(@minus, c, a);
+                
+                dimFunc            = size(values, 1);
+                stateHessianTensor = nan(dimState, dimState, dimFunc);
+                
+                k = 1;
+                for i = 1:dimState
+                    stateHessianTensor(i, i, :) = d(:, i);
+                    
+                    for j = (i+1):dimState
+                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
+                        
+                        stateHessianTensor(i, j, :) = vec;
+                        stateHessianTensor(j, i, :) = vec;
+                        
+                        k = k + 1;
+                    end
+                end
+                
+                stateHessianTensor = stateHessianTensor / (step * step);
+            end
         end
         
         function [stateJacobian, noiseJacobian] = diffQuotientStateAndNoise(func, nominalState, nominalNoise, step)
