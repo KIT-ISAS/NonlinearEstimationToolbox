@@ -459,11 +459,13 @@ classdef TestUtils < matlab.unittest.TestCase
         function testDiffQuotientState(obj)
             nominalState = [-1.5 3.2]';
             
-            stateJacobian = Utils.diffQuotientState(@TestUtils.stateFunc, nominalState);
+            [stateJacobian, stateHessianTensor] = Utils.diffQuotientState(@TestUtils.stateFunc, nominalState);
             
-            trueStateJacobian = TestUtils.diffStateFunc(nominalState);
+            trueStateJacobian      = TestUtils.jacobianStateFunc(nominalState);
+            trueStateHessianTensor = TestUtils.hessianTensorStateFunc(nominalState);
             
-            obj.verifyEqual(stateJacobian, trueStateJacobian, 'AbsTol', 1e-5);
+            obj.verifyEqual(stateJacobian, trueStateJacobian, 'RelTol', 1e-8);
+            obj.verifyEqual(stateHessianTensor, trueStateHessianTensor, 'RelTol', 1e-6);
         end
         
         function testDiffQuotientStateAndNoise(obj)
@@ -485,12 +487,23 @@ classdef TestUtils < matlab.unittest.TestCase
     methods (Static, Access = 'private')
         function values = stateFunc(states)
             values = [states(1, :).^2 .* states(2, :).^3
-                      states(1, :) + sin(states(2, :))  ];
+                      states(1, :) + sin(states(2, :))
+                      exp(states(1, :)) .* sqrt(states(2, :))];
         end
         
-        function stateJacobian = diffStateFunc(states)
-            stateJacobian = [2 * states(1, :) .* states(2, :).^3 states(1, :).^2 .* 3 * states(2, :).^2
-                             1                                   cos(states(2, :))                     ];
+        function stateJacobian = jacobianStateFunc(states)
+            stateJacobian = [2 * states(1, :) .* states(2, :).^3      3 * states(1, :).^2 .* states(2, :).^2
+                             1                                        cos(states(2, :))
+                             exp(states(1, :)) .* sqrt(states(2, :))  0.5 * exp(states(1, :)) .* states(2, :).^(-0.5)];
+        end
+        
+        function stateHessianTensor = hessianTensorStateFunc(states)
+            stateHessianTensor(:, :, 1) = [2 *                    states(2, :).^3  6 * states(1, :)    .* states(2, :).^2
+                                           6 * states(1, :)    .* states(2, :).^2  6 * states(1, :).^2 .* states(2, :)   ];
+            stateHessianTensor(:, :, 2) = [0   0
+                                           0  -sin(states(2, :))];
+            stateHessianTensor(:, :, 3) = [exp(states(1, :)) .* sqrt(states(2, :))           0.5 * exp(states(1, :)) .* states(2, :).^(-0.5)
+                                           0.5 * exp(states(1, :)) .* states(2, :).^(-0.5)  -1/4 * exp(states(1, :)) .* states(2, :).^(-1.5)];
         end
         
         function values = stateAndNoiseFunc(states, noise)
