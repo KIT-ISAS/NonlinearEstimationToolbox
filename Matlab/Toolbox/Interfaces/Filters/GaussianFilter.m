@@ -176,6 +176,16 @@ classdef GaussianFilter < Filter
             obj.stateCov     = predictedStateCov;
             obj.stateCovSqrt = covSqrt;
         end
+        
+        function observableStateDim = getObservableStateDim(obj)
+            observableStateDim = obj.dimState - obj.stateDecompDim;
+            
+            % Is unobservable part larger than the system state?
+            if observableStateDim < 0
+                obj.error('InvalidUnobservableStateDimension', ...
+                          'Invalid dimension of the unobservable part of the system state.');
+            end
+        end
     end
     
     methods (Access = 'private')
