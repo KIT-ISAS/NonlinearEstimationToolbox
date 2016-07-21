@@ -186,6 +186,22 @@ classdef GaussianFilter < Filter
                           'Invalid dimension of the unobservable part of the system state.');
             end
         end
+        
+        function [updatedStateMean, ...
+                  updatedStateCov, ...
+                  updatedStateCovSqrt] = decomposedStateUpdate(obj, updatedMean, updatedCov)
+            % Update entire system state
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, ...
+                                                            updatedMean, updatedCov);
+            
+            % Check updated state covariance is valid
+            [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
+            
+            if ~isPosDef
+                error('Updated state covariance is not positive definite.');
+            end
+        end
     end
     
     methods (Access = 'private')
