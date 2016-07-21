@@ -197,12 +197,53 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             end
         end
         
-        function updateLikelihood(obj, measModel, measurements, particles)
-            if nargin < 4
-                % By default, sample the current system state
-                particles = obj.getStateParticles();
+        function updateLikelihood(obj, measModel, measurements)
+            observableStateDim = obj.getObservableStateDim();
+            
+            try
+                % Use decomposed state update?
+                if observableStateDim < obj.dimState
+                    % Extract observable part of the system state
+                    mean    = obj.stateMean(1:observableStateDim);
+                    covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
+                    
+                    % Generate Gaussian random samples
+                    particles = Utils.drawGaussianRndSamples(mean, ...
+                                                             covSqrt, ...
+                                                             obj.numParticles);
+                    
+                    % Standard GPF update with observable part only
+                    [updatedMean, ...
+                     updatedCov] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+                    
+                    % Update entire system state
+                    [updatedStateMean, ...
+                     updatedStateCov, ...
+                     updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
+                else
+                    % Standard GPF update
+                    particles = obj.getStateParticles();
+                    
+                    [updatedStateMean, ...
+                     updatedStateCov, ...
+                     updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+                end
+            catch ex
+                % Issue warning ...
+                obj.warnIgnoreMeas(ex.message);
+                % ... and stop filter step
+                return;
             end
             
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
+        end
+        
+        function [updatedMean, ...
+                  updatedCov, ...
+                  updatedCovSqrt] = updateLikelihoodObservable(obj, measModel, measurements, particles)
             % Evaluate likelihood
             values = obj.evaluateLikelihood(measModel, measurements, particles, obj.numParticles);
             
@@ -210,27 +251,21 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             sumWeights = sum(values);
             
             if sumWeights <= 0
-                obj.warnIgnoreMeas('Sum of computed posterior particle weights is not positive.');
-                return;
+                error('Sum of computed posterior particle weights is not positive.');
             end
             
             weights = values / sumWeights;
             
             % Compute updated state mean and covariance
-            [updatedStateMean, updatedStateCov] = Utils.getMeanAndCov(particles, weights);
+            [updatedMean, ...
+             updatedCov] = Utils.getMeanAndCov(particles, weights);
             
             % Check updated state covariance is valid
-            [isPosDef, covSqrt] = Checks.isCov(updatedStateCov);
+            [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
             
             if ~isPosDef
-                obj.warnIgnoreMeas('Updated state covariance is not positive definite.');
-                return;
+                error('Updated state covariance is not positive definite.');
             end
-            
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = covSqrt;
         end
         
         function particles = getStateParticles(obj)

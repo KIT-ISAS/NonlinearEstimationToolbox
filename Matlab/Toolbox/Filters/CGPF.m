@@ -101,10 +101,35 @@ classdef CGPF < GPF
             end
             
             if Checks.isClass(measModel, 'Likelihood')
-                obj.updateLikelihood(measModel, measurements, predictedParticles);
+                obj.updateLikelihoodCombined(measModel, measurements, predictedParticles);
             else
                 obj.errorMeasModel('Likelihood');
             end
+        end
+        
+        function updateLikelihoodCombined(obj, measModel, measurements, particles)
+            % It is important to note that for the combined time and
+            % measurement update the predicted state estimate is NOT
+            % necessarily Gaussian. Hence, we cannot use the decomposed
+            % state update even if the likelihood function does not depend
+            % upon the entire system state.
+            
+            try
+                % Standard GPF update
+                [updatedStateMean, ...
+                 updatedStateCov, ...
+                 updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+            catch ex
+                % Issue warning ...
+                obj.warnIgnoreMeas(ex.message);
+                % ... and stop filter step
+                return;
+            end
+            
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
 end
