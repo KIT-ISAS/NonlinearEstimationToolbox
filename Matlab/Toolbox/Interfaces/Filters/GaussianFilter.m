@@ -207,7 +207,9 @@ classdef GaussianFilter < Filter
         
         % Sqrt of the current system covariance matrix.
         stateCovSqrt;
-        
+    end
+    
+    properties (Access = 'private')
         % Dimension of the unobservable part of the system state.
         stateDecompDim;
     end
