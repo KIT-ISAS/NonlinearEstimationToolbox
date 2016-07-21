@@ -223,87 +223,97 @@ classdef PGF < SampleBasedGaussianFilter
         end
         
         function updateLikelihood(obj, measModel, measurements)
-            % Initialize progression
-            mean     = obj.stateMean;
-            cov      = obj.stateCov;
-            covSqrt  = obj.stateCovSqrt;
-            numSteps = 0;
-            gamma    = 0;
+            observableStateDim = obj.getObservableStateDim();
             
-            % Get standard normal approximation
-            [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(obj.dimState);
-            
-            % Set forced sample weight ratio
-            logForcedRatio = -log(numSamples); % = log(1 / numSamples)
-            
-            % Start progression
-            while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
-                % Sample intermediate Gaussian approximation
-                samples = covSqrt * stdNormalSamples;
-                samples = bsxfun(@plus, samples, mean);
+            try
+                % Initialize progression
+                mean        = obj.stateMean(1:observableStateDim);
+                covSqrt     = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
+                numSteps    = 0;
+                gamma       = 0;
                 
-                % Evaluate log likelihood
-                logValues = measModel.logLikelihood(samples, measurements);
+                % Get standard normal approximation
+                [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(observableStateDim);
                 
-                obj.checkLogLikelihoodEvaluations(logValues, numSamples);
+                % Set forced sample weight ratio
+                logForcedRatio = -log(numSamples); % = log(1 / numSamples)
                 
-                % Compute deltaGamma
-                
-                % Discard zero likelihood values
-                validLogValues = logValues(logValues > -Inf);
-                
-                if isempty(validLogValues)
-                    obj.warnIgnoreMeas('All likelihood values are zero.');
-                    return;
+                % Start progression
+                while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
+                    % Sample intermediate Gaussian approximation
+                    samples = covSqrt * stdNormalSamples;
+                    samples = bsxfun(@plus, samples, mean);
+                    
+                    % Evaluate log likelihood
+                    logValues = measModel.logLikelihood(samples, measurements);
+                    
+                    obj.checkLogLikelihoodEvaluations(logValues, numSamples);
+                    
+                    % Compute deltaGamma
+                    
+                    % Discard zero likelihood values
+                    validLogValues = logValues(logValues > -Inf);
+                    
+                    if isempty(validLogValues)
+                        error('All likelihood values are zero.');
+                    end
+                    
+                    minLogValue = min(validLogValues);
+                    maxLogValue = max(validLogValues);
+                    
+                    if minLogValue == maxLogValue
+                        error('Minimum and maximum likelihood values are identical.');
+                    end
+                    
+                    deltaGamma = logForcedRatio / (minLogValue - maxLogValue);
+                    
+                    % Clamp deltaGamma if necessary
+                    if gamma + deltaGamma > 1
+                        deltaGamma = 1 - gamma;
+                    end
+                    
+                    % For numerical stability
+                    logValues = logValues - maxLogValue;
+                    
+                    % Compute intermediate posterior sample weights
+                    weights = exp(logValues * deltaGamma);
+                    
+                    % Normalize weights
+                    sumWeights = sum(weights);
+                    
+                    if sumWeights <= 0
+                        error('Sum of computed sample weights is not positive.');
+                    end
+                    
+                    weights = weights / sumWeights;
+                    
+                    % Compute new intermediate mean and covariance
+                    [mean, cov] = Utils.getMeanAndCov(samples, weights);
+                    
+                    % Check intermediate Gaussian is valid
+                    [isPosDef, covSqrt] = Checks.isCov(cov);
+                    
+                    if ~isPosDef
+                        error('Intermediate state covariance is not positive definite.');
+                    end
+                    
+                    % Increment gamma
+                    gamma = gamma + deltaGamma;
+                    
+                    % Increment step counter
+                    numSteps = numSteps + 1;
                 end
                 
-                minLogValue = min(validLogValues);
-                maxLogValue = max(validLogValues);
-                
-                if minLogValue == maxLogValue
-                    obj.warnIgnoreMeas('Minimum and maximum likelihood values are identical.');
-                    return;
+                % Use decomposed state update?
+                if observableStateDim < obj.dimState
+                    % Update entire system state
+                    [mean, cov, covSqrt] = obj.decomposedStateUpdate(mean, cov);
                 end
-                
-                deltaGamma = logForcedRatio / (minLogValue - maxLogValue);
-                
-                % Clamp deltaGamma if necessary
-                if gamma + deltaGamma > 1
-                    deltaGamma = 1 - gamma;
-                end
-                
-                % For numerical stability
-                logValues = logValues - maxLogValue;
-                
-                % Compute intermediate posterior sample weights
-                weights = exp(logValues * deltaGamma);
-                
-                % Normalize weights
-                sumWeights = sum(weights);
-                
-                if sumWeights <= 0
-                    obj.warnIgnoreMeas('Sum of computed sample weights is not positive.');
-                    return;
-                end
-                
-                weights = weights / sumWeights;
-                
-                % Compute new intermediate mean and covariance
-                [mean, cov] = Utils.getMeanAndCov(samples, weights);
-                
-                % Check intermediate Gaussian is valid
-                [isPosDef, covSqrt] = Checks.isCov(cov);
-                
-                if ~isPosDef
-                    obj.warnIgnoreMeas('Intermediate state covariance is not positive definite.');
-                    return;
-                end
-                
-                % Increment gamma
-                gamma = gamma + deltaGamma;
-                
-                % Increment step counter
-                numSteps = numSteps + 1;
+            catch ex
+                % Issue warning ...
+                obj.warnIgnoreMeas(ex.message);
+                % ... and stop filter step
+                return;
             end
             
             obj.lastNumSteps = numSteps;
