@@ -104,7 +104,7 @@ classdef EKF < KF
              noiseJacobian] = sysModel.derivative(obj.stateMean, noiseMean);
             
             % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, obj.dimState);
+            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
             obj.checkNoiseJacobian(noiseJacobian, obj.dimState, dimNoise);
             
             % Predict state mean
@@ -127,7 +127,7 @@ classdef EKF < KF
             stateJacobian = sysModel.derivative(obj.stateMean);
             
             % Check computed derivative
-            obj.checkStateJacobian(stateJacobian, obj.dimState);
+            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
             
             % Predict state mean
             predictedStateMean = sysModel.systemEquation(obj.stateMean) + noiseMean;
@@ -151,7 +151,7 @@ classdef EKF < KF
              noiseJacobian] = sysModel.derivative(obj.stateMean, noiseMean);
             
             % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, obj.dimState);
+            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
             obj.checkNoiseJacobian(noiseJacobian, obj.dimState, dimNoise);
             
             % Predict state mean
@@ -187,8 +187,8 @@ classdef EKF < KF
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
-            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
-                         obj.momentFuncArbitraryNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
+                         obj.momentFuncArbitraryNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                       measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov);
             
             % Perform state update
@@ -202,8 +202,8 @@ classdef EKF < KF
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
-            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
-                         obj.momentFuncAdditiveNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
+                         obj.momentFuncAdditiveNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                      measModel, dimMeas, numMeas, noiseMean, noiseCov);
             
             % Perform state update
@@ -219,8 +219,8 @@ classdef EKF < KF
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
-            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
-                         obj.momentFuncMixedNoise(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
+                         obj.momentFuncMixedNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                   measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
                                                   addNoiseCov, noiseMean, noiseCov);
             
@@ -229,94 +229,100 @@ classdef EKF < KF
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, ~, iterStateMean, ~, ~, ...
+                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, ~, iterMean, ~, ~, ...
                                                                 measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov)
+            dimState = size(iterMean, 1);
+            
             % Linearize measurement model around current state mean and noise mean
             [stateJacobian, ...
-             noiseJacobian] = measModel.derivative(iterStateMean, noiseMean);
+             noiseJacobian] = measModel.derivative(iterMean, noiseMean);
             
             % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, dimMeas);
+            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
             obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
             
             % Compute measurement mean
-            measMean = measModel.measurementEquation(iterStateMean, noiseMean) + ...
-                       stateJacobian * (obj.stateMean - iterStateMean);
+            measMean = measModel.measurementEquation(iterMean, noiseMean) + ...
+                       stateJacobian * (priorMean - iterMean);
             
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * obj.stateCov * stateJacobian';
+            matBase = stateJacobian * priorCov * stateJacobian';
             matDiag = noiseJacobian * noiseCov * noiseJacobian';
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
             % Compute state measurement cross-covariance
-            stateMeasCrossCov = obj.stateCov * stateJacobian';
+            stateMeasCrossCov = priorCov * stateJacobian';
             
             stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, ~, iterStateMean, ~, ~, ...
+                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, ~, iterMean, ~, ~, ...
                                                                measModel, dimMeas, numMeas, noiseMean, noiseCov)
+            dimState = size(iterMean, 1);
+            
             % Linearize measurement model around current state mean
-            stateJacobian = measModel.derivative(iterStateMean);
+            stateJacobian = measModel.derivative(iterMean);
             
             % Check computed derivative
-            obj.checkStateJacobian(stateJacobian, dimMeas);
+            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
             
             % Compute measurement mean
-            measMean = measModel.measurementEquation(iterStateMean) + noiseMean + ...
-                       stateJacobian * (obj.stateMean - iterStateMean);
+            measMean = measModel.measurementEquation(iterMean) + noiseMean + ...
+                       stateJacobian * (priorMean - iterMean);
             
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * obj.stateCov * stateJacobian';
+            matBase = stateJacobian * priorCov * stateJacobian';
             
             measCov = Utils.baseBlockDiag(matBase, noiseCov, numMeas);
             
             % Compute state measurement cross-covariance
-            stateMeasCrossCov = obj.stateCov * stateJacobian';
+            stateMeasCrossCov = priorCov * stateJacobian';
             
             stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMixedNoise(obj, ~, iterStateMean, ~, ~, ...
+                  stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, ~, iterMean, ~, ~, ...
                                                             measModel, dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCov)
+            dimState = size(iterMean, 1);
+            
             % Linearize measurement model around current state mean and noise mean
             [stateJacobian, ...
-             noiseJacobian] = measModel.derivative(iterStateMean, noiseMean);
+             noiseJacobian] = measModel.derivative(iterMean, noiseMean);
             
             % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, dimMeas);
+            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
             obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
             
             % Compute measurement mean
-            measMean = measModel.measurementEquation(iterStateMean, noiseMean) + addNoiseMean + ...
-                       stateJacobian * (obj.stateMean - iterStateMean);
+            measMean = measModel.measurementEquation(iterMean, noiseMean) + addNoiseMean + ...
+                       stateJacobian * (priorMean - iterMean);
             
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * obj.stateCov * stateJacobian';
+            matBase = stateJacobian * priorCov * stateJacobian';
             matDiag = noiseJacobian * noiseCov * noiseJacobian' + addNoiseCov;
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
             % Compute state measurement cross-covariance
-            stateMeasCrossCov = obj.stateCov * stateJacobian';
+            stateMeasCrossCov = priorCov * stateJacobian';
             
             stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
         
-        function checkStateJacobian(obj, stateJacobian, dimOutput)
-            if ~Checks.isMat(stateJacobian, dimOutput, obj.dimState)
+        function checkStateJacobian(obj, stateJacobian, dimOutput, dimState)
+            if ~Checks.isMat(stateJacobian, dimOutput, dimState)
                 obj.error('InvalidStateJacobian', ...
                           'State Jacobian must be a matrix of dimension %dx%d.', ...
-                          dimOutput, obj.dimState);
+                          dimOutput, dimState);
             end
         end
         

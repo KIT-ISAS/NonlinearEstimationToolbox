@@ -182,82 +182,43 @@ classdef KF < GaussianFilter
             [dimMeas, numMeas] = size(measurements);
             dimStackedMeas = dimMeas * numMeas;
             
-            momentFunc = @(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt) ...
-                         obj.momentFuncAnalytic(iterNum, iterStateMean, iterStateCov, iterStateCovSqrt, ...
+            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
+                         obj.momentFuncAnalytic(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                 measModel, dimStackedMeas, numMeas);
             
             % Perform state update
             obj.kalmanUpdate(measurements, momentFunc);
         end
         
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentCorrection(obj, iterStateMean, iterStateCov, ...
-                                                        measMean, measCov, stateMeasCrossCov)
-            A = stateMeasCrossCov' / iterStateCov;
-            
-            measMean          = measMean + A * (obj.stateMean - iterStateMean);
-            measCov           = measCov + A * (obj.stateCov - iterStateCov) * A';
-            stateMeasCrossCov = obj.stateCov * A';
-        end
-        
         function kalmanUpdate(obj, measurements, momentFunc)
-            stackedMeas = measurements(:);
-            
-            iterNum = 1;
-            
-            [measMean, measCov, stateMeasCrossCov] = momentFunc(iterNum, ...
-                                                                obj.stateMean, ...
-                                                                obj.stateCov, ...
-                                                                obj.stateCovSqrt);
-            
-            while iterNum < obj.maxNumIterations
-                try
-                    [iterStateMean, iterStateCov] = Utils.kalmanUpdate(obj.stateMean, obj.stateCov, stackedMeas, ...
-                                                                       measMean, measCov, stateMeasCrossCov);
-                    
-                    % Check intermediate state covariance is valid
-                    [isPosDef, iterStateCovSqrt] = Checks.isCov(iterStateCov);
-                    
-                    if ~isPosDef
-                        error('Intermediate state covariance matrix is not positive definite.');
-                    end
-                catch ex
-                    % Issue warning ...
-                    obj.warnIgnoreMeas(ex.message);
-                    % ... and stop filter step
-                    return;
-                end
-                
-                iterNum = iterNum + 1;
-                
-                [measMean, measCov, stateMeasCrossCov] = momentFunc(iterNum, ...
-                                                                    iterStateMean, ...
-                                                                    iterStateCov, ...
-                                                                    iterStateCovSqrt);
-            end
-            
-            % Save Kalman update information
-            obj.lastMeasurement       = stackedMeas;
-            obj.lastMeasMean          = measMean;
-            obj.lastMeasCov           = measCov;
-            obj.lastStateMeasCrossCov = stateMeasCrossCov;
-            obj.lastNumIterations     = iterNum;
+            observableStateDim = obj.getObservableStateDim();
             
             try
-                % Perform gating if enabled
-                if obj.measValidationThreshold ~= 1
-                    obj.measurementGating(stackedMeas, measMean, measCov);
-                end
-                
-                [updatedStateMean, ...
-                 updatedStateCov] = Utils.kalmanUpdate(obj.stateMean, obj.stateCov, stackedMeas, ...
-                                                       measMean, measCov, stateMeasCrossCov);
-                
-                % Check updated state covariance is valid
-                [isPosDef, covSqrt] = Checks.isCov(updatedStateCov);
-                
-                if ~isPosDef
-                    error('Updated state covariance matrix is not positive definite.');
+                % Use decomposed state update?
+                if observableStateDim < obj.dimState
+                    % Extract observable part of the system state
+                    mean    = obj.stateMean(1:observableStateDim);
+                    cov     = obj.stateCov(1:observableStateDim, 1:observableStateDim);
+                    covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
+                    
+                    % Standard KF update with observable part only
+                    [updatedMean, ...
+                     updatedCov] = obj.kalmanUpdateObservable(mean, cov, covSqrt, ...
+                                                              measurements, momentFunc);
+                    
+                    % Update entire system state
+                    [updatedStateMean, ...
+                     updatedStateCov, ...
+                     updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
+                else
+                    % Standard KF update
+                    [updatedStateMean, ...
+                     updatedStateCov, ...
+                     updatedStateCovSqrt] = obj.kalmanUpdateObservable(obj.stateMean, ...
+                                                                       obj.stateCov, ...
+                                                                       obj.stateCovSqrt, ...
+                                                                       measurements, ...
+                                                                       momentFunc);
                 end
             catch ex
                 % Issue warning ...
@@ -269,36 +230,103 @@ classdef KF < GaussianFilter
             % Save new state estimate
             obj.stateMean    = updatedStateMean;
             obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = covSqrt;
+            obj.stateCovSqrt = updatedStateCovSqrt;
+        end
+    end
+    
+    methods (Static, Access = 'protected')
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                                                        measMean, measCov, stateMeasCrossCov)
+            A = stateMeasCrossCov' / iterCov;
+            
+            measMean          = measMean + A * (priorMean - iterMean);
+            measCov           = measCov + A * (priorCov - iterCov) * A';
+            stateMeasCrossCov = priorCov * A';
         end
     end
     
     methods (Access = 'private')
+        function [updatedMean, ...
+                  updatedCov, ...
+                  updatedCovSqrt] = kalmanUpdateObservable(obj, priorMean, priorCov, priorCovSqrt, ...
+                                                           measurements, momentFunc)
+            stackedMeas = measurements(:);
+            
+            iterNum = 1;
+            
+            [measMean, measCov, ...
+             stateMeasCrossCov] = momentFunc(priorMean, priorCov, ...
+                                             iterNum, priorMean, priorCov, priorCovSqrt);
+            
+            while iterNum < obj.maxNumIterations
+                [iterMean, iterCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                                                         measMean, measCov, stateMeasCrossCov);
+                
+                % Check intermediate state covariance is valid
+                [isPosDef, iterCovSqrt] = Checks.isCov(iterCov);
+                
+                if ~isPosDef
+                    error('Intermediate state covariance matrix is not positive definite.');
+                end
+                
+                iterNum = iterNum + 1;
+                
+                [measMean, measCov, ...
+                 stateMeasCrossCov] = momentFunc(priorMean, priorCov, ...
+                                                 iterNum, iterMean, iterCov, iterCovSqrt);
+            end
+            
+            % Save Kalman update information
+            obj.lastMeasurement       = stackedMeas;
+            obj.lastMeasMean          = measMean;
+            obj.lastMeasCov           = measCov;
+            obj.lastStateMeasCrossCov = stateMeasCrossCov;
+            obj.lastNumIterations     = iterNum;
+            
+            % Perform gating if enabled
+            if obj.measValidationThreshold ~= 1
+                obj.measurementGating(stackedMeas, measMean, measCov);
+            end
+            
+            [updatedMean, ...
+             updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                                              measMean, measCov, stateMeasCrossCov);
+            
+            % Check updated state covariance is valid
+            [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
+            
+            if ~isPosDef
+                error('Updated state covariance matrix is not positive definite.');
+            end
+        end
+        
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAnalytic(obj, iterNum, iterStateMean, iterStateCov, ~, ...
+                  stateMeasCrossCov] = momentFuncAnalytic(obj, priorMean, priorCov, ...
+                                                          iterNum, iterMean, iterCov, ~, ...
                                                           measModel, dimStackedMeas, numMeas)
             % Compute measurement moments
-            [measMean, ...
-             measCov, ...
-             stateMeasCrossCov] = measModel.analyticMeasurementMoments(iterStateMean, ...
-                                                                       iterStateCov, ...
-                                                                       numMeas);
+            [measMean, measCov, ...
+             stateMeasCrossCov] = measModel.analyticMeasurementMoments(iterMean, iterCov, numMeas);
             
             % Check measurement moments
+            dimState = size(iterMean, 1);
+            
             obj.checkMeasurementMoments(measMean, ...
                                         measCov, ...
                                         stateMeasCrossCov, ...
+                                        dimState, ...
                                         dimStackedMeas);
             
             if iterNum > 1
                 [measMean, measCov, ...
-                 stateMeasCrossCov] = obj.momentCorrection(iterStateMean, iterStateCov, ...
-                                                           measMean, measCov, stateMeasCrossCov);
+                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                                                          measMean, measCov, stateMeasCrossCov);
             end
         end
         
         function checkMeasurementMoments(obj, mean, covariance, ...
-                                         crossCovariance, dimMeas)
+                                         crossCovariance, dimState, dimMeas)
             if ~Checks.isColVec(mean, dimMeas)
                 obj.error('InvalidMeasurementMean', ...
                           ['Measurement mean must be a ' ...
@@ -314,11 +342,11 @@ classdef KF < GaussianFilter
                           dimMeas, dimMeas);
             end
             
-            if ~Checks.isMat(crossCovariance, obj.dimState, dimMeas)
+            if ~Checks.isMat(crossCovariance, dimState, dimMeas)
                 obj.error('InvalidStateMeasurementCrossCovariance', ...
                           ['State measurement cross-covariance must be a ' ...
                            'matrix of dimension %dx%d.'], ...
-                          obj.dimState, dimMeas);
+                          dimState, dimMeas);
             end
         end
         
