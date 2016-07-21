@@ -29,10 +29,6 @@ classdef TestUtilsMixedNoiseSystemModel
     
     methods (Static)
         function checkPrediction(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             sysModel = MixedNoiseSysModel();
             sysModel.setAdditiveNoise(TestUtilsMixedNoiseSystemModel.addSysNoise);
             sysModel.setNoise(TestUtilsMixedNoiseSystemModel.sysNoise);
