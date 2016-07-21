@@ -29,94 +29,119 @@ classdef TestUtilsMeasurementModel
     
     
     methods (Static)
-        function [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = checkUpdate(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
-            measModel = MeasModel();
-            measModel.setNoise(TestUtilsMeasurementModel.measNoise);
-            
-            mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsMeasurementModel.measNoise.getMeanAndCovariance();
-            
-            measurements = [1 -2 5]';
-            
-            trueMeasMean = mat * TestUtilsMeasurementModel.initMean + noiseMean;
-            trueMeasCov  = mat * TestUtilsMeasurementModel.initCov * mat' + noiseCov;
-            trueCrossCov = TestUtilsMeasurementModel.initCov * mat';
-            
-            invMeasCov = trueMeasCov \ eye(3);
-            
-            K = trueCrossCov * invMeasCov;
-            
-            trueMean = TestUtilsMeasurementModel.initMean + K * (measurements - trueMeasMean);
-            trueCov  = TestUtilsMeasurementModel.initCov - K * trueCrossCov';
-            
-            f.setState(Gaussian(TestUtilsMeasurementModel.initMean, ...
-                                TestUtilsMeasurementModel.initCov));
-            
-            f.update(measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+        function [measurements, trueMeasMean, ...
+                  trueMeasCov, trueCrossCov] = checkUpdate(test, f, tol)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateConfig(false, false, test, f, tol);
         end
         
         function checkUpdateKF(test, f, tol, numIter)
-            [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdate(test, f, tol);
-            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, trueCrossCov, test, f, tol, numIter);
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdate(test, f, tol);
+            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, ...
+                                                           trueCrossCov, test, f, tol, numIter);
         end
         
-        function [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = checkUpdateMultiMeas(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
-            measModel = MeasModel();
-            measModel.setNoise(TestUtilsMeasurementModel.measNoise);
-            
-            mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsMeasurementModel.measNoise.getMeanAndCovariance();
-            
-            measurements = [ 1  1.5
-                            -2 -1.85
-                             5 -4   ];
-            
-            trueMeasMean = mat * TestUtilsMeasurementModel.initMean + noiseMean;
-            trueMeasMean = repmat(trueMeasMean, 2, 1);
-            trueMeasCov  = mat * TestUtilsMeasurementModel.initCov * mat';
-            trueMeasCov  = [trueMeasCov + noiseCov trueMeasCov
-                            trueMeasCov            trueMeasCov + noiseCov];
-            trueCrossCov = TestUtilsMeasurementModel.initCov * mat';
-            trueCrossCov = [trueCrossCov trueCrossCov];
-            
-            invMeasCov = trueMeasCov \ eye(6);
-            
-            K = trueCrossCov * invMeasCov;
-            
-            trueMean = TestUtilsMeasurementModel.initMean + K * (measurements(:) - trueMeasMean);
-            trueCov  = TestUtilsMeasurementModel.initCov - K * trueCrossCov';
-            
-            f.setState(Gaussian(TestUtilsMeasurementModel.initMean, ...
-                                TestUtilsMeasurementModel.initCov));
-            
-            f.update(measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+        function [measurements, trueMeasMean, ...
+                  trueMeasCov, trueCrossCov] = checkUpdateStateDecomp(test, f, tol)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateConfig(true, false, test, f, tol);
+        end
+        
+        function checkUpdateKFStateDecomp(test, f, tol, numIter)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateStateDecomp(test, f, tol);
+            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, ...
+                                              trueCrossCov, test, f, tol, numIter);
+        end
+        
+        function [measurements, trueMeasMean, ...
+                  trueMeasCov, trueCrossCov] = checkUpdateMultiMeas(test, f, tol)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateConfig(false, true, test, f, tol);
         end
         
         function checkUpdateKFMultiMeas(test, f, tol, numIter)
-            [measurements, trueMeasMean, trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateMultiMeas(test, f, tol);
-            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, trueCrossCov, test, f, tol, numIter);
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateMultiMeas(test, f, tol);
+            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, ...
+                                              trueCrossCov, test, f, tol, numIter);
+        end
+        
+        function [measurements, trueMeasMean, ...
+                  trueMeasCov, trueCrossCov] = checkUpdateMultiMeasStateDecomp(test, f, tol)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateConfig(true, true, test, f, tol);
+        end
+        
+        function checkUpdateKFMultiMeasStateDecomp(test, f, tol, numIter)
+            [measurements, trueMeasMean, ...
+             trueMeasCov, trueCrossCov] = TestUtilsMeasurementModel.checkUpdateMultiMeasStateDecomp(test, f, tol);
+            TestUtilsMeasurementModel.checkKF(measurements, trueMeasMean, trueMeasCov, ...
+                                              trueCrossCov, test, f, tol, numIter);
         end
     end
     
     methods (Static, Access = 'private')
+        function [measurements, trueMeasMean, ...
+                  trueMeasCov, trueCrossCov] = checkUpdateConfig(stateDecomp, multiMeas, test, f, tol)
+            measModel = MeasModel(stateDecomp);
+            measModel.setNoise(TestUtilsMeasurementModel.measNoise);
+            
+            if stateDecomp
+                mat = [measModel.measMatrix zeros(3, 1)];
+            else
+                mat = measModel.measMatrix;
+            end
+            
+            [noiseMean, noiseCov] = TestUtilsMeasurementModel.measNoise.getMeanAndCovariance();
+            
+            if multiMeas
+                measurements = [ 1  1.5
+                                -2 -1.85
+                                 5 -4   ];
+                
+                trueMeasMean   = mat * TestUtilsMeasurementModel.initMean + noiseMean;
+                trueMeasMean   = repmat(trueMeasMean, 2, 1);
+                trueMeasCov    = mat * TestUtilsMeasurementModel.initCov * mat';
+                trueMeasCov    = [trueMeasCov + noiseCov trueMeasCov
+                                  trueMeasCov            trueMeasCov + noiseCov];
+                invTrueMeasCov = trueMeasCov \ eye(6);
+                crossCov       = TestUtilsMeasurementModel.initCov * mat';
+                crossCov       = [crossCov crossCov];
+            else
+                measurements = [1 -2 5]';
+                
+                trueMeasMean   = mat * TestUtilsMeasurementModel.initMean + noiseMean;
+                trueMeasCov    = mat * TestUtilsMeasurementModel.initCov * mat' + noiseCov;
+                invTrueMeasCov = trueMeasCov \ eye(3);
+                crossCov       = TestUtilsAdditiveNoiseMeasurementModel.initCov * mat';
+            end
+            
+            K = crossCov * invTrueMeasCov;
+            
+            trueMean = TestUtilsMeasurementModel.initMean + K * (measurements(:) - trueMeasMean);
+            trueCov  = TestUtilsMeasurementModel.initCov - K * crossCov';
+            
+            if stateDecomp
+                % If state decomposition is enabled, the true
+                % cross-covariance matirx is
+                trueCrossCov = crossCov(1, :);
+            else
+                trueCrossCov = crossCov;
+            end
+            
+            f.setState(Gaussian(TestUtilsMeasurementModel.initMean, ...
+                                TestUtilsMeasurementModel.initCov));
+            
+            f.update(measModel, measurements);
+            
+            [mean, cov] = f.getPointEstimate();
+            
+            test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+        end
+        
         function checkKF(measurements, trueMeasMean, trueMeasCov, trueCrossCov, test, f, tol, numIter)
             [meas, ...
              measMean, ...

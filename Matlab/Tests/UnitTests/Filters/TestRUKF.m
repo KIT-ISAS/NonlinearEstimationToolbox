@@ -85,6 +85,25 @@ classdef TestRUKF < matlab.unittest.TestCase
             TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 3);
         end
         
+        function testUpdateLinearMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateLinearMeasModelStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
+        end
+        
         function testUpdateLinearMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = sqrt(eps);
@@ -99,6 +118,25 @@ classdef TestRUKF < matlab.unittest.TestCase
             f.setMaxNumIterations(3);
             
             TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeasMultiIterStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
         end
         
         
@@ -118,10 +156,29 @@ classdef TestRUKF < matlab.unittest.TestCase
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 3);
         end
         
+        function testUpdateAddNoiseMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateAddNoiseMeasModelStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
+        end
+        
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = sqrt(eps);
-                      
+            
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
         end
         
@@ -134,6 +191,25 @@ classdef TestRUKF < matlab.unittest.TestCase
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
         end
         
+        function testUpdateAddNoiseMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateAddNoiseMeasModelMultiMeasStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
+        end
+        
         
         function testUpdateMeasModel(obj)
             f   = obj.initFilter();
@@ -143,7 +219,7 @@ classdef TestRUKF < matlab.unittest.TestCase
         end
         
         function testUpdateMeasModelMultiIter(obj)
-           f   = obj.initFilter();
+            f   = obj.initFilter();
             tol = sqrt(eps);
             
             f.setMaxNumIterations(3);
@@ -151,10 +227,29 @@ classdef TestRUKF < matlab.unittest.TestCase
             TestUtilsMeasurementModel.checkUpdateKF(obj, f, tol, 3);
         end
         
+        function testUpdateMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateMeasModelStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
+        end
+        
         function testUpdateMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = sqrt(eps);
-                      
+            
             TestUtilsMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
         end
         
@@ -165,6 +260,25 @@ classdef TestRUKF < matlab.unittest.TestCase
             f.setMaxNumIterations(3);
             
             TestUtilsMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
+        end
+        
+        function testUpdateMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateMeasModelMultiMeasStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
         end
         
         
@@ -184,10 +298,29 @@ classdef TestRUKF < matlab.unittest.TestCase
             TestUtilsMixedNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 3);
         end
         
+        function testUpdateMixedNoiseMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateMixedNoiseMeasModelStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
+        end
+        
         function testUpdateMixedNoiseMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = sqrt(eps);
-                      
+            
             TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
         end
         
@@ -198,6 +331,25 @@ classdef TestRUKF < matlab.unittest.TestCase
             f.setMaxNumIterations(3);
             
             TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
+        end
+        
+        function testUpdateMixedNoiseMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            
+            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
+        end
+        
+        function testUpdateMixedNoiseMeasModelMultiMeasStateDecompMultiIter(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
+            
+            f.setStateDecompDim(1);
+            f.setMaxNumIterations(3);
+            
+            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
         end
     end
     

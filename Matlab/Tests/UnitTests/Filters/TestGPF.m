@@ -82,6 +82,16 @@ classdef TestGPF < matlab.unittest.TestCase
             TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
         end
         
+        function testUpdateLinearMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 1e-2;
+            
+            f.setNumParticles(5000000);
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
+        end
+        
         function testUpdateLinearMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = 1e-2;
@@ -89,6 +99,16 @@ classdef TestGPF < matlab.unittest.TestCase
             f.setNumParticles(5000000);
             
             TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 1e-2;
+            
+            f.setNumParticles(5000000);
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
         end
         
         
@@ -101,6 +121,16 @@ classdef TestGPF < matlab.unittest.TestCase
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
         end
         
+        function testUpdateAddNoiseMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumParticles(5000000);
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
+        end
+        
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = 5 * 1e-2;
@@ -108,6 +138,16 @@ classdef TestGPF < matlab.unittest.TestCase
             f.setNumParticles(5000000);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+        end
+        
+        function testUpdateAddNoiseMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumParticles(5000000);
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
         end
     end
     

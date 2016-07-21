@@ -29,10 +29,6 @@ classdef TestUtilsStep
     
     methods (Static)
         function checkAdditiveNoiseSystemModel(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = AddNoiseSysModel();
             sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
@@ -59,10 +55,6 @@ classdef TestUtilsStep
         end
         
         function checkAdditiveNoiseSystemModelMultiMeas(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = AddNoiseSysModel();
             sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
@@ -90,10 +82,6 @@ classdef TestUtilsStep
         
         
         function checkSystemModel(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = SysModel();
             sysModel.setNoise(TestUtilsSystemModel.sysNoise);
@@ -120,10 +108,6 @@ classdef TestUtilsStep
         end
         
         function checkSystemModelMultiMeas(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = SysModel();
             sysModel.setNoise(TestUtilsSystemModel.sysNoise);
@@ -151,10 +135,6 @@ classdef TestUtilsStep
         
         
         function checkMixedNoiseSystemModel(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = MixedNoiseSysModel();
             sysModel.setAdditiveNoise(TestUtilsMixedNoiseSystemModel.addSysNoise);
@@ -183,10 +163,6 @@ classdef TestUtilsStep
         end
         
         function checkMixedNoiseSystemModelMultiMeas(test, f, tol)
-            if nargin < 3
-                tol = sqrt(eps);
-            end
-            
             % True prediction
             sysModel = SysModel();
             sysModel.setNoise(TestUtilsSystemModel.sysNoise);

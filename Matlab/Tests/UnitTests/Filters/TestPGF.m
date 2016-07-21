@@ -76,6 +76,18 @@ classdef TestPGF < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
         
+        function testUpdateLinearMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumSamples(201);
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+        end
+        
         function testUpdateLinearMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = 5 * 1e-2;
@@ -83,6 +95,18 @@ classdef TestPGF < matlab.unittest.TestCase
             f.setNumSamples(201);
             
             TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+        end
+        
+        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumSamples(201);
+            f.setStateDecompDim(1);
+            
+            TestUtilsLinearMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
             
             obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
@@ -99,6 +123,18 @@ classdef TestPGF < matlab.unittest.TestCase
             obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
         
+        function testUpdateAddNoiseMeasModelStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumSamples(201);
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+        end
+        
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = 5 * 1e-2;
@@ -106,6 +142,18 @@ classdef TestPGF < matlab.unittest.TestCase
             f.setNumSamples(201);
             
             TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            
+            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+        end
+        
+        function testUpdateAddNoiseMeasModelMultiMeasStateDecomp(obj)
+            f   = obj.initFilter();
+            tol = 5 * 1e-2;
+            
+            f.setNumSamples(201);
+            f.setStateDecompDim(1);
+            
+            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
             
             obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
         end
