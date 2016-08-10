@@ -59,15 +59,18 @@ classdef GaussianSamplingUKF < GaussianSampling
             % of 0 results in a zero weight for the sample located at the state
             % space origin.
             %
+            % Note: a valid sampling requires a scaling factor larger than -N,
+            % where N denotes the requested dimension of the samples.
+            %
             % By default, the sample scaling factor is set to 0.5.
             %
             % Parameters:
-            %   >> scaling (Non-negative scalar)
+            %   >> scaling (Scalar)
             %      The new sample scaling factor.
             
-            if ~Checks.isNonNegativeScalar(scaling)
+            if ~Checks.isScalar(scaling)
                 error('GaussianSamplingUKF:InvalidScaling', ...
-                      'Scaling must be a numeric non-negative scalar.');
+                      'scaling must be a scalar.');
             end
             
             obj.scaling = scaling;
@@ -77,7 +80,7 @@ classdef GaussianSamplingUKF < GaussianSampling
             % Get the current sample scaling factor.
             % 
             % Returns:
-            %   << scaling (Non-negative scalar)
+            %   << scaling (Scalar)
             %      The current sample scaling factor.
             
             scaling = obj.scaling;
@@ -87,6 +90,11 @@ classdef GaussianSamplingUKF < GaussianSampling
             if ~Checks.isPosScalar(dimension)
                 error('GaussianSamplingUKF:InvalidDimension', ...
                       'dimension must be a positive scalar.');
+            end
+            
+            if dimension + obj.scaling <= 0
+                error('GaussianSamplingUKF:InvalidScaling', ...
+                      'The sample scaling factor is too small for the requested dimension.');
             end
             
             numSamples = 2 * dimension + 1;
