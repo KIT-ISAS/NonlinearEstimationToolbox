@@ -165,18 +165,14 @@ classdef GaussianFilter < Filter
              predictedStateCov] = sysModel.analyticPredictedMoments(obj.stateMean, ...
                                                                     obj.stateCov);
             
-            % Check predicted moments
-            covSqrt = obj.checkPredictedMoments(predictedStateMean, predictedStateCov);
+            obj.checkPredictedMoments(predictedStateMean, predictedStateCov);
             
-            % Save new state estimate
-            obj.stateMean    = predictedStateMean;
-            obj.stateCov     = predictedStateCov;
-            obj.stateCovSqrt = covSqrt;
+            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
         function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
             % Check predicted state covariance is valid
-            [isPosDef, covSqrt] = Checks.isCov(predictedStateCov);
+            [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
             
             if ~isPosDef
                 obj.warnIgnorePrediction('Predicted state covariance is not positive definite.');
@@ -186,7 +182,7 @@ classdef GaussianFilter < Filter
             % Save new state estimate
             obj.stateMean    = predictedStateMean;
             obj.stateCov     = predictedStateCov;
-            obj.stateCovSqrt = covSqrt;
+            obj.stateCovSqrt = predictedStateCovSqrt;
         end
         
         function observableStateDim = getObservableStateDim(obj)
@@ -217,7 +213,7 @@ classdef GaussianFilter < Filter
     end
     
     methods (Access = 'private')
-        function covSqrt = checkPredictedMoments(obj, mean, covariance)
+        function checkPredictedMoments(obj, mean, covariance)
             if ~Checks.isColVec(mean, obj.dimState)
                 obj.error('InvalidPredictedStateMean', ...
                           ['Predicted state mean must be a ' ...
@@ -225,9 +221,8 @@ classdef GaussianFilter < Filter
                           obj.dimState);
             end
             
-            [isPosDef, covSqrt] = Checks.isCov(covariance, obj.dimState);
-            
-            if ~isPosDef
+            % Note: check for positive definiteness in GaussianFilter.checkAndSavePrediction()
+            if ~Checks.isSquareMat(covariance, obj.dimState)
                 obj.error('InvalidPredictedStateCovariance', ...
                           ['Predicted state covariance must be a ' ...
                            'positive definite matrix of dimension %dx%d.'], ...
