@@ -191,9 +191,9 @@ classdef KF < GaussianFilter
         end
         
         function kalmanUpdate(obj, measurements, momentFunc)
-            observableStateDim = obj.getObservableStateDim();
-            
             try
+                observableStateDim = obj.getObservableStateDim();
+                
                 % Use decomposed state update?
                 if observableStateDim < obj.dimState
                     % Extract observable part of the system state
@@ -220,17 +220,14 @@ classdef KF < GaussianFilter
                                                                        measurements, ...
                                                                        momentFunc);
                 end
+                
+                % Save new state estimate
+                obj.stateMean    = updatedStateMean;
+                obj.stateCov     = updatedStateCov;
+                obj.stateCovSqrt = updatedStateCovSqrt;
             catch ex
-                % Issue warning ...
-                obj.warnIgnoreMeas(ex.message);
-                % ... and stop filter step
-                return;
+                obj.handleIgnoreMeas(ex);
             end
-            
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
     
@@ -260,14 +257,18 @@ classdef KF < GaussianFilter
                                              iterNum, priorMean, priorCov, priorCovSqrt);
             
             while iterNum < obj.maxNumIterations
-                [iterMean, iterCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
-                                                         measMean, measCov, stateMeasCrossCov);
+                try
+                    [iterMean, iterCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                                                             measMean, measCov, stateMeasCrossCov);
+                catch ex
+                    obj.ignoreMeas(ex.message);
+                end
                 
                 % Check intermediate state covariance is valid
                 [isPosDef, iterCovSqrt] = Checks.isCov(iterCov);
                 
                 if ~isPosDef
-                    error('Intermediate state covariance matrix is not positive definite.');
+                    obj.ignoreMeas('Intermediate state covariance matrix is not positive definite.');
                 end
                 
                 iterNum = iterNum + 1;
@@ -289,15 +290,19 @@ classdef KF < GaussianFilter
                 obj.measurementGating(stackedMeas, measMean, measCov);
             end
             
-            [updatedMean, ...
-             updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
-                                              measMean, measCov, stateMeasCrossCov);
+            try
+                [updatedMean, ...
+                 updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                                                  measMean, measCov, stateMeasCrossCov);
+            catch ex
+                obj.ignoreMeas(ex.message);
+            end
             
             % Check updated state covariance is valid
             [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
             
             if ~isPosDef
-                error('Updated state covariance matrix is not positive definite.');
+                obj.ignoreMeas('Updated state covariance matrix is not positive definite.');
             end
         end
         
@@ -364,8 +369,8 @@ classdef KF < GaussianFilter
             % Check for threshold exceedance
             if normalizedValue > obj.measValidationThreshold
                 % Discard measurement
-                error('Measurement exceeds validation threshold (value: %f).', ...
-                      normalizedValue);
+                obj.ignoreMeas('Measurement exceeds validation threshold (value: %f).', ...
+                               normalizedValue);
             end
         end
     end

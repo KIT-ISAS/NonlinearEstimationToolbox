@@ -223,9 +223,9 @@ classdef PGF < SampleBasedGaussianFilter
         end
         
         function updateLikelihood(obj, measModel, measurements)
-            observableStateDim = obj.getObservableStateDim();
-            
             try
+                observableStateDim = obj.getObservableStateDim();
+                
                 % Initialize progression
                 mean        = obj.stateMean(1:observableStateDim);
                 covSqrt     = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
@@ -255,14 +255,14 @@ classdef PGF < SampleBasedGaussianFilter
                     validLogValues = logValues(logValues > -Inf);
                     
                     if isempty(validLogValues)
-                        error('All likelihood values are zero.');
+                        obj.ignoreMeas('All likelihood values are zero.');
                     end
                     
                     minLogValue = min(validLogValues);
                     maxLogValue = max(validLogValues);
                     
                     if minLogValue == maxLogValue
-                        error('Minimum and maximum likelihood values are identical.');
+                        obj.ignoreMeas('Minimum and maximum likelihood values are identical.');
                     end
                     
                     deltaGamma = logForcedRatio / (minLogValue - maxLogValue);
@@ -282,7 +282,7 @@ classdef PGF < SampleBasedGaussianFilter
                     sumWeights = sum(weights);
                     
                     if sumWeights <= 0
-                        error('Sum of computed sample weights is not positive.');
+                        obj.ignoreMeas('Sum of computed sample weights is not positive.');
                     end
                     
                     weights = weights / sumWeights;
@@ -294,7 +294,7 @@ classdef PGF < SampleBasedGaussianFilter
                     [isPosDef, covSqrt] = Checks.isCov(cov);
                     
                     if ~isPosDef
-                        error('Intermediate state covariance is not positive definite.');
+                        obj.ignoreMeas('Intermediate state covariance is not positive definite.');
                     end
                     
                     % Increment gamma
@@ -309,19 +309,16 @@ classdef PGF < SampleBasedGaussianFilter
                     % Update entire system state
                     [mean, cov, covSqrt] = obj.decomposedStateUpdate(mean, cov);
                 end
+                
+                obj.lastNumSteps = numSteps;
+                
+                % Save new state estimate
+                obj.stateMean    = mean;
+                obj.stateCov     = cov;
+                obj.stateCovSqrt = covSqrt;
             catch ex
-                % Issue warning ...
-                obj.warnIgnoreMeas(ex.message);
-                % ... and stop filter step
-                return;
+                obj.handleIgnoreMeas(ex);
             end
-            
-            obj.lastNumSteps = numSteps;
-            
-            % Save new state estimate
-            obj.stateMean    = mean;
-            obj.stateCov     = cov;
-            obj.stateCovSqrt = covSqrt;
         end
     end
     

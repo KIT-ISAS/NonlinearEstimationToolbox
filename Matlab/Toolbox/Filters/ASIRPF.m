@@ -110,67 +110,69 @@ classdef ASIRPF < SIRPF
                 obj.errorMeasModel('Likelihood');
             end
             
-            % First, resample if necessary
-            obj.resampleByESS();
-            
-            % Predict particles from last time step
-            predictedParticles = predictParticles(sysModel, obj.particles, obj.numParticles);
-            
-            % Compute likelihood values at predicted particles
-            predLogValues = measModel.logLikelihood(predictedParticles, measurements);
-            
-            obj.checkLogLikelihoodEvaluations(predLogValues, obj.numParticles);
-            
-            % For numerical stability
-            predLogValues = predLogValues - max(predLogValues);
-            
-            values = exp(predLogValues);
-            
-            % Compute new particle weights
-            weights = obj.weights .* values;
-            
-            % Normalize particle weights
-            sumWeights = sum(weights);
-            
-            if sumWeights <= 0
-                obj.warnIgnoreMeas('Sum of computed particle weights is not positive.');
-                return;
+            try
+                % First, resample if necessary
+                obj.resampleByESS();
+                
+                % Predict particles from last time step
+                predictedParticles = predictParticles(sysModel, obj.particles, obj.numParticles);
+                
+                % Compute likelihood values at predicted particles
+                predLogValues = measModel.logLikelihood(predictedParticles, measurements);
+                
+                obj.checkLogLikelihoodEvaluations(predLogValues, obj.numParticles);
+                
+                % For numerical stability
+                predLogValues = predLogValues - max(predLogValues);
+                
+                values = exp(predLogValues);
+                
+                % Compute new particle weights
+                weights = obj.weights .* values;
+                
+                % Normalize particle weights
+                sumWeights = sum(weights);
+                
+                if sumWeights <= 0
+                    obj.ignoreMeas('Sum of computed particle weights is not positive.');
+                end
+                
+                weights = weights / sumWeights;
+                
+                % Resample particles from last time step with new weights and also save their indices
+                [particles, idx] = Utils.systematicResampling(obj.particles, cumsum(weights), obj.numParticles);
+                
+                % Predict resampled particles
+                predictedParticles = predictParticles(sysModel, particles, obj.numParticles);
+                
+                % Evaluate logaritmic likelihood at newly predicted particles
+                logValues = measModel.logLikelihood(predictedParticles, measurements);
+                
+                obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
+                
+                % Compute posterior particle weights using the previously computed log-likelihood values
+                logValues = logValues - predLogValues(idx);
+                
+                % For numerical stability
+                logValues = logValues - max(logValues);
+                
+                weights = exp(logValues);
+                
+                % Normalize posterior particle weights
+                sumWeights = sum(weights);
+                
+                if sumWeights <= 0
+                    obj.ignoreMeas('Sum of computed posterior particle weights is not positive.');
+                end
+                
+                % Save new particle weights
+                obj.weights = weights / sumWeights;
+                
+                % Save new particles
+                obj.particles = predictedParticles;
+            catch ex
+                obj.handleIgnoreMeas(ex);
             end
-            
-            weights = weights / sumWeights;
-            
-            % Resample particles from last time step with new weights and also save their indices
-            [particles, idx] = Utils.systematicResampling(obj.particles, cumsum(weights), obj.numParticles);
-            
-            % Predict resampled particles
-            predictedParticles = predictParticles(sysModel, particles, obj.numParticles);
-            
-            % Evaluate logaritmic likelihood at newly predicted particles
-            logValues = measModel.logLikelihood(predictedParticles, measurements);
-            
-            obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
-            
-            % Compute posterior particle weights using the previously computed log-likelihood values
-            logValues = logValues - predLogValues(idx);
-            
-            % For numerical stability
-            logValues = logValues - max(logValues);
-            
-            weights = exp(logValues);
-            
-            % Normalize posterior particle weights
-            sumWeights = sum(weights);
-            
-            if sumWeights <= 0
-                obj.warnIgnoreMeas('Sum of computed posterior particle weights is not positive.');
-                return;
-            end
-            
-            % Save new particle weights
-            obj.weights = weights / sumWeights;
-            
-            % Save new particles
-            obj.particles = predictedParticles;
         end
     end
 end

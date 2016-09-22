@@ -198,9 +198,9 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
         end
         
         function updateLikelihood(obj, measModel, measurements)
-            observableStateDim = obj.getObservableStateDim();
-            
             try
+                observableStateDim = obj.getObservableStateDim();
+                
                 % Use decomposed state update?
                 if observableStateDim < obj.dimState
                     % Extract observable part of the system state
@@ -228,17 +228,14 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
                      updatedStateCov, ...
                      updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
                 end
+                
+                % Save new state estimate
+                obj.stateMean    = updatedStateMean;
+                obj.stateCov     = updatedStateCov;
+                obj.stateCovSqrt = updatedStateCovSqrt;
             catch ex
-                % Issue warning ...
-                obj.warnIgnoreMeas(ex.message);
-                % ... and stop filter step
-                return;
+                obj.handleIgnoreMeas(ex);
             end
-            
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
         end
         
         function [updatedMean, ...
@@ -251,7 +248,7 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             sumWeights = sum(values);
             
             if sumWeights <= 0
-                error('Sum of computed posterior particle weights is not positive.');
+                obj.ignoreMeas('Sum of computed posterior particle weights is not positive.');
             end
             
             weights = values / sumWeights;
@@ -264,7 +261,7 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
             
             if ~isPosDef
-                error('Updated state covariance is not positive definite.');
+                obj.ignoreMeas('Updated state covariance is not positive definite.');
             end
         end
         

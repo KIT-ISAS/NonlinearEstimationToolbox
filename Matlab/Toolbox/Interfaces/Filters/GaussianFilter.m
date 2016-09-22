@@ -199,7 +199,7 @@ classdef GaussianFilter < Filter
             [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
             
             if ~isPosDef
-                error('Updated state covariance is not positive definite.');
+                obj.ignoreMeas('Updated state covariance is not positive definite.');
             end
         end
     end

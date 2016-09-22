@@ -119,17 +119,14 @@ classdef CGPF < GPF
                 [updatedStateMean, ...
                  updatedStateCov, ...
                  updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+                
+                % Save new state estimate
+                obj.stateMean    = updatedStateMean;
+                obj.stateCov     = updatedStateCov;
+                obj.stateCovSqrt = updatedStateCovSqrt;
             catch ex
-                % Issue warning ...
-                obj.warnIgnoreMeas(ex.message);
-                % ... and stop filter step
-                return;
+                obj.handleIgnoreMeas(ex);
             end
-            
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
 end

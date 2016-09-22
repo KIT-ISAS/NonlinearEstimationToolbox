@@ -359,13 +359,6 @@ classdef Filter < handle & matlab.mixin.Copyable
                         '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
         end
         
-        function warnIgnoreMeas(obj, reason, varargin)
-            reason = sprintf(reason, varargin{:});
-            
-            obj.warning('IgnoringMeasurement', ...
-                        '%s\nIgnoring measurement and leaving state estimate unchanged.', reason);
-        end
-        
         function error(obj, id, msg, varargin)
             msg = sprintf(msg, varargin{:});
             
@@ -395,6 +388,22 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
             
             obj.error('UnsupportedMeasurementModel', msg);
+        end
+        
+        function ignoreMeas(obj, reason, varargin)
+            reason = sprintf(reason, varargin{:});
+            
+            obj.warning('IgnoringMeasurement', ...
+                        '%s\nIgnoring measurement and leaving state estimate unchanged.', reason);
+            
+            error('Filter:IgnoreMeasurement', 'Ingore measurement');
+        end
+        
+        function handleIgnoreMeas(~, ex)
+            if ~strcmp(ex.identifier, 'Filter:IgnoreMeasurement')
+                % Real error => do not catch it
+                ex.rethrow();
+            end
         end
     end
     
