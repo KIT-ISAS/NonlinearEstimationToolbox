@@ -195,44 +195,40 @@ classdef GPF < BasePF & GaussianFilter
         end
         
         function updateLikelihood(obj, measModel, measurements)
-            try
-                observableStateDim = obj.getObservableStateDim();
+            observableStateDim = obj.getObservableStateDim();
+            
+            % Use decomposed state update?
+            if observableStateDim < obj.dimState
+                % Extract observable part of the system state
+                mean    = obj.stateMean(1:observableStateDim);
+                covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
                 
-                % Use decomposed state update?
-                if observableStateDim < obj.dimState
-                    % Extract observable part of the system state
-                    mean    = obj.stateMean(1:observableStateDim);
-                    covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
-                    
-                    % Generate Gaussian random samples
-                    particles = Utils.drawGaussianRndSamples(mean, ...
-                                                             covSqrt, ...
-                                                             obj.numParticles);
-                    
-                    % Standard GPF update with observable part only
-                    [updatedMean, ...
-                     updatedCov] = obj.updateLikelihoodObservable(measModel, measurements, particles);
-                    
-                    % Update entire system state
-                    [updatedStateMean, ...
-                     updatedStateCov, ...
-                     updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
-                else
-                    % Standard GPF update
-                    particles = obj.getStateParticles();
-                    
-                    [updatedStateMean, ...
-                     updatedStateCov, ...
-                     updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
-                end
+                % Generate Gaussian random samples
+                particles = Utils.drawGaussianRndSamples(mean, ...
+                                                         covSqrt, ...
+                                                         obj.numParticles);
                 
-                % Save new state estimate
-                obj.stateMean    = updatedStateMean;
-                obj.stateCov     = updatedStateCov;
-                obj.stateCovSqrt = updatedStateCovSqrt;
-            catch ex
-                obj.handleIgnoreMeas(ex);
+                % Standard GPF update with observable part only
+                [updatedMean, ...
+                 updatedCov] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+                
+                % Update entire system state
+                [updatedStateMean, ...
+                 updatedStateCov, ...
+                 updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
+            else
+                % Standard GPF update
+                particles = obj.getStateParticles();
+                
+                [updatedStateMean, ...
+                 updatedStateCov, ...
+                 updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
             end
+            
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
         end
         
         function [updatedMean, ...

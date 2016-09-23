@@ -118,28 +118,24 @@ classdef SIRPF < PF
             %   Artech House Publishers, 2004,
             %   Section 3.5.1
             
-            try
-                % First, resample if necessary
-                obj.resampleByESS();
-                
-                % Evaluate likelihood
-                values = obj.evaluateLikelihood(measModel, measurements, obj.particles, obj.numParticles);
-                
-                % Multiply prior weights with likelihood evaluations
-                values = values .* obj.weights;
-                
-                % Normalize particle weights
-                sumWeights = sum(values);
-                
-                if sumWeights <= 0
-                    obj.ignoreMeas('Sum of computed posterior particle weights is not positive.');
-                end
-                
-                % Save new particle weights
-                obj.weights = values / sumWeights;
-            catch ex
-                obj.handleIgnoreMeas(ex);
+            % First, resample if necessary
+            obj.resampleByESS();
+            
+            % Evaluate likelihood
+            values = obj.evaluateLikelihood(measModel, measurements, obj.particles, obj.numParticles);
+            
+            % Multiply prior weights with likelihood evaluations
+            values = values .* obj.weights;
+            
+            % Normalize particle weights
+            sumWeights = sum(values);
+            
+            if sumWeights <= 0
+                obj.ignoreMeas('Sum of computed posterior particle weights is not positive.');
             end
+            
+            % Save new particle weights
+            obj.weights = values / sumWeights;
         end
         
         function resampleByESS(obj)

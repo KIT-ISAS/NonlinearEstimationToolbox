@@ -268,30 +268,26 @@ classdef EnKF < BasePF
         end
         
         function updateEnsemble(obj, measurement, measSamples)
-            try
-                ensembleMean = sum(obj.ensemble, 2) / obj.ensembleSize;
-                
-                [~, measCov, ensembleMeasCrossCov] = Utils.getMeanCovAndCrossCov(ensembleMean, ...
-                                                                                 obj.ensemble, ...
-                                                                                 measSamples);
-                
-                [~, isNonPosDef] = chol(measCov);
-                
-                if isNonPosDef
-                    obj.ignoreMeas('Measurement covariance matrix is not positive definite.');
-                end
-                
-                % Compute Kalman gain
-                kalmanGain = ensembleMeasCrossCov / measCov;
-                
-                % Compute memberwise innovation
-                innovation = bsxfun(@minus, measurement, measSamples);
-                
-                % Update ensemble
-                obj.ensemble = obj.ensemble + kalmanGain * innovation;
-            catch ex
-                obj.handleIgnoreMeas(ex);
+            ensembleMean = sum(obj.ensemble, 2) / obj.ensembleSize;
+            
+            [~, measCov, ensembleMeasCrossCov] = Utils.getMeanCovAndCrossCov(ensembleMean, ...
+                                                                             obj.ensemble, ...
+                                                                             measSamples);
+            
+            [~, isNonPosDef] = chol(measCov);
+            
+            if isNonPosDef
+                obj.ignoreMeas('Measurement covariance matrix is not positive definite.');
             end
+            
+            % Compute Kalman gain
+            kalmanGain = ensembleMeasCrossCov / measCov;
+            
+            % Compute memberwise innovation
+            innovation = bsxfun(@minus, measurement, measSamples);
+            
+            % Update ensemble
+            obj.ensemble = obj.ensemble + kalmanGain * innovation;
         end
         
         function resample(obj, ensembleSize)

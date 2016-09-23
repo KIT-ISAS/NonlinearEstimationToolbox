@@ -193,43 +193,39 @@ classdef KF < GaussianFilter
         end
         
         function kalmanUpdate(obj, measurements, momentFunc)
-            try
-                observableStateDim = obj.getObservableStateDim();
+            observableStateDim = obj.getObservableStateDim();
+            
+            % Use decomposed state update?
+            if observableStateDim < obj.dimState
+                % Extract observable part of the system state
+                mean    = obj.stateMean(1:observableStateDim);
+                cov     = obj.stateCov(1:observableStateDim, 1:observableStateDim);
+                covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
                 
-                % Use decomposed state update?
-                if observableStateDim < obj.dimState
-                    % Extract observable part of the system state
-                    mean    = obj.stateMean(1:observableStateDim);
-                    cov     = obj.stateCov(1:observableStateDim, 1:observableStateDim);
-                    covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
-                    
-                    % Standard KF update with observable part only
-                    [updatedMean, ...
-                     updatedCov] = obj.kalmanUpdateObservable(mean, cov, covSqrt, ...
-                                                              measurements, momentFunc);
-                    
-                    % Update entire system state
-                    [updatedStateMean, ...
-                     updatedStateCov, ...
-                     updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
-                else
-                    % Standard KF update
-                    [updatedStateMean, ...
-                     updatedStateCov, ...
-                     updatedStateCovSqrt] = obj.kalmanUpdateObservable(obj.stateMean, ...
-                                                                       obj.stateCov, ...
-                                                                       obj.stateCovSqrt, ...
-                                                                       measurements, ...
-                                                                       momentFunc);
-                end
+                % Standard KF update with observable part only
+                [updatedMean, ...
+                 updatedCov] = obj.kalmanUpdateObservable(mean, cov, covSqrt, ...
+                                                          measurements, momentFunc);
                 
-                % Save new state estimate
-                obj.stateMean    = updatedStateMean;
-                obj.stateCov     = updatedStateCov;
-                obj.stateCovSqrt = updatedStateCovSqrt;
-            catch ex
-                obj.handleIgnoreMeas(ex);
+                % Update entire system state
+                [updatedStateMean, ...
+                 updatedStateCov, ...
+                 updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
+            else
+                % Standard KF update
+                [updatedStateMean, ...
+                 updatedStateCov, ...
+                 updatedStateCovSqrt] = obj.kalmanUpdateObservable(obj.stateMean, ...
+                                                                   obj.stateCov, ...
+                                                                   obj.stateCovSqrt, ...
+                                                                   measurements, ...
+                                                                   momentFunc);
             end
+            
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
     

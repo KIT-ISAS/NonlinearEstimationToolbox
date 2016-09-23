@@ -176,12 +176,16 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             obj.checkMeasurements(measurements);
             
-            if nargout == 1
-                s = tic;
-                obj.performUpdate(measModel, measurements);
-                runtime = toc(s);
-            else
-                obj.performUpdate(measModel, measurements);
+            try
+                if nargout == 1
+                    s = tic;
+                    obj.performUpdate(measModel, measurements);
+                    runtime = toc(s);
+                else
+                    obj.performUpdate(measModel, measurements);
+                end
+            catch ex
+                Filter.handleIgnoreMeas(ex);
             end
         end
         
@@ -239,6 +243,7 @@ classdef Filter < handle & matlab.mixin.Copyable
                 end
             catch ex
                 Filter.handleIgnorePrediction(ex);
+                Filter.handleIgnoreMeas(ex);
             end
         end
     end
@@ -408,18 +413,18 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             error('Filter:IgnoreMeasurement', 'Ingore measurement');
         end
-        
-        function handleIgnoreMeas(~, ex)
-            if ~strcmp(ex.identifier, 'Filter:IgnoreMeasurement')
-                % Real error => do not catch it
-                ex.rethrow();
-            end
-        end
     end
     
     methods (Static, Access = 'private')
         function handleIgnorePrediction(ex)
             if ~strcmp(ex.identifier, 'Filter:IgnorePrediction')
+                % Real error => do not catch it
+                ex.rethrow();
+            end
+        end
+        
+        function handleIgnoreMeas(ex)
+            if ~strcmp(ex.identifier, 'Filter:IgnoreMeasurement')
                 % Real error => do not catch it
                 ex.rethrow();
             end

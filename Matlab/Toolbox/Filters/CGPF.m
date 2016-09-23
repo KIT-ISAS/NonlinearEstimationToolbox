@@ -114,19 +114,15 @@ classdef CGPF < GPF
             % state update even if the likelihood function does not depend
             % upon the entire system state.
             
-            try
-                % Standard GPF update
-                [updatedStateMean, ...
-                 updatedStateCov, ...
-                 updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
-                
-                % Save new state estimate
-                obj.stateMean    = updatedStateMean;
-                obj.stateCov     = updatedStateCov;
-                obj.stateCovSqrt = updatedStateCovSqrt;
-            catch ex
-                obj.handleIgnoreMeas(ex);
-            end
+            % Standard GPF update
+            [updatedStateMean, ...
+             updatedStateCov, ...
+             updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+            
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
 end

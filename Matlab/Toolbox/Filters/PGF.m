@@ -220,102 +220,98 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
         end
         
         function updateLikelihood(obj, measModel, measurements)
-            try
-                observableStateDim = obj.getObservableStateDim();
+            observableStateDim = obj.getObservableStateDim();
+            
+            % Initialize progression
+            mean        = obj.stateMean(1:observableStateDim);
+            covSqrt     = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
+            numSteps    = 0;
+            gamma       = 0;
+            
+            % Get standard normal approximation
+            [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(observableStateDim);
+            
+            % Set forced sample weight ratio
+            logForcedRatio = -log(numSamples); % = log(1 / numSamples)
+            
+            % Start progression
+            while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
+                % Sample intermediate Gaussian approximation
+                samples = covSqrt * stdNormalSamples;
+                samples = bsxfun(@plus, samples, mean);
                 
-                % Initialize progression
-                mean        = obj.stateMean(1:observableStateDim);
-                covSqrt     = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
-                numSteps    = 0;
-                gamma       = 0;
+                % Evaluate log likelihood
+                logValues = measModel.logLikelihood(samples, measurements);
                 
-                % Get standard normal approximation
-                [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(observableStateDim);
+                obj.checkLogLikelihoodEvaluations(logValues, numSamples);
                 
-                % Set forced sample weight ratio
-                logForcedRatio = -log(numSamples); % = log(1 / numSamples)
+                % Compute deltaGamma
                 
-                % Start progression
-                while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
-                    % Sample intermediate Gaussian approximation
-                    samples = covSqrt * stdNormalSamples;
-                    samples = bsxfun(@plus, samples, mean);
-                    
-                    % Evaluate log likelihood
-                    logValues = measModel.logLikelihood(samples, measurements);
-                    
-                    obj.checkLogLikelihoodEvaluations(logValues, numSamples);
-                    
-                    % Compute deltaGamma
-                    
-                    % Discard zero likelihood values
-                    validLogValues = logValues(logValues > -Inf);
-                    
-                    if isempty(validLogValues)
-                        obj.ignoreMeas('All likelihood values are zero.');
-                    end
-                    
-                    minLogValue = min(validLogValues);
-                    maxLogValue = max(validLogValues);
-                    
-                    if minLogValue == maxLogValue
-                        obj.ignoreMeas('Minimum and maximum likelihood values are identical.');
-                    end
-                    
-                    deltaGamma = logForcedRatio / (minLogValue - maxLogValue);
-                    
-                    % Clamp deltaGamma if necessary
-                    if gamma + deltaGamma > 1
-                        deltaGamma = 1 - gamma;
-                    end
-                    
-                    % For numerical stability
-                    logValues = logValues - maxLogValue;
-                    
-                    % Compute intermediate posterior sample weights
-                    weights = exp(logValues * deltaGamma);
-                    
-                    % Normalize weights
-                    sumWeights = sum(weights);
-                    
-                    if sumWeights <= 0
-                        obj.ignoreMeas('Sum of computed sample weights is not positive.');
-                    end
-                    
-                    weights = weights / sumWeights;
-                    
-                    % Compute new intermediate mean and covariance
-                    [mean, cov] = Utils.getMeanAndCov(samples, weights);
-                    
-                    % Check intermediate Gaussian is valid
-                    [isPosDef, covSqrt] = Checks.isCov(cov);
-                    
-                    if ~isPosDef
-                        obj.ignoreMeas('Intermediate state covariance is not positive definite.');
-                    end
-                    
-                    % Increment gamma
-                    gamma = gamma + deltaGamma;
-                    
-                    % Increment step counter
-                    numSteps = numSteps + 1;
+                % Discard zero likelihood values
+                validLogValues = logValues(logValues > -Inf);
+                
+                if isempty(validLogValues)
+                    obj.ignoreMeas('All likelihood values are zero.');
                 end
                 
-                % Use decomposed state update?
-                if observableStateDim < obj.dimState
-                    % Update entire system state
-                    [mean, cov, covSqrt] = obj.decomposedStateUpdate(mean, cov);
+                minLogValue = min(validLogValues);
+                maxLogValue = max(validLogValues);
+                
+                if minLogValue == maxLogValue
+                    obj.ignoreMeas('Minimum and maximum likelihood values are identical.');
                 end
                 
-                obj.lastNumSteps = numSteps;
+                deltaGamma = logForcedRatio / (minLogValue - maxLogValue);
                 
-                % Save new state estimate
-                obj.stateMean    = mean;
-                obj.stateCov     = cov;
-                obj.stateCovSqrt = covSqrt;
-            catch ex
-                obj.handleIgnoreMeas(ex);
+                % Clamp deltaGamma if necessary
+                if gamma + deltaGamma > 1
+                    deltaGamma = 1 - gamma;
+                end
+                
+                % For numerical stability
+                logValues = logValues - maxLogValue;
+                
+                % Compute intermediate posterior sample weights
+                weights = exp(logValues * deltaGamma);
+                
+                % Normalize weights
+                sumWeights = sum(weights);
+                
+                if sumWeights <= 0
+                    obj.ignoreMeas('Sum of computed sample weights is not positive.');
+                end
+                
+                weights = weights / sumWeights;
+                
+                % Compute new intermediate mean and covariance
+                [mean, cov] = Utils.getMeanAndCov(samples, weights);
+                
+                % Check intermediate Gaussian is valid
+                [isPosDef, covSqrt] = Checks.isCov(cov);
+                
+                if ~isPosDef
+                    obj.ignoreMeas('Intermediate state covariance is not positive definite.');
+                end
+                
+                % Increment gamma
+                gamma = gamma + deltaGamma;
+                
+                % Increment step counter
+                numSteps = numSteps + 1;
             end
+            
+            % Use decomposed state update?
+            if observableStateDim < obj.dimState
+                % Update entire system state
+                [mean, cov, covSqrt] = obj.decomposedStateUpdate(mean, cov);
+            end
+            
+            obj.lastNumSteps = numSteps;
+            
+            % Save new state estimate
+            obj.stateMean    = mean;
+            obj.stateCov     = cov;
+            obj.stateCovSqrt = covSqrt;
         end
     end
     
