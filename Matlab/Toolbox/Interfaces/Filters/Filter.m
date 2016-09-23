@@ -129,16 +129,20 @@ classdef Filter < handle & matlab.mixin.Copyable
             %   << runtime (Scalar)
             %      Time needed to perform the prediction step.
             
-            try
-                if nargout == 1
-                    s = tic;
+            if nargout == 1
+                s = tic;
+                try
                     obj.performPrediction(sysModel);
-                    runtime = toc(s);
-                else
-                    obj.performPrediction(sysModel);
+                catch ex
+                    Filter.handleIgnorePrediction(ex);
                 end
-            catch ex
-                Filter.handleIgnorePrediction(ex);
+                runtime = toc(s);
+            else
+                try
+                    obj.performPrediction(sysModel);
+                catch ex
+                    Filter.handleIgnorePrediction(ex);
+                end
             end
         end
         
@@ -176,16 +180,20 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             obj.checkMeasurements(measurements);
             
-            try
-                if nargout == 1
-                    s = tic;
+            if nargout == 1
+                s = tic;
+                try
                     obj.performUpdate(measModel, measurements);
-                    runtime = toc(s);
-                else
-                    obj.performUpdate(measModel, measurements);
+                catch ex
+                    Filter.handleIgnoreMeas(ex);
                 end
-            catch ex
-                Filter.handleIgnoreMeas(ex);
+                runtime = toc(s);
+            else
+                try
+                    obj.performUpdate(measModel, measurements);
+                catch ex
+                    Filter.handleIgnoreMeas(ex);
+                end
             end
         end
         
@@ -233,17 +241,22 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             obj.checkMeasurements(measurements);
             
-            try
-                if nargout == 1
-                    s = tic;
+            if nargout == 1
+                s = tic;
+                try
                     obj.performStep(sysModel, measModel, measurements);
-                    runtime = toc(s);
-                else
-                    obj.performStep(sysModel, measModel, measurements);
+                catch ex
+                    Filter.handleIgnorePrediction(ex);
+                    Filter.handleIgnoreMeas(ex);
                 end
-            catch ex
-                Filter.handleIgnorePrediction(ex);
-                Filter.handleIgnoreMeas(ex);
+                runtime = toc(s);
+            else
+                try
+                    obj.performStep(sysModel, measModel, measurements);
+                catch ex
+                    Filter.handleIgnorePrediction(ex);
+                    Filter.handleIgnoreMeas(ex);
+                end
             end
         end
     end
