@@ -22,12 +22,11 @@ classdef EnKF < BasePF
     %   S. Gillijns, O. Barrero Mendoza, J. Chandrasekar, B. L. R. De Moor, D. S. Bernstein, and A. Ridley,
     %   What Is the Ensemble Kalman Filter and How Well Does It Work?,
     %   Proceedings of the 2006 American Control Conference (ACC 2006),
-    %   Minneapolis, USA, June 2006.
+    %   Minneapolis, USA, Jun 2006.
     %
     %   Geir Evensen,
-    %   Sequential data assimilation with a nonlinear quasi-geostrophic
-    %   model using Monte Carlo methods to forecast error statistics,
-    %   Journal of Geophysical Research: Oceans vol. 99 C5, pages 10143-10162, 1994
+    %   Sequential data assimilation with a nonlinear quasi-geostrophic model using Monte Carlo methods to forecast error statistics,
+    %   Journal of Geophysical Research: Oceans Vol. 99 C5, 1994, pp. 10143-10162.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

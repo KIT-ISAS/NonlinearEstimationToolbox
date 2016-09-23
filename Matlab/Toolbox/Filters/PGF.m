@@ -25,20 +25,20 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     %   getLastUpdateData         - Get information from the last performed measurement update.
     
     % Literature:
-    %   Jannik Steinbring, Antonio Zea, Uwe D. Hanebeck,
+    %   Jannik Steinbring, Antonio Zea, and Uwe D. Hanebeck,
     %   Semi-Analytic Progressive Gaussian Filtering,
     %   Proceedings of the 2016 IEEE International Conference on Multisensor Fusion and Integration for Intelligent Systems (MFI 2016),
-    %   Baden-Baden, Germany, September 2016.
+    %   Baden-Baden, Germany, Sep 2016.
     %
-    %   Jannik Steinbring, Uwe D. Hanebeck,
+    %   Jannik Steinbring and Uwe D. Hanebeck,
     %   GPU-Accelerated Progressive Gaussian Filtering with Applications to Extended Object Tracking,
     %   Proceedings of the 18th International Conference on Information Fusion (Fusion 2015),
-    %   Washington D. C., USA, July 2015.
+    %   Washington D. C., USA, Jul 2015.
     %
-    %   Jannik Steinbring, Uwe D. Hanebeck,
+    %   Jannik Steinbring and Uwe D. Hanebeck,
     %   Progressive Gaussian Filtering Using Explicit Likelihoods,
     %   Proceedings of the 17th International Conference on Information Fusion (Fusion 2014),
-    %   Salamanca, Spain, July 2014.
+    %   Salamanca, Spain, Jul 2014.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

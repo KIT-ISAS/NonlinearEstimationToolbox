@@ -27,7 +27,9 @@ classdef EKF < KF
     %   getLastUpdateData              - Get information from the last performed measurement update.
     
     % Literature:
-    %   Dan Simon, Optimal State Estimation, 1st ed. Wiley & Sons, 2006
+    %   Dan Simon,
+    %   Optimal State Estimation,
+    %   1st ed. Wiley & Sons, 2006.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

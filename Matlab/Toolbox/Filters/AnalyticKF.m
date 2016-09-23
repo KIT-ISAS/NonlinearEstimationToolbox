@@ -27,9 +27,13 @@ classdef AnalyticKF < KF
     %   getLastUpdateData              - Get information from the last performed measurement update.
     
     % Literature:
-    %   Marco F. Huber and Frederik Beutler and Uwe D. Hanebeck,
+    %   Michael Roth, Gustaf Hendeby, and Fredrik Gustafsson,
+    %   Nonlinear Kalman Filters Explained: A Tutorial on Moment Computations and Sigma Point Methods,
+    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 47–70.
+    %
+    %   Marco F. Huber, Frederik Beutler, and Uwe D. Hanebeck,
     %   Semi-Analytic Gaussian Assumed Density Filter,
-    %   Proceedings of the 2011 American Control Conference (ACC 2011), 2011
+    %   Proceedings of the 2011 American Control Conference (ACC 2011), 2011.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

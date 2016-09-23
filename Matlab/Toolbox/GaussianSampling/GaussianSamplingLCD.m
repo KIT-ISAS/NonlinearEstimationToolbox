@@ -12,7 +12,7 @@ classdef GaussianSamplingLCD < GaussianSampling
     %   setSymmetricMode      - Select between symmetric and asymmetric sampling.
     
     % Literature:
-    %   Jannik Steinbring, Martin Pander, Uwe D. Hanebeck,
+    %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
     %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
     %
@@ -23,7 +23,7 @@ classdef GaussianSamplingLCD < GaussianSampling
     %   Uwe D. Hanebeck, Marco F. Huber, and Vesa Klumpp,
     %   Dirac Mixture Approximation of Multivariate Gaussian Densities,
     %   Proceedings of the 2009 IEEE Conference on Decision and Control (CDC 2009),
-    %   Shanghai, China, December 2009.
+    %   Shanghai, China, Dec 2009.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

@@ -31,7 +31,7 @@ classdef S2KF < LRKF
     %   setSymmetricMode               - Select between symmetric and asymmetric sampling.
     
     % Literature:
-    %   Jannik Steinbring, Martin Pander, Uwe D. Hanebeck,
+    %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
     %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
     %

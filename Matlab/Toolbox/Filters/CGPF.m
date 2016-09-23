@@ -29,8 +29,7 @@ classdef CGPF < GPF
     % Literature:
     %   Jayesh H. Kotecha and Petar M. Djuric,
     %   Gaussian Particle Filtering,
-    %   IEEE Transactions on Signal Processing
-    %   Vol. 51, No. 10, pages 2592 - 2601, October 2003
+    %   IEEE Transactions on Signal Processing, Vol. 51, No. 10, Oct 2003, pp. 2592-2601.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

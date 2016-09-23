@@ -30,6 +30,15 @@ classdef KF < GaussianFilter
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
     
+    % Literature:
+    %   Pawe Stano, Zsófia Lendek, Jelmer Braaksma, Robert Babuska, Cees de Keizer, and Arnold J. den Dekker,
+    %   Parametric Bayesian Filters for Nonlinear Stochastic Dynamical Systems: A Survey,
+    %   IEEE Transactions on Cybernetics, Vol. 43, No. 6, Dec 2013, pp. 1607-1624.
+    %
+    %   Dan Simon,
+    %   Optimal State Estimation,
+    %   1st ed. Wiley & Sons, 2006.
+    
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
@@ -130,6 +139,16 @@ classdef KF < GaussianFilter
             %
             % By default, only one iteration is performed during a measurement update,
             % i.e., the usual non-iterated update.
+            %
+            % Literature:
+            %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
+            %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
+            %   IEEE Transactions on Signal Processing, Vol. 63, No. 20, Oct 2015, pp. 5561–5573.
+            %
+            %   Dan Simon,
+            %   Optimal State Estimation,
+            %   Section 13.3.1: The iterated extended Kalman filter,
+            %   1st ed. Wiley & Sons, 2006.
             %
             % Parameters:
             %   >> maxNumIterations (Positive scalar)
