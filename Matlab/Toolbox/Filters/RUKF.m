@@ -14,6 +14,8 @@ classdef RUKF < LRKF
     %   update                         - Perform a measurement update (filter step) using the given measurement(s).
     %   step                           - Perform a combined time and measurement update.
     %   getPointEstimate               - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
@@ -21,8 +23,6 @@ classdef RUKF < LRKF
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
-    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
     %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     %   setNumIterations               - Set the number of iterations used for prediction and update.

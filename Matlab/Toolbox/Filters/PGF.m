@@ -1,5 +1,5 @@
 
-classdef PGF < SampleBasedGaussianFilter
+classdef PGF < SampleBasedJointlyGaussianPrediction
     % The Progressive Gaussian Filter (PGF).
     %
     % PGF Methods:
@@ -14,10 +14,10 @@ classdef PGF < SampleBasedGaussianFilter
     %   update                    - Perform a measurement update (filter step) using the given measurement(s).
     %   step                      - Perform a combined time and measurement update.
     %   getPointEstimate          - Get a point estimate of the current system state.
-    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     %   setUseAnalyticSystemModel - Enable or disable the use of analytic moment calculation during a prediction.
     %   getUseAnalyticSystemModel - Get the current use of analytic moment calculation during a prediction.
+    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     %   setNumSamples             - Set an absolute number of samples used by the PGF for prediction and upate.
     %   setNumSamplesByFactor     - Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
     %   setMaxNumProgSteps        - Set the maximum number of allowed progression steps.
@@ -87,10 +87,14 @@ classdef PGF < SampleBasedGaussianFilter
                 name = 'PGF';
             end
             
-            obj = obj@SampleBasedGaussianFilter(name);
+            samplingPred = GaussianSamplingLCD();
+            samplingUp   = GaussianSamplingLCD();
             
-            obj.samplingPrediction = GaussianSamplingLCD();
-            obj.samplingUpdate     = GaussianSamplingLCD();
+            % Call superclass constructor
+            obj = obj@SampleBasedJointlyGaussianPrediction(name, samplingPred);
+            
+            obj.samplingPrediction = samplingPred;
+            obj.samplingUpdate     = samplingUp;
             
             obj.lastNumSteps = 0;
             
@@ -207,18 +211,6 @@ classdef PGF < SampleBasedGaussianFilter
     end
     
     methods (Access = 'protected')
-        function predictArbitraryNoise(obj, sysModel)
-            obj.predictJointGaussianArbitraryNoise(sysModel, obj.samplingPrediction);
-        end
-        
-        function predictAdditiveNoise(obj, sysModel)
-            obj.predictJointGaussianAdditiveNoise(sysModel, obj.samplingPrediction);
-        end
-        
-        function predictMixedNoise(obj, sysModel)
-            obj.predictJointGaussianMixedNoise(sysModel, obj.samplingPrediction);
-        end
-        
         function performUpdate(obj, measModel, measurements)
             if isa(measModel, 'Likelihood')
                 obj.updateLikelihood(measModel, measurements);

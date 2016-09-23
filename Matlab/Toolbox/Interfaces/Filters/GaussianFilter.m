@@ -5,19 +5,21 @@ classdef GaussianFilter < Filter
     % This type of filter approximates the estimate of the system state as a Gaussian distribution.
     %
     % GaussianFilter Methods:
-    %   GaussianFilter    - Class constructor.
-    %   getName           - Get the filter name / description.
-    %   setColor          - Set the filter color / plotting properties.
-    %   getColor          - Get the current filter color / plotting properties.
-    %   setState          - Set the system state.
-    %   getState          - Get the current system state.
-    %   getStateDim       - Get the dimension of the current system state.
-    %   predict           - Perform a time update (prediction step).
-    %   update            - Perform a measurement update (filter step) using the given measurement(s).
-    %   step              - Perform a combined time and measurement update.
-    %   getPointEstimate  - Get a point estimate of the current system state.
-    %   setStateDecompDim - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim - Get the dimension of the unobservable part of the system state.
+    %   GaussianFilter            - Class constructor.
+    %   getName                   - Get the filter name / description.
+    %   setColor                  - Set the filter color / plotting properties.
+    %   getColor                  - Get the current filter color / plotting properties.
+    %   setState                  - Set the system state.
+    %   getState                  - Get the current system state.
+    %   getStateDim               - Get the dimension of the current system state.
+    %   predict                   - Perform a time update (prediction step).
+    %   update                    - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                      - Perform a combined time and measurement update.
+    %   getPointEstimate          - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel - Get the current use of analytic moment calculation during a prediction.
+    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -66,6 +68,9 @@ classdef GaussianFilter < Filter
             % By default, it is assumed that the entire system state is
             % required by the measurement model/likelihood function.
             obj.setStateDecompDim(0);
+            
+            % By default, the use of analytic system models is disabled.
+            obj.setUseAnalyticSystemModel(false);
         end
         
         function setState(obj, state)
@@ -95,6 +100,44 @@ classdef GaussianFilter < Filter
             
             pointEstimate = obj.stateMean;
             uncertainty   = obj.stateCov;
+        end
+        
+        function setUseAnalyticSystemModel(obj, useAnalyticSysModel)
+            % Enable or disable the use of analytic moment calculation during a prediction.
+            %
+            % If true, analytic moment calculation will be used for the
+            % prediction if the given system model supports it (i.e., if the
+            % system model inherits from AnalyticSystemModel). Otherwise,
+            % an approximative prediction will be used. The approximation
+            % depends on the concrete filter (e.g., based on samples or
+            % derivatives).
+            %
+            % By default, the use of analytic system models is disabled.
+            %
+            % Parameters:
+            %   >> useAnalyticSysModel (Logical scalar)
+            %      If true, analytic moment calculation will be used during
+            %      the prediction. Otherwise, an approximative prediction
+            %      will be performed.
+            
+            if ~Checks.isFlag(useAnalyticSysModel)
+                obj.error('InvalidFlag', ...
+                          'useAnalyticSysModel must be a logical scalar.');
+            end
+            
+            obj.useAnalyticSysModel = useAnalyticSysModel;
+        end
+        
+        function useAnalyticSysModel = getUseAnalyticSystemModel(obj)
+            % Get the current use of analytic moment calculation during a prediction.
+            %
+            % Returns:
+            %   << useAnalyticSysModel (Logical scalar)
+            %      If true, analytic moment calculation will be used during
+            %      the prediction. Otherwise, an approximative prediction
+            %      will be performed.
+            
+            useAnalyticSysModel = obj.useAnalyticSysModel;
         end
         
         function setStateDecompDim(obj, dim)
@@ -158,7 +201,39 @@ classdef GaussianFilter < Filter
         end
     end
     
+    methods (Abstract, Access = 'protected')
+        [predictedStateMean, ...
+         predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel);
+        
+        [predictedStateMean, ...
+         predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel);
+        
+        [predictedStateMean, ...
+         predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel);
+    end
+    
     methods (Access = 'protected')
+        function performPrediction(obj, sysModel)
+            if obj.useAnalyticSysModel && ...
+               Checks.isClass(sysModel, 'AnalyticSystemModel')
+                obj.predictAnalytic(sysModel);
+            elseif Checks.isClass(sysModel, 'LinearSystemModel')
+                obj.predictAnalytic(sysModel);
+            elseif Checks.isClass(sysModel, 'SystemModel')
+                obj.predictArbitraryNoise(sysModel);
+            elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
+                obj.predictAdditiveNoise(sysModel);
+            elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
+                obj.predictMixedNoise(sysModel);
+            else
+                obj.errorSysModel('AnalyticSystemModel (if enabled, see setUseAnalyticSystemModel())', ...
+                                  'LinearSystemModel', ...
+                                  'SystemModel', ...
+                                  'AdditiveNoiseSystemModel', ...
+                                  'MixedNoiseSystemModel');
+            end
+        end
+        
         function predictAnalytic(obj, sysModel)
             % Compute predicted state moments
             [predictedStateMean, ...
@@ -170,19 +245,25 @@ classdef GaussianFilter < Filter
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
-            % Check predicted state covariance is valid
-            [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
+        function predictArbitraryNoise(obj, sysModel)
+            [predictedStateMean, ...
+             predictedStateCov] = obj.predictedMomentsArbitraryNoise(sysModel);
             
-            if ~isPosDef
-                obj.warnIgnorePrediction('Predicted state covariance is not positive definite.');
-                return;
-            end
+            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
+        end
+        
+        function predictAdditiveNoise(obj, sysModel)
+            [predictedStateMean, ...
+             predictedStateCov] = obj.predictedMomentsAdditiveNoise(sysModel);
             
-            % Save new state estimate
-            obj.stateMean    = predictedStateMean;
-            obj.stateCov     = predictedStateCov;
-            obj.stateCovSqrt = predictedStateCovSqrt;
+            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
+        end
+        
+        function predictMixedNoise(obj, sysModel)
+            [predictedStateMean, ...
+             predictedStateCov] = obj.predictedMomentsMixedNoise(sysModel);
+            
+            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
         function observableStateDim = getObservableStateDim(obj)
@@ -213,6 +294,21 @@ classdef GaussianFilter < Filter
     end
     
     methods (Access = 'private')
+        function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
+            % Check predicted state covariance is valid
+            [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
+            
+            if ~isPosDef
+                obj.warnIgnorePrediction('Predicted state covariance is not positive definite.');
+                return;
+            end
+            
+            % Save new state estimate
+            obj.stateMean    = predictedStateMean;
+            obj.stateCov     = predictedStateCov;
+            obj.stateCovSqrt = predictedStateCovSqrt;
+        end
+        
         function checkPredictedMoments(obj, mean, covariance)
             if ~Checks.isColVec(mean, obj.dimState)
                 obj.error('InvalidPredictedStateMean', ...
@@ -243,6 +339,9 @@ classdef GaussianFilter < Filter
     end
     
     properties (Access = 'private')
+        % Flag that indicates the use of an AnalyticSystemMdoel.
+        useAnalyticSysModel;
+        
         % Dimension of the unobservable part of the system state.
         stateDecompDim;
     end

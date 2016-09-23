@@ -1,5 +1,5 @@
 
-classdef LRKF < KF & SampleBasedGaussianFilter
+classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     % Abstract base class for Linear Regression Kalman Filters (LRKFs)
     %
     % This type of filter implements a (nonlinear) Kalman filter with the aid of Gaussian
@@ -17,6 +17,8 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     %   update                         - Perform a measurement update (filter step) using the given measurement(s).
     %   step                           - Perform a combined time and measurement update.
     %   getPointEstimate               - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
@@ -24,8 +26,6 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
-    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
     %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     
@@ -93,14 +93,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
             
             % Call superclass constructors
             obj = obj@KF(name);
-            obj = obj@SampleBasedGaussianFilter(name);
-            
-            if ~Checks.isClass(samplingPrediction, 'GaussianSampling')
-                obj.error('InvalidGaussianSampling', ...
-                          'samplingPrediction must be a subclass of GaussianSampling.');
-            end
-            
-            obj.samplingPrediction = samplingPrediction;
+            obj = obj@SampleBasedJointlyGaussianPrediction(name, samplingPrediction);
             
             if nargin == 3
                 if ~Checks.isClass(samplingUpdate, 'GaussianSampling')
@@ -157,18 +150,6 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     end
     
     methods (Access = 'protected')
-        function predictArbitraryNoise(obj, sysModel)
-            obj.predictJointGaussianArbitraryNoise(sysModel, obj.samplingPrediction);
-        end
-        
-        function predictAdditiveNoise(obj, sysModel)
-            obj.predictJointGaussianAdditiveNoise(sysModel, obj.samplingPrediction);
-        end
-        
-        function predictMixedNoise(obj, sysModel)
-            obj.predictJointGaussianMixedNoise(sysModel, obj.samplingPrediction);
-        end
-        
         function performUpdate(obj, measModel, measurements)
             if obj.useAnalyticMeasModel && ...
                Checks.isClass(measModel, 'AnalyticMeasurementModel')
@@ -364,10 +345,7 @@ classdef LRKF < KF & SampleBasedGaussianFilter
     end
     
     properties (Access = 'private')
-        % GaussianSampling used by the LRKF for the prediction step.
-        samplingPrediction;
-        
-        % GaussianSampling used by the LRKF for the filter step.
+        % Gaussian sampling technique used for the measurement update.
         samplingUpdate;
         
         % Flag that indicates the use of an AnalyticMeasurementMdoel.

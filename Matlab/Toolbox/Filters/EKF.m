@@ -14,6 +14,8 @@ classdef EKF < KF
     %   update                     - Perform a measurement update (filter step) using the given measurement(s).
     %   step                       - Perform a combined time and measurement update.
     %   getPointEstimate           - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel  - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel  - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
     %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
@@ -78,24 +80,8 @@ classdef EKF < KF
     end
     
     methods (Access = 'protected')
-        function performPrediction(obj, sysModel)
-            if Checks.isClass(sysModel, 'LinearSystemModel')
-                obj.predictAnalytic(sysModel);
-            elseif Checks.isClass(sysModel, 'SystemModel')
-                obj.predictArbitraryNoise(sysModel);
-            elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
-                obj.predictAdditiveNoise(sysModel);
-            elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
-                obj.predictMixedNoise(sysModel);
-            else
-                obj.errorSysModel('LinearSystemModel', ...
-                                  'SystemModel', ...
-                                  'AdditiveNoiseSystemModel', ...
-                                  'MixedNoiseSystemModel');
-            end
-        end
-        
-        function predictArbitraryNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
@@ -113,11 +99,10 @@ classdef EKF < KF
             % Predict state covariance
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
                                 noiseJacobian * noiseCov * noiseJacobian';
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictAdditiveNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
@@ -134,11 +119,10 @@ classdef EKF < KF
             
             % Predict state covariance
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + noiseCov;
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictMixedNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
             [noiseMean, noiseCov]       = sysModel.noise.getMeanAndCovariance();
             [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
             dimNoise    = size(noiseMean, 1);
@@ -161,8 +145,6 @@ classdef EKF < KF
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
                                 noiseJacobian * noiseCov * noiseJacobian' + ...
                                 addNoiseCov;
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
         function performUpdate(obj, measModel, measurements)

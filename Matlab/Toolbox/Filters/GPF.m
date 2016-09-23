@@ -1,5 +1,5 @@
 
-classdef GPF < BasePF & SampleBasedGaussianFilter
+classdef GPF < BasePF & GaussianFilter
     % The Gaussian Particle Filter (GPF).
     %
     % GPF Methods:
@@ -14,10 +14,10 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
     %   update                    - Perform a measurement update (filter step) using the given measurement(s).
     %   step                      - Perform a combined time and measurement update.
     %   getPointEstimate          - Get a point estimate of the current system state.
-    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     %   setUseAnalyticSystemModel - Enable or disable the use of analytic moment calculation during a prediction.
     %   getUseAnalyticSystemModel - Get the current use of analytic moment calculation during a prediction.
+    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     %   setNumParticles           - Set the number of particles used by the filter.
     %   getNumParticles           - Get the current number of particles used by the filter.
     
@@ -76,7 +76,7 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             
             % Call superclass constructors
             obj = obj@BasePF(name);
-            obj = obj@SampleBasedGaussianFilter(name);
+            obj = obj@GaussianFilter(name);
             
             obj.setNumParticles(1000);
         end
@@ -110,7 +110,8 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
     end
     
     methods (Access = 'protected')
-        function predictArbitraryNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
             % Sample system noise
             noise = sysModel.noise.drawRndSamples(obj.numParticles);
             
@@ -126,11 +127,10 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             % Compute predicted state mean and covariance
             [predictedStateMean, ...
              predictedStateCov] = Utils.getMeanAndCov(predictedParticles);
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictAdditiveNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
             % Get additive noise moments
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
             
@@ -154,11 +154,10 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             
             % Compute predicted state covariance
             predictedStateCov = cov + noiseCov;
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictMixedNoise(obj, sysModel)
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
             % Get additive noise moments
             [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
             
@@ -185,8 +184,6 @@ classdef GPF < BasePF & SampleBasedGaussianFilter
             
             % Compute predicted state covariance
             predictedStateCov = cov + addNoiseCov;
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
         function performUpdate(obj, measModel, measurements)
