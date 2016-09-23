@@ -116,13 +116,9 @@ classdef CGPF < GPF
             
             % Standard GPF update
             [updatedStateMean, ...
-             updatedStateCov, ...
-             updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+             updatedStateCov] = obj.updateLikelihoodObservable(measModel, measurements, particles);
             
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
+            obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
         end
     end
 end

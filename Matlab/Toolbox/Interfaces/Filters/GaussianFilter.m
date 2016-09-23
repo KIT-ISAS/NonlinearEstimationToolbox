@@ -266,6 +266,20 @@ classdef GaussianFilter < Filter
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
+        function checkAndSaveUpdate(obj, updatedStateMean, updatedStateCov)
+            % Check updated state covariance is valid
+            [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
+            
+            if ~isPosDef
+                obj.ignoreMeas('Updated state covariance is not positive definite.');
+            end
+            
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
+        end
+        
         function observableStateDim = getObservableStateDim(obj)
             observableStateDim = obj.dimState - obj.stateDecompDim;
             
@@ -277,19 +291,16 @@ classdef GaussianFilter < Filter
         end
         
         function [updatedStateMean, ...
-                  updatedStateCov, ...
-                  updatedStateCovSqrt] = decomposedStateUpdate(obj, updatedMean, updatedCov)
+                  updatedStateCov] = decomposedStateUpdate(obj, updatedMean, updatedCov)
+            % Check updated observable state covariance is valid
+            if ~Checks.isCov(updatedCov)
+                obj.ignoreMeas('Updated observable state covariance matrix is not positive definite.');
+            end
+            
             % Update entire system state
             [updatedStateMean, ...
              updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, ...
                                                             updatedMean, updatedCov);
-            
-            % Check updated state covariance is valid
-            [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
-            
-            if ~isPosDef
-                obj.ignoreMeas('Updated state covariance is not positive definite.');
-            end
         end
     end
     
@@ -326,7 +337,7 @@ classdef GaussianFilter < Filter
         end
     end
     
-    properties (Access = 'protected')
+    properties (GetAccess = 'protected', SetAccess = 'private')
         % Current system mean vector.
         stateMean;
         

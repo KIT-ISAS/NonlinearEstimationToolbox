@@ -286,32 +286,31 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 % Compute new intermediate mean and covariance
                 [mean, cov] = Utils.getMeanAndCov(samples, weights);
                 
-                % Check intermediate Gaussian is valid
-                [isPosDef, covSqrt] = Checks.isCov(cov);
-                
-                if ~isPosDef
-                    obj.ignoreMeas('Intermediate state covariance is not positive definite.');
-                end
-                
                 % Increment gamma
                 gamma = gamma + deltaGamma;
                 
                 % Increment step counter
                 numSteps = numSteps + 1;
+                
+                if gamma ~= 1
+                    % Check intermediate Gaussian is valid
+                    [isPosDef, covSqrt] = Checks.isCov(cov);
+                    
+                    if ~isPosDef
+                        obj.ignoreMeas('Intermediate state covariance is not positive definite.');
+                    end
+                end
             end
             
             % Use decomposed state update?
             if observableStateDim < obj.dimState
                 % Update entire system state
-                [mean, cov, covSqrt] = obj.decomposedStateUpdate(mean, cov);
+                [mean, cov] = obj.decomposedStateUpdate(mean, cov);
             end
             
             obj.lastNumSteps = numSteps;
             
-            % Save new state estimate
-            obj.stateMean    = mean;
-            obj.stateCov     = cov;
-            obj.stateCovSqrt = covSqrt;
+            obj.checkAndSaveUpdate(mean, cov);
         end
     end
     

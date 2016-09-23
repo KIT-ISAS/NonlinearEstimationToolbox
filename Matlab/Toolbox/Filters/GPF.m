@@ -214,26 +214,20 @@ classdef GPF < BasePF & GaussianFilter
                 
                 % Update entire system state
                 [updatedStateMean, ...
-                 updatedStateCov, ...
-                 updatedStateCovSqrt] = obj.decomposedStateUpdate(updatedMean, updatedCov);
+                 updatedStateCov] = obj.decomposedStateUpdate(updatedMean, updatedCov);
             else
                 % Standard GPF update
                 particles = obj.getStateParticles();
                 
                 [updatedStateMean, ...
-                 updatedStateCov, ...
-                 updatedStateCovSqrt] = obj.updateLikelihoodObservable(measModel, measurements, particles);
+                 updatedStateCov] = obj.updateLikelihoodObservable(measModel, measurements, particles);
             end
             
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
+            obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
         end
         
         function [updatedMean, ...
-                  updatedCov, ...
-                  updatedCovSqrt] = updateLikelihoodObservable(obj, measModel, measurements, particles)
+                  updatedCov] = updateLikelihoodObservable(obj, measModel, measurements, particles)
             % Evaluate likelihood
             values = obj.evaluateLikelihood(measModel, measurements, particles, obj.numParticles);
             
@@ -249,13 +243,6 @@ classdef GPF < BasePF & GaussianFilter
             % Compute updated state mean and covariance
             [updatedMean, ...
              updatedCov] = Utils.getMeanAndCov(particles, weights);
-            
-            % Check updated state covariance is valid
-            [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
-            
-            if ~isPosDef
-                obj.ignoreMeas('Updated state covariance is not positive definite.');
-            end
         end
         
         function particles = getStateParticles(obj)
