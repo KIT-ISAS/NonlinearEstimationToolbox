@@ -32,6 +32,7 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             f = GaussianFilterStub();
             
             obj.verifyEqual(f.getName(), 'GaussianFilterStub');
+            obj.verifyFalse(f.getUseAnalyticSystemModel());
             obj.verifyEqual(f.getStateDecompDim(), 0);
         end
         

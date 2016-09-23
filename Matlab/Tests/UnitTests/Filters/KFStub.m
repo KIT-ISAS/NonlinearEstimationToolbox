@@ -7,7 +7,15 @@ classdef KFStub < KF
     end
     
     methods (Access = 'protected')
-        function performPrediction(obj, ~)
+        function predictedMomentsArbitraryNoise(obj, ~)
+            obj.error('NotImplemented', 'Not implemented');
+        end
+        
+        function predictedMomentsAdditiveNoise(obj, ~)
+            obj.error('NotImplemented', 'Not implemented');
+        end
+        
+        function predictedMomentsMixedNoise(obj, ~)
             obj.error('NotImplemented', 'Not implemented');
         end
         
