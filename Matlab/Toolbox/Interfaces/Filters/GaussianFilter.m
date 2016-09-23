@@ -299,8 +299,7 @@ classdef GaussianFilter < Filter
             [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
             
             if ~isPosDef
-                obj.warnIgnorePrediction('Predicted state covariance is not positive definite.');
-                return;
+                obj.ignorePrediction('Predicted state covariance is not positive definite.');
             end
             
             % Save new state estimate

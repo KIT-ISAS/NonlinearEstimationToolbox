@@ -129,12 +129,16 @@ classdef Filter < handle & matlab.mixin.Copyable
             %   << runtime (Scalar)
             %      Time needed to perform the prediction step.
             
-            if nargout == 1
-                s = tic;
-                obj.performPrediction(sysModel);
-                runtime = toc(s);
-            else
-                obj.performPrediction(sysModel);
+            try
+                if nargout == 1
+                    s = tic;
+                    obj.performPrediction(sysModel);
+                    runtime = toc(s);
+                else
+                    obj.performPrediction(sysModel);
+                end
+            catch ex
+                Filter.handleIgnorePrediction(ex);
             end
         end
         
@@ -225,12 +229,16 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             obj.checkMeasurements(measurements);
             
-            if nargout == 1
-                s = tic;
-                obj.performStep(sysModel, measModel, measurements);
-                runtime = toc(s);
-            else
-                obj.performStep(sysModel, measModel, measurements);
+            try
+                if nargout == 1
+                    s = tic;
+                    obj.performStep(sysModel, measModel, measurements);
+                    runtime = toc(s);
+                else
+                    obj.performStep(sysModel, measModel, measurements);
+                end
+            catch ex
+                Filter.handleIgnorePrediction(ex);
             end
         end
     end
@@ -352,13 +360,6 @@ classdef Filter < handle & matlab.mixin.Copyable
                     'From "%s":\n%s', obj.name, msg);
         end
         
-        function warnIgnorePrediction(obj, reason, varargin)
-            reason = sprintf(reason, varargin{:});
-            
-            obj.warning('IgnoringPrediction', ...
-                        '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
-        end
-        
         function error(obj, id, msg, varargin)
             msg = sprintf(msg, varargin{:});
             
@@ -390,6 +391,15 @@ classdef Filter < handle & matlab.mixin.Copyable
             obj.error('UnsupportedMeasurementModel', msg);
         end
         
+        function ignorePrediction(obj, reason, varargin)
+            reason = sprintf(reason, varargin{:});
+            
+            obj.warning('IgnoringPrediction', ...
+                        '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
+            
+            error('Filter:IgnorePrediction', 'Ingore prediction');
+        end
+        
         function ignoreMeas(obj, reason, varargin)
             reason = sprintf(reason, varargin{:});
             
@@ -401,6 +411,15 @@ classdef Filter < handle & matlab.mixin.Copyable
         
         function handleIgnoreMeas(~, ex)
             if ~strcmp(ex.identifier, 'Filter:IgnoreMeasurement')
+                % Real error => do not catch it
+                ex.rethrow();
+            end
+        end
+    end
+    
+    methods (Static, Access = 'private')
+        function handleIgnorePrediction(ex)
+            if ~strcmp(ex.identifier, 'Filter:IgnorePrediction')
                 % Real error => do not catch it
                 ex.rethrow();
             end
