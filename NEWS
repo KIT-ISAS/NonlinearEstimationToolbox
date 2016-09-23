@@ -1,4 +1,24 @@
 
+Changes in Nonlinear Estimation Toolbox 1.3.0
+=============================================
+
+* All subclasses of GaussianFilter can now perform a semi-analytic filter step by using a state decomposition.
+  That is, if the considered measurement model/likelihood function does not depend upon the entire system state,
+  the update of the non-dependent state variables can be performed in closed-form. It can be enabled with the
+  GaussianFilter.setStateDecompDim() method. Currently it is available for all subclasses of KF (AnalyticKF, CKF,
+  EKF, GHKF, RUKF, S2KF, UKF), the PGF, and the GPF.
+* The UKF Gaussian sampling can now be configured such that the weight of the mean sample is negative.
+* Updated Eigen to version 3.2.9.
+* The state prediction for subclasses of GaussianFilter was massively refactored to improve code reuse and code
+  quality. As a side effect, the EKF can now work with AnalyticSystemModels. Moreover, the interface
+  SampleBasedGaussianFilter was removed and the interface SampleBasedJointlyGaussianPrediction added. Subclasses of
+  GaussianFilter now have to implement the predictedMoments*() methods.
+* The KF measurement update was massively refactored to improve code reuse and code quality. As a side effect,
+  the EKF can now work with AnalyticMeasurementModels. Subclasses of KF now have to implement the getMomentFunc*()
+  methods.
+* Fixed a bug when evaluating the logarithmic PDF of a Gaussian mixture consisting only of a single component.
+
+
 Changes in Nonlinear Estimation Toolbox 1.2.1
 =============================================
 
