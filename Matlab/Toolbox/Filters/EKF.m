@@ -3,26 +3,28 @@ classdef EKF < KF
     % The Extended Kalman Filter (EKF).
     %
     % EKF Methods:
-    %   EKF                        - Class constructor.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setUseAnalyticSystemModel  - Enable or disable the use of analytic moment calculation during a prediction.
-    %   getUseAnalyticSystemModel  - Get the current use of analytic moment calculation during a prediction.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
+    %   EKF                            - Class constructor.
+    %   getName                        - Get the filter name / description.
+    %   setColor                       - Set the filter color / plotting properties.
+    %   getColor                       - Get the current filter color / plotting properties.
+    %   setState                       - Set the system state.
+    %   getState                       - Get the current system state.
+    %   getStateDim                    - Get the dimension of the current system state.
+    %   predict                        - Perform a time update (prediction step).
+    %   update                         - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                           - Perform a combined time and measurement update.
+    %   getPointEstimate               - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
+    %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
+    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
+    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
+    %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
+    %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
+    %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
+    %   getMeasValidationThreshold     - Get the current measurement validation threshold.
+    %   getLastUpdateData              - Get information from the last performed measurement update.
     
     % Literature:
     %   Dan Simon, Optimal State Estimation, 1st ed. Wiley & Sons, 2006
@@ -147,24 +149,7 @@ classdef EKF < KF
                                 addNoiseCov;
         end
         
-        function performUpdate(obj, measModel, measurements)
-            if Checks.isClass(measModel, 'LinearMeasurementModel')
-                obj.updateAnalytic(measModel, measurements);
-            elseif Checks.isClass(measModel, 'MeasurementModel')
-                obj.updateArbitraryNoise(measModel, measurements);
-            elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
-                obj.updateAdditiveNoise(measModel, measurements);
-            elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
-                obj.updateMixedNoise(measModel, measurements);
-            else
-                obj.errorMeasModel('LinearMeasurementModel', ...
-                                   'MeasurementModel', ...
-                                   'AdditiveNoiseMeasurementModel', ...
-                                   'MixedNoiseMeasurementModel');
-            end
-        end
-        
-        function updateArbitraryNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
@@ -172,12 +157,9 @@ classdef EKF < KF
             momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncArbitraryNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                       measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
-        function updateAdditiveNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
@@ -187,12 +169,9 @@ classdef EKF < KF
             momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncAdditiveNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                      measModel, dimMeas, numMeas, noiseMean, noiseCov);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
-        function updateMixedNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
             [dimMeas, numMeas]          = size(measurements);
             [noiseMean, noiseCov]       = measModel.noise.getMeanAndCovariance();
             [addNoiseMean, addNoiseCov] = measModel.additiveNoise.getMeanAndCovariance();
@@ -205,9 +184,6 @@ classdef EKF < KF
                          obj.momentFuncMixedNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                   measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
                                                   addNoiseCov, noiseMean, noiseCov);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
         function [measMean, measCov, ...

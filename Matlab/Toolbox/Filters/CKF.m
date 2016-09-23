@@ -20,13 +20,13 @@ classdef CKF < LRKF
     %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
+    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
+    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
     %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
-    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     
     % Literature:
     %   Bin Jia, Ming Xin, and Yang Cheng,

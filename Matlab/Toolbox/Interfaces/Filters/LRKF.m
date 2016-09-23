@@ -21,13 +21,13 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
+    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
+    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
     %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
-    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
     
     % Literature:
     %   Jannik Steinbring and Uwe D. Hanebeck,
@@ -106,72 +106,11 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                 % Use the same samplings for both prediction and update
                 obj.samplingUpdate = samplingPrediction;
             end
-            
-            obj.setUseAnalyticMeasurementModel(false);
-        end
-        
-        function setUseAnalyticMeasurementModel(obj, useAnalyticMeasModel)
-            % Enable or disable the use of analytic moment calculation during a filter step.
-            %
-            % If true, analytic moment calculation will be used for the
-            % measurement update if the given measurement model supports it,
-            % (i.e., if a measurement model is given, which inherits from
-            % AnalyticMeasurementModel). Otherwise, a sample-based
-            % measurement update will be used (provided a measurement model
-            % supported by this filter is given).
-            %
-            % By default, the use of analytic measurement models is disabled.
-            %
-            % Parameters:
-            %   >> useAnalyticMeasModel (Logical scalar)
-            %      If true, analytic moment calculation will be used during a
-            %      measurement update. Otherwise, a sample-based measurement
-            %      update will be performed.
-            
-            if ~Checks.isFlag(useAnalyticMeasModel)
-                obj.error('InvalidFlag', ...
-                          'useAnalyticMeasModel must be a logical scalar.');
-            end
-            
-            obj.useAnalyticMeasModel = useAnalyticMeasModel;
-        end
-        
-        function useAnalyticMeasModel = getUseAnalyticMeasurementModel(obj)
-            % Get the current use of analytic moment calculation during a filter step.
-            %
-            % Returns:
-            %   << useAnalyticMeasModel (Logical scalar)
-            %      If true, analytic moment calculation will be used during a
-            %      measurement update. Otherwise, a sample-based measurement
-            %      update will be performed.
-            
-            useAnalyticMeasModel = obj.useAnalyticMeasModel;
         end
     end
     
     methods (Access = 'protected')
-        function performUpdate(obj, measModel, measurements)
-            if obj.useAnalyticMeasModel && ...
-               Checks.isClass(measModel, 'AnalyticMeasurementModel')
-                obj.updateAnalytic(measModel, measurements);
-            elseif Checks.isClass(measModel, 'LinearMeasurementModel')
-                obj.updateAnalytic(measModel, measurements);
-            elseif Checks.isClass(measModel, 'MeasurementModel')
-                obj.updateArbitraryNoise(measModel, measurements);
-            elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
-                obj.updateAdditiveNoise(measModel, measurements);
-            elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
-                obj.updateMixedNoise(measModel, measurements);
-            else
-                obj.errorMeasModel('AnalyticMeasurementModel (if enabled, see setUseAnalyticMeasurementModel())', ...
-                                   'LinearMeasurementModel', ...
-                                   'MeasurementModel', ...
-                                   'AdditiveNoiseMeausrementModel', ...
-                                   'MixedNoiseMeasurementModel');
-            end
-        end
-        
-        function updateArbitraryNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas]           = size(measurements);
             [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
             dimNoise     = size(noiseMean, 1);
@@ -181,12 +120,9 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
             momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncArbitraryNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                       measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCovSqrt);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
-        function updateAdditiveNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
@@ -196,12 +132,9 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
             momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncAdditiveNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                      measModel, dimMeas, numMeas, noiseMean, noiseCov);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
-        function updateMixedNoise(obj, measModel, measurements)
+        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
             [dimMeas, numMeas]           = size(measurements);
             [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCovariance();
             [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
@@ -216,9 +149,6 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                          obj.momentFuncMixedNoise(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                   measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
                                                   addNoiseCov, noiseMean, noiseCovSqrt);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
         end
         
         function [measMean, measCov, ...
@@ -347,8 +277,5 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     properties (Access = 'private')
         % Gaussian sampling technique used for the measurement update.
         samplingUpdate;
-        
-        % Flag that indicates the use of an AnalyticMeasurementMdoel.
-        useAnalyticMeasModel;
     end
 end

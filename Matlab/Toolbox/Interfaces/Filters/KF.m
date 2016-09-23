@@ -7,26 +7,28 @@ classdef KF < GaussianFilter
     % measurement noise that the posterior state estimate will always be an approximation.
     %
     % KF Methods:
-    %   KF                         - Class constructor.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setUseAnalyticSystemModel  - Enable or disable the use of analytic moment calculation during a prediction.
-    %   getUseAnalyticSystemModel  - Get the current use of analytic moment calculation during a prediction.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
+    %   KF                             - Class constructor.
+    %   getName                        - Get the filter name / description.
+    %   setColor                       - Set the filter color / plotting properties.
+    %   getColor                       - Get the current filter color / plotting properties.
+    %   setState                       - Set the system state.
+    %   getState                       - Get the current system state.
+    %   getStateDim                    - Get the dimension of the current system state.
+    %   predict                        - Perform a time update (prediction step).
+    %   update                         - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                           - Perform a combined time and measurement update.
+    %   getPointEstimate               - Get a point estimate of the current system state.
+    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
+    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
+    %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
+    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
+    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
+    %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
+    %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
+    %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
+    %   getMeasValidationThreshold     - Get the current measurement validation threshold.
+    %   getLastUpdateData              - Get information from the last performed measurement update.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -72,6 +74,9 @@ classdef KF < GaussianFilter
             % Call superclass constructor
             obj = obj@GaussianFilter(name);
             
+            % By default, the use of analytic measurement models is disabled.
+            obj.setUseAnalyticMeasurementModel(false);
+            
             % By default, no measurement validation
             obj.setMeasValidationThreshold(1);
             
@@ -80,6 +85,44 @@ classdef KF < GaussianFilter
             obj.setMaxNumIterations(1);
             
             obj.lastNumIterations = 0;
+        end
+        
+        function setUseAnalyticMeasurementModel(obj, useAnalyticMeasModel)
+            % Enable or disable the use of analytic moment calculation during a filter step.
+            %
+            % If true, analytic moment calculation will be used for the
+            % measurement update if the given measurement model supports it
+            % (i.e., if the measurement model inherits from AnalyticMeasurementModel).
+            % Otherwise, an approximative moment computation will be used.
+            % The approximation depends on the concrete filter (e.g., based
+            % on samples or derivatives).
+            %
+            % By default, the use of analytic measurement models is disabled.
+            %
+            % Parameters:
+            %   >> useAnalyticMeasModel (Logical scalar)
+            %      If true, analytic moment calculation will be used during a
+            %      measurement update. Otherwise, an approximative moment
+            %      computation will be performed.
+            
+            if ~Checks.isFlag(useAnalyticMeasModel)
+                obj.error('InvalidFlag', ...
+                          'useAnalyticMeasModel must be a logical scalar.');
+            end
+            
+            obj.useAnalyticMeasModel = useAnalyticMeasModel;
+        end
+        
+        function useAnalyticMeasModel = getUseAnalyticMeasurementModel(obj)
+            % Get the current use of analytic moment calculation during a filter step.
+            %
+            % Returns:
+            %   << useAnalyticMeasModel (Logical scalar)
+            %      If true, analytic moment calculation will be used during a
+            %      measurement update. Otherwise, an approximative moment
+            %      computation will be performed.
+            
+            useAnalyticMeasModel = obj.useAnalyticMeasModel;
         end
         
         function setMaxNumIterations(obj, maxNumIterations)
@@ -179,8 +222,38 @@ classdef KF < GaussianFilter
         end
     end
     
+    methods (Abstract, Access = 'protected')
+        momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements);
+        
+        momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements);
+        
+        momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements);
+    end
+    
     methods (Access = 'protected')
+        function performUpdate(obj, measModel, measurements)
+            if obj.useAnalyticMeasModel && ...
+               Checks.isClass(measModel, 'AnalyticMeasurementModel')
+                obj.updateAnalytic(measModel, measurements);
+            elseif Checks.isClass(measModel, 'LinearMeasurementModel')
+                obj.updateAnalytic(measModel, measurements);
+            elseif Checks.isClass(measModel, 'MeasurementModel')
+                obj.updateArbitraryNoise(measModel, measurements);
+            elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
+                obj.updateAdditiveNoise(measModel, measurements);
+            elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
+                obj.updateMixedNoise(measModel, measurements);
+            else
+                obj.errorMeasModel('AnalyticMeasurementModel (if enabled, see setUseAnalyticMeasurementModel())', ...
+                                   'LinearMeasurementModel', ...
+                                   'MeasurementModel', ...
+                                   'AdditiveNoiseMeausrementModel', ...
+                                   'MixedNoiseMeasurementModel');
+            end
+        end
+        
         function updateAnalytic(obj, measModel, measurements)
+            % Build function to for computing measurement moments
             [dimMeas, numMeas] = size(measurements);
             dimStackedMeas = dimMeas * numMeas;
             
@@ -192,6 +265,44 @@ classdef KF < GaussianFilter
             obj.kalmanUpdate(measurements, momentFunc);
         end
         
+        function updateArbitraryNoise(obj, measModel, measurements)
+            % Build function to for computing measurement moments
+            momentFunc = obj.getMomentFuncArbitraryNoise(measModel, measurements);
+            
+            % Perform update
+            obj.kalmanUpdate(measurements, momentFunc);
+        end
+        
+        function updateAdditiveNoise(obj, measModel, measurements)
+            % Build function to for computing measurement moments
+            momentFunc = obj.getMomentFuncAdditiveNoise(measModel, measurements);
+            
+            % Perform update
+            obj.kalmanUpdate(measurements, momentFunc);
+        end
+        
+        function updateMixedNoise(obj, measModel, measurements)
+            % Build function to for computing measurement moments
+            momentFunc = obj.getMomentFuncMixedNoise(measModel, measurements);
+            
+            % Perform update
+            obj.kalmanUpdate(measurements, momentFunc);
+        end
+    end
+    
+    methods (Static, Access = 'protected')
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                                                        measMean, measCov, stateMeasCrossCov)
+            A = stateMeasCrossCov' / iterCov;
+            
+            measMean          = measMean + A * (priorMean - iterMean);
+            measCov           = measCov + A * (priorCov - iterCov) * A';
+            stateMeasCrossCov = priorCov * A';
+        end
+    end
+    
+    methods (Access = 'private')
         function kalmanUpdate(obj, measurements, momentFunc)
             observableStateDim = obj.getObservableStateDim();
             
@@ -227,21 +338,7 @@ classdef KF < GaussianFilter
             obj.stateCov     = updatedStateCov;
             obj.stateCovSqrt = updatedStateCovSqrt;
         end
-    end
-    
-    methods (Static, Access = 'protected')
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
-                                                        measMean, measCov, stateMeasCrossCov)
-            A = stateMeasCrossCov' / iterCov;
-            
-            measMean          = measMean + A * (priorMean - iterMean);
-            measCov           = measCov + A * (priorCov - iterCov) * A';
-            stateMeasCrossCov = priorCov * A';
-        end
-    end
-    
-    methods (Access = 'private')
+        
         function [updatedMean, ...
                   updatedCov, ...
                   updatedCovSqrt] = kalmanUpdateObservable(obj, priorMean, priorCov, priorCovSqrt, ...
@@ -374,6 +471,9 @@ classdef KF < GaussianFilter
     end
     
     properties (Access = 'private')
+        % Flag that indicates the use of an AnalyticMeasurementMdoel.
+        useAnalyticMeasModel;
+        
         % The maximum number of iterations that will be performed during a measurement update.
         maxNumIterations;
         
