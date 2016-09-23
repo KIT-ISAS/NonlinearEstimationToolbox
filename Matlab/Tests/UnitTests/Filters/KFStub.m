@@ -19,7 +19,15 @@ classdef KFStub < KF
             obj.error('NotImplemented', 'Not implemented');
         end
         
-        function performUpdate(obj, ~, ~)
+        function getMomentFuncArbitraryNoise(~, ~, ~)
+            obj.error('NotImplemented', 'Not implemented');
+        end
+        
+        function getMomentFuncAdditiveNoise(~, ~, ~)
+            obj.error('NotImplemented', 'Not implemented');
+        end
+        
+        function getMomentFuncMixedNoise(~, ~, ~)
             obj.error('NotImplemented', 'Not implemented');
         end
     end

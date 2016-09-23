@@ -32,6 +32,7 @@ classdef TestKF < matlab.unittest.TestCase
             f = KFStub();
             
             obj.verifyEqual(f.getName(), 'KFStub');
+            obj.verifyFalse(f.getUseAnalyticMeasurementModel());
             obj.verifyEqual(f.getMaxNumIterations(), 1);
             obj.verifyEqual(f.getMeasValidationThreshold(), 1);
             

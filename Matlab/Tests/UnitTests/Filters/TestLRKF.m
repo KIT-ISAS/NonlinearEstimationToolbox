@@ -32,7 +32,6 @@ classdef TestLRKF < matlab.unittest.TestCase
             f = LRKFStub();
             
             obj.verifyEqual(f.getName(), 'LRKFStub');
-            obj.verifyFalse(f.getUseAnalyticMeasurementModel());
         end
     end
 end
