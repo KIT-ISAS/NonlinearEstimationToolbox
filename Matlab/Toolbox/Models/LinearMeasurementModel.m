@@ -7,7 +7,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
     %   setNoise                   - Set the measurement noise.
     %   measurementEquation        - The measurement equation.
     %   logLikelihood              - Evaluate the logarithmic likelihood function of the implemented measurement equation.
-    %   derivative                 - Compute the derivative of the implemented measurement equation.
+    %   derivative                 - Compute the first-order and second-order derivatives of the implemented measurement equation.
     %   simulate                   - Simulate one ore more measurements for a given system state.
     %   analyticMeasurementMoments - Analytic calculation of the first two moments of the measurement distribution.
     %   setMeasurementMatrix       - Set the measurement matrix.
@@ -80,15 +80,17 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
     end
     
     methods (Sealed)
-        function stateJacobian = derivative(obj, nominalState)
+        function [stateJacobian, stateHessians] = derivative(obj, nominalState)
             dimState = size(nominalState, 1);
             
             if isempty(obj.measMatrix)
                 stateJacobian = eye(dimState);
+                stateHessians = zeros(dimState, dimState, dimState);
             else
-                obj.checkMeasMatrix(dimState);
+                dimMeas = obj.checkMeasMatrix(dimState);
                 
                 stateJacobian = obj.measMatrix;
+                stateHessians = zeros(dimState, dimState, dimMeas);
             end
         end
         
@@ -141,7 +143,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
     end
     
     methods (Access = 'private')
-        function checkMeasMatrix(obj, dimState, dimNoise)
+        function dimMeasMatrixMeas = checkMeasMatrix(obj, dimState, dimNoise)
             [dimMeasMatrixMeas, dimMeasMatrixState] = size(obj.measMatrix);
             
             if dimState ~= dimMeasMatrixState

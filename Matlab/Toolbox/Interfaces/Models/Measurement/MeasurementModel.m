@@ -5,7 +5,7 @@ classdef MeasurementModel < handle
     % MeasurementModel Methods:
     %   setNoise            - Set the measurement noise.
     %   measurementEquation - The measurement equation.
-    %   derivative          - Compute the derivative of the implemented measurement equation.
+    %   derivative          - Compute the first-order and second-order derivatives of the implemented measurement equation.
     %   simulate            - Simulate one ore more measurements for a given system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -48,20 +48,20 @@ classdef MeasurementModel < handle
             end
         end
         
-        function [stateJacobian, ...
-                  noiseJacobian] = derivative(obj, nominalState, nominalNoise)
-            % Compute the derivative of the implemented measurement equation.
+        function [stateJacobian, noiseJacobian, ...
+                  stateHessians, noiseHessians] = derivative(obj, nominalState, nominalNoise)
+            % Compute the first-order and second-order derivatives of the implemented measurement equation.
             %
-            % By default, the Jacobians are computed using a difference quotient.
+            % By default, the derivatives are computed using difference quotients.
             %
             % Mainly used by the EKF.
             %
             % Parameters:
             %   >> nominalState (Column vector)
-            %      The nominal system state vector to linearize the measurement equation.
+            %      The nominal system state vector.
             %
             %   >> nominalNoise (Column vector)
-            %      The nominal system noise vector to linearize the measurement equation.
+            %      The nominal system noise vector.
             %
             % Returns:
             %   << stateJacobian (Square matrix)
@@ -69,10 +69,21 @@ classdef MeasurementModel < handle
             %
             %   << noiseJacobian (Matrix)
             %      The Jacobian of the noise variables.
+            %
+            %   << stateHessians (3D matrix)
+            %      The Hessians of the state variables.
+            %
+            %   << noiseHessians (3D matrix)
+            %      The Hessians of the noise variables.
             
-            [stateJacobian, ...
-             noiseJacobian] = Utils.diffQuotientStateAndNoise(@(s, n) obj.measurementEquation(s, n), ...
-                                                              nominalState, nominalNoise);
+            if nargout == 1
+                [stateJacobian, noiseJacobian] = Utils.diffQuotientStateAndNoise(@obj.measurementEquation, ...
+                                                                                 nominalState, nominalNoise);
+            else
+                [stateJacobian, noiseJacobian, ...
+                 stateHessians, noiseHessians] = Utils.diffQuotientStateAndNoise(@obj.measurementEquation, ...
+                                                                                 nominalState, nominalNoise);
+            end
         end
         
         function measurements = simulate(obj, state, numMeasurements)

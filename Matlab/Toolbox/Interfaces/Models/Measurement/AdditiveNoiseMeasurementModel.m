@@ -6,7 +6,7 @@ classdef AdditiveNoiseMeasurementModel < Likelihood
     %   setNoise            - Set the measurement noise.
     %   measurementEquation - The measurement equation.
     %   logLikelihood       - Evaluate the logarithmic likelihood function of the implemented measurement equation.
-    %   derivative          - Compute the derivative of the implemented measurement equation.
+    %   derivative          - Compute the first-order and second-order derivatives of the implemented measurement equation.
     %   simulate            - Simulate one ore more measurements for a given system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -95,23 +95,30 @@ classdef AdditiveNoiseMeasurementModel < Likelihood
             end
         end
         
-        function stateJacobian = derivative(obj, nominalState)
-            % Compute the derivative of the implemented measurement equation.
+        function [stateJacobian, stateHessians] = derivative(obj, nominalState)
+            % Compute the first-order and second-order derivatives of the implemented measurement equation.
             %
-            % By default, the Jacobians are computed using a difference quotient.
+            % By default, the derivatives are computed using difference quotients.
             %
             % Mainly used by the EKF.
             %
             % Parameters:
             %   >> nominalState (Column vector)
-            %      The nominal system state vector to linearize the measurement equation.
+            %      The nominal system state vector.
             %
             % Returns:
             %   << stateJacobian (Square matrix)
             %      The Jacobian of the state variables.
+            %
+            %   << stateHessians (3D matrix)
+            %      The Hessians of the state variables.
             
-            stateJacobian = Utils.diffQuotientState(@(s) obj.measurementEquation(s), ...
-                                                    nominalState);
+            if nargout == 1
+                stateJacobian = Utils.diffQuotientState(@obj.measurementEquation, nominalState);
+            else
+                [stateJacobian, ...
+                 stateHessians] = Utils.diffQuotientState(@obj.measurementEquation, nominalState);
+            end
         end
         
         function measurements = simulate(obj, state, numMeasurements)
