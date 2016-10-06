@@ -73,10 +73,10 @@ classdef MixedNoiseSystemModel < handle
             %
             % Parameters:
             %   >> nominalState (Column vector)
-            %      The nominal system state vector to linearize the system equation.
+            %      The nominal system state vector.
             %
             %   >> nominalNoise (Column vector)
-            %      The nominal system noise vector to linearize the system equation.
+            %      The nominal system noise vector.
             %
             % Returns:
             %   << stateJacobian (Square matrix)

@@ -57,7 +57,7 @@ classdef AdditiveNoiseSystemModel < handle
             %
             % Parameters:
             %   >> nominalState (Column vector)
-            %      The nominal system state vector to linearize the system equation.
+            %      The nominal system state vector.
             %
             % Returns:
             %   << stateJacobian (Square matrix)
