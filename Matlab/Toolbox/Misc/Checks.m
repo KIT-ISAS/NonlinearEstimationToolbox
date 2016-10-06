@@ -221,6 +221,22 @@ classdef Checks
             end
         end
         
+        function ret = isMat3D(mat, rows, cols, slices)
+            nDims = numel(size(mat));
+            
+            if nargin == 1
+                ret = isnumeric(mat) && ...
+                      (nDims == 2 || nDims == 3) && ...
+                      ~isempty(mat);
+            else
+                ret = isnumeric(mat) && ...
+                      (nDims == 2 || nDims == 3) && ...
+                      size(mat, 1)     == rows && ...
+                      size(mat, 2)     == cols && ...
+                      size(mat, 3)     == slices;
+            end
+        end
+        
         
         function [ret, covSqrt] = isCov(cov, dim)
             if nargin == 1
