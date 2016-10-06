@@ -97,18 +97,20 @@ classdef TestLinearMeasurementModel < matlab.unittest.TestCase
             
             measModel = LinearMeasurementModel(measMatrix);
             
-            stateJacobian = measModel.derivative([3 -2 1]');
+            [stateJacobian, stateHessians] = measModel.derivative([3 -2 1]');
             
             obj.verifyEqual(stateJacobian, measMatrix);
+            obj.verifyEqual(stateHessians, zeros(3, 3, 2));
             
             obj.verifyError(@() measModel.derivative([3 -2]'), ...
                             'LinearMeasurementModel:IncompatibleMeasurementMatrix');
             
             measModel = LinearMeasurementModel();
             
-            stateJacobian = measModel.derivative([3 -2 1]');
+            [stateJacobian, stateHessians] = measModel.derivative([3 -2 1]');
             
             obj.verifyEqual(stateJacobian, eye(3));
+            obj.verifyEqual(stateHessians, zeros(3, 3, 3));
         end
     end
 end
