@@ -6,7 +6,7 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
     %   LinearSystemModel        - Class constructor.
     %   setNoise                 - Set the system noise.
     %   systemEquation           - The system equation.
-    %   derivative               - Compute the derivative of the implemented system equation.
+    %   derivative               - Compute the first-order and second-order derivatives of the implemented system equation.
     %   simulate                 - Simulate the temporal evolution for a given system state.
     %   analyticPredictedMoments - Analytic calculation of the first two moments of the predicted state distribution.
     %   setSystemMatrix          - Set the system matrix.
@@ -135,8 +135,8 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
     end
     
     methods (Sealed)
-        function [stateJacobian, ...
-                  noiseJacobian] = derivative(obj, nominalState, nominalNoise)
+        function [stateJacobian, noiseJacobian, ...
+                  stateHessians, noiseHessians] = derivative(obj, nominalState, nominalNoise)
             dimState = size(nominalState, 1);
             dimNoise = size(nominalNoise, 1);
             
@@ -148,6 +148,8 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
                 stateJacobian = obj.sysMatrix;
             end
             
+            stateHessians = zeros(dimState, dimState, dimState);
+            
             if isempty(obj.sysNoiseMatrix)
                 obj.checkSysNoise(dimState, dimNoise);
                 
@@ -157,6 +159,8 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
                 
                 noiseJacobian = obj.sysNoiseMatrix;
             end
+            
+            noiseHessians = zeros(dimNoise, dimNoise, dimState);
         end
         
         function predictedStates = systemEquation(obj, stateSamples, noiseSamples)
