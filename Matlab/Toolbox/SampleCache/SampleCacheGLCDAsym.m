@@ -8,10 +8,14 @@ classdef SampleCacheGLCDAsym < SampleCache
     %   generateSamples     - Generate and store samples in the sample cache.
     
     % Literature:
-    %   Jannik Steinbring, Uwe D. Hanebeck,
-    %   S2KF: The Smart Sampling Kalman Filter,
-    %   Proceedings of the 16th International Conference on Information Fusion (Fusion 2013),
-    %   Istanbul, Turkey, July 2013.
+    %   Jannik Steinbring and Uwe D. Hanebeck,
+    %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
+    %   Journal of Advances in Information Fusion, Vol. 9, No. 2, Dec 2014, pp. 106-123.
+    %
+    %   Uwe D. Hanebeck, Marco F. Huber, and Vesa Klumpp,
+    %   Dirac Mixture Approximation of Multivariate Gaussian Densities,
+    %   Proceedings of the 2009 IEEE Conference on Decision and Control (CDC 2009),
+    %   Shanghai, China, Dec 2009.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

@@ -7,6 +7,11 @@ classdef SampleCacheCKF < SampleCache
     %   getSamples      - Retrieve samples from the sample cache.
     %   generateSamples - Generate and store samples in the sample cache.
     
+    % Literature:
+    %   Bin Jia, Ming Xin, and Yang Cheng,
+    %   High-Degree Cubature Kalman Filter,
+    %   Automatica, Vol. 49, No. 2, Feb 2013, pp. 510-518.
+    
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox

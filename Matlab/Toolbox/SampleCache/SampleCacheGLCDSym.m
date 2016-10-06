@@ -7,6 +7,11 @@ classdef SampleCacheGLCDSym < SampleCache
     %   getSamples         - Retrieve samples from the sample cache.
     %   generateSamples    - Generate and store samples in the sample cache.
     
+    % Literature:
+    %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
+    %   The Smart Sampling Kalman Filter with Symmetric Samples
+    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
+    
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
