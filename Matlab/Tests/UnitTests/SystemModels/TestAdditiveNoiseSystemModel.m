@@ -47,9 +47,10 @@ classdef TestAdditiveNoiseSystemModel < matlab.unittest.TestCase
             
             nominalState = [-3 0.5]';
             
-            stateJacobian = sysModel.derivative(nominalState);
+            [stateJacobian, stateHessians] = sysModel.derivative(nominalState);
             
             obj.verifyEqual(stateJacobian, sysModel.sysMatrix, 'AbsTol', 1e-8);
+            obj.verifyEqual(stateHessians, zeros(2, 2, 2), 'AbsTol', 1e-8);
         end
     end
 end

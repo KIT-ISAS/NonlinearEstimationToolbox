@@ -50,10 +50,15 @@ classdef TestMixedNoiseSystemModel < matlab.unittest.TestCase
             nominalNoise = [1 -0.7]';
             
             [stateJacobian, ...
-             noiseJacobian] = sysModel.derivative(nominalState, nominalNoise);
+             noiseJacobian, ...
+             stateHessians, ...
+             noiseHessians] = sysModel.derivative(nominalState, nominalNoise);
             
             obj.verifyEqual(stateJacobian, sysModel.sysMatrix, 'AbsTol', 1e-8);
             obj.verifyEqual(noiseJacobian, eye(2), 'AbsTol', 1e-8);
+            
+            obj.verifyEqual(stateHessians, zeros(2, 2, 2), 'AbsTol', 1e-8);
+            obj.verifyEqual(noiseHessians, zeros(2, 2, 2), 'AbsTol', 1e-8);
         end
     end
 end

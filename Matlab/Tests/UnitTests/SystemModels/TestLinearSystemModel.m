@@ -151,10 +151,14 @@ classdef TestLinearSystemModel < matlab.unittest.TestCase
             sysModel = LinearSystemModel(sysMatrix, sysNoiseMatrix);
             
             [stateJacobian, ...
-             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0]');
+             noiseJacobian, ...
+             stateHessians, ...
+             noiseHessians] = sysModel.derivative([3 -2 1]', [0 0]');
             
             obj.verifyEqual(stateJacobian, sysMatrix);
             obj.verifyEqual(noiseJacobian, sysNoiseMatrix);
+            obj.verifyEqual(stateHessians, zeros(3, 3, 3));
+            obj.verifyEqual(noiseHessians, zeros(2, 2, 3));
             
             obj.verifyError(@() sysModel.derivative([3 -2]', [0 0]'), ...
                             'LinearSystemModel:IncompatibleSystemMatrix');
@@ -164,10 +168,14 @@ classdef TestLinearSystemModel < matlab.unittest.TestCase
             sysModel = LinearSystemModel([], sysNoiseMatrix);
             
             [stateJacobian, ...
-             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0]');
+             noiseJacobian, ...
+             stateHessians, ...
+             noiseHessians] = sysModel.derivative([3 -2 1]', [0 0]');
             
             obj.verifyEqual(stateJacobian, eye(3));
             obj.verifyEqual(noiseJacobian, sysNoiseMatrix);
+            obj.verifyEqual(stateHessians, zeros(3, 3, 3));
+            obj.verifyEqual(noiseHessians, zeros(2, 2, 3));
             
             obj.verifyError(@() sysModel.derivative([3 -2]', [0 0]'), ...
                             'LinearSystemModel:IncompatibleSystemNoiseMatrix');
@@ -175,10 +183,14 @@ classdef TestLinearSystemModel < matlab.unittest.TestCase
             sysModel = LinearSystemModel();
             
             [stateJacobian, ...
-             noiseJacobian] = sysModel.derivative([3 -2 1]', [0 0 0]');
+             noiseJacobian, ...
+             stateHessians, ...
+             noiseHessians] = sysModel.derivative([3 -2 1]', [0 0 0]');
             
             obj.verifyEqual(stateJacobian, eye(3));
             obj.verifyEqual(noiseJacobian, eye(3));
+            obj.verifyEqual(stateHessians, zeros(3, 3, 3));
+            obj.verifyEqual(noiseHessians, zeros(3, 3, 3));
             
             obj.verifyError(@() sysModel.derivative([3 -2 1]', 0), ...
                             'LinearSystemModel:IncompatibleSystemNoise');
