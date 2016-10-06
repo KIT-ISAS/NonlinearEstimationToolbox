@@ -516,7 +516,7 @@ classdef Utils
             noiseSamples = bsxfun(@plus, noiseSamples, noiseMean);
         end
         
-        function [stateJacobian, stateHessianTensor] = diffQuotientState(func, nominalState, step)
+        function [stateJacobian, stateHessians] = diffQuotientState(func, nominalState, step)
             % Compute first-order and second-order difference quotients of a function at the given nominal system state.
             %
             % Parameters:
@@ -535,7 +535,7 @@ classdef Utils
             %      First-order difference quotients of the system state
             %      variables, i.e., an approxiamtion of the Jacobian.
             %
-            %   << stateHessianTensor (3D matrix)
+            %   << stateHessians (3D matrix)
             %      Set of second-order difference quotients of the system
             %      state variables, i.e., approxiamtions of the Hessians.
             
@@ -581,24 +581,24 @@ classdef Utils
                 c = values(:, idx) + values(:, dimState + idx);
                 d = bsxfun(@minus, c, a);
                 
-                dimFunc            = size(values, 1);
-                stateHessianTensor = nan(dimState, dimState, dimFunc);
+                dimFunc       = size(values, 1);
+                stateHessians = nan(dimState, dimState, dimFunc);
                 
                 k = 1;
                 for i = 1:dimState
-                    stateHessianTensor(i, i, :) = d(:, i);
+                    stateHessians(i, i, :) = d(:, i);
                     
-                    for j = (i+1):dimState
+                    for j = (i + 1):dimState
                         vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
                         
-                        stateHessianTensor(i, j, :) = vec;
-                        stateHessianTensor(j, i, :) = vec;
+                        stateHessians(i, j, :) = vec;
+                        stateHessians(j, i, :) = vec;
                         
                         k = k + 1;
                     end
                 end
                 
-                stateHessianTensor = stateHessianTensor / (step * step);
+                stateHessians = stateHessians / (step * step);
             end
         end
         
