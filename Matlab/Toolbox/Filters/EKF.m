@@ -97,10 +97,10 @@ classdef EKF < KF
             obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
             obj.checkNoiseJacobian(noiseJacobian, obj.dimState, dimNoise);
             
-            % Predict state mean
+            % Compute predicted state mean
             predictedStateMean = sysModel.systemEquation(obj.stateMean, noiseMean);
             
-            % Predict state covariance
+            % Compute predicted state covariance
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
                                 noiseJacobian * noiseCov * noiseJacobian';
         end
@@ -118,37 +118,27 @@ classdef EKF < KF
             % Check computed derivative
             obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
             
-            % Predict state mean
+            % Compute predicted state mean
             predictedStateMean = sysModel.systemEquation(obj.stateMean) + noiseMean;
             
-            % Predict state covariance
+            % Compute predicted state covariance
             predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + noiseCov;
         end
         
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            [noiseMean, noiseCov]       = sysModel.noise.getMeanAndCovariance();
             [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
-            dimNoise    = size(noiseMean, 1);
             dimAddNoise = size(addNoiseMean, 1);
             
             obj.checkAdditiveSysNoise(dimAddNoise);
             
-            % Linearize system model around current state mean and noise mean
-            [stateJacobian, ...
-             noiseJacobian] = sysModel.derivative(obj.stateMean, noiseMean);
+            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
             
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
-            obj.checkNoiseJacobian(noiseJacobian, obj.dimState, dimNoise);
+            % Compute predicted state mean
+            predictedStateMean = mean + addNoiseMean;
             
-            % Predict state mean
-            predictedStateMean = sysModel.systemEquation(obj.stateMean, noiseMean) + addNoiseMean;
-            
-            % Predict state covariance
-            predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
-                                noiseJacobian * noiseCov * noiseJacobian' + ...
-                                addNoiseCov;
+            % Compute predicted state covariance
+            predictedStateCov = cov + addNoiseCov;
         end
         
         function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
