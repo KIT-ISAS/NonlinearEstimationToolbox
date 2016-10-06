@@ -887,6 +887,71 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.nonCov3D));
         end
         
+        function testIsMat3D(obj)
+            func = @Checks.isMat3D;
+            
+            obj.verifyFalse(func(obj.str));
+            
+            obj.verifyFalse(func(obj.flag));
+            obj.verifyFalse(func(obj.flag, 1, 1, 1));
+            
+            obj.verifyTrue(func(obj.scalar));
+            obj.verifyTrue(func(obj.scalar, 1, 1, 1));
+            obj.verifyFalse(func(obj.scalar, 0, 1, 1));
+            
+            obj.verifyTrue(func(obj.nonNegScalar, 1, 1, 1));
+            obj.verifyFalse(func(obj.nonNegScalar, 2, 1, 1));
+            
+            obj.verifyTrue(func(obj.posScalar));
+            
+            obj.verifyTrue(func(obj.rowVec));
+            obj.verifyTrue(func(obj.rowVec, 1, 3, 1));
+            obj.verifyFalse(func(obj.rowVec, 1, 4, 1));
+            
+            obj.verifyTrue(func(obj.nonNegRowVec));
+            obj.verifyTrue(func(obj.nonNegRowVec, 1, 3, 1));
+            obj.verifyFalse(func(obj.nonNegRowVec, 1, 2, 1));
+            
+            obj.verifyTrue(func(obj.posRowVec));
+            obj.verifyTrue(func(obj.posRowVec, 1, 3, 1));
+            obj.verifyFalse(func(obj.posRowVec, 1, 5, 1));
+            
+            obj.verifyTrue(func(obj.colVec));
+            obj.verifyTrue(func(obj.colVec, 3, 1, 1));
+            obj.verifyFalse(func(obj.colVec, 3, 0, 1));
+            
+            obj.verifyTrue(func(obj.nonNegColVec));
+            obj.verifyTrue(func(obj.nonNegColVec, 3, 1, 1));
+            obj.verifyFalse(func(obj.nonNegColVec, 3, 4, 1));
+            
+            obj.verifyTrue(func(obj.posColVec));
+            obj.verifyTrue(func(obj.posColVec, 3, 1, 1));
+            obj.verifyFalse(func(obj.posColVec, 3, 2, 1));
+            
+            obj.verifyFalse(func(obj.emptyMat));
+            obj.verifyFalse(func(obj.emptyMat, 0, 0, 0));
+            
+            obj.verifyTrue(func(obj.mat));
+            obj.verifyTrue(func(obj.mat, 2, 3, 1));
+            obj.verifyFalse(func(obj.mat, 3, 2, 1));
+            
+            obj.verifyTrue(func(obj.squareMat));
+            obj.verifyTrue(func(obj.squareMat, 2, 2, 1));
+            obj.verifyFalse(func(obj.squareMat, 1, 2, 1));
+            
+            obj.verifyTrue(func(obj.cov));
+            obj.verifyTrue(func(obj.cov, 2, 2, 1));
+            obj.verifyFalse(func(obj.cov, 2, 4, 1));
+            
+            obj.verifyTrue(func(obj.cov3D));
+            obj.verifyTrue(func(obj.cov3D, 2, 2, 3));
+            obj.verifyFalse(func(obj.cov3D, 2, 4, 3));
+            
+            obj.verifyTrue(func(obj.nonCov3D));
+            obj.verifyTrue(func(obj.nonCov3D, 2, 2, 2));
+            obj.verifyFalse(func(obj.nonCov3D, 3, 2, 2));
+        end
+        
         
         function testIsCov(obj)
             func = @Checks.isCov;
