@@ -16,7 +16,7 @@ classdef Utils
     %   getStateSamples           - Get a set of samples approximating a Gaussian distributed system state.
     %   getStateNoiseSamples      - Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
     %   diffQuotientState         - Compute first-order and second-order difference quotients of a function at the given nominal system state.
-    %   diffQuotientStateAndNoise - Compute the state and noise difference quotient of a function at the given nominal sytem state and noise.
+    %   diffQuotientStateAndNoise - Compute first-order and second-order difference quotients of a function at the given nominal system state and nominal noise.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -602,57 +602,160 @@ classdef Utils
             end
         end
         
-        function [stateJacobian, noiseJacobian] = diffQuotientStateAndNoise(func, nominalState, nominalNoise, step)
-            % Compute the state and noise difference quotient of a function at the given nominal sytem state and noise.
+        function [stateJacobian, noiseJacobian, ...
+                  stateHessians, noiseHessians] = diffQuotientStateAndNoise(func, nominalState, nominalNoise, step)
+            % Compute first-order and second-order difference quotients of a function at the given nominal system state and nominal noise.
             %
             % Parameters:
             %   >> func (Function handle)
             %      System/Measurement function.
             %
             %   >> nominalState (Column vector)
-            %      Nominal system state to compute the Jacobian.
+            %      Nominal system state.
             %
             %   >> nominalNoise (Column vector)
-            %      Nominal system/measurement noise to compute the Jacobian.
+            %      Nominal noise.
             %
             %   >> step (Positive scalar)
             %      Step size to compute the finite difference.
-            %      Default: sqrt(eps)
+            %      Default: eps^(1/4)
             %
             % Returns:
             %   << stateJacobian (Square matrix)
-            %      Jacobian of the system state variables.
+            %      First-order difference quotients of the system state
+            %      variables, i.e., an approxiamtion of the Jacobian.
             %
-            %   << noiseJacobian (Matrix)
-            %      Jacobian of the system/measurement noise variables.
+            %   << noiseJacobian (Square matrix)
+            %      First-order difference quotients of the noise variables,
+            %      i.e., an approxiamtion of the Jacobian.
+            %
+            %   << stateHessians (3D matrix)
+            %      Set of second-order difference quotients of the system
+            %      state variables, i.e., approxiamtions of the Hessians.
+            %
+            %   << noiseHessians (3D matrix)
+            %      Set of second-order difference quotients of the noise
+            %      variables, i.e., approxiamtions of the Hessians.
             
             % Default value for step
             if nargin < 4
-                step = sqrt(eps);
+                step = eps^(1/4);
             end
             
             dimState = size(nominalState, 1);
             dimNoise = size(nominalNoise, 1);
             
-            % State jacobian
-            stateSamples = bsxfun(@plus, [zeros(dimState, 1) step * eye(dimState)], nominalState);
-            noiseSamples = repmat(nominalNoise, 1, 1 + dimState);
+            % State Jacobian
+            stateSamples = bsxfun(@plus, [step*eye(dimState) -step*eye(dimState) zeros(dimState, 1)], nominalState);
+            noiseSamples = repmat(nominalNoise, 1, 2 * dimState + 1);
             
-            values = func(stateSamples, noiseSamples);
+            valuesState = func(stateSamples, noiseSamples);
             
-            deltaStates = bsxfun(@minus, values(:, 2:end), values(:, 1));
+            idxState      = 1:dimState;
+            stateJacobian = valuesState(:, idxState ) - valuesState(:, dimState + idxState );
+            stateJacobian = stateJacobian / (2 * step);
             
-            stateJacobian = deltaStates / step;
+            % Noise Jacobian
+            stateSamples = repmat(nominalState, 1, 2 * dimNoise + 1);
+            noiseSamples = bsxfun(@plus, [step*eye(dimNoise) -step*eye(dimNoise) zeros(dimNoise, 1)], nominalNoise);
             
-            % Noise jacobian
-            stateSamples = repmat(nominalState, 1, 1 + dimNoise);
-            noiseSamples = bsxfun(@plus, [zeros(dimNoise, 1) step * eye(dimNoise)], nominalNoise);
+            valuesNoise = func(stateSamples, noiseSamples);
             
-            values = func(stateSamples, noiseSamples);
+            idxNoise      = 1:dimNoise;
+            noiseJacobian = valuesNoise(:, idxNoise) - valuesNoise(:, dimNoise + idxNoise);
+            noiseJacobian = noiseJacobian / (2 * step);
             
-            deltaNoise = bsxfun(@minus, values(:, 2:end), values(:, 1));
-            
-            noiseJacobian = deltaNoise / step;
+            if nargout == 4
+                % State Hessians
+                L     = (dimState * (dimState + 1)) * 0.5 - dimState;
+                steps = zeros(dimState, L);
+                
+                a = 1;
+                b = dimState - 1;
+                for i = 1:dimState - 1
+                    d = dimState - i;
+                    
+                    steps(i,         a:b) = step;
+                    steps(i + 1:end, a:b) = step * eye(d);
+                    
+                    a = b + 1;
+                    b = a + d - 2;
+                end
+                
+                stateSamples = bsxfun(@plus, [steps -steps], nominalState);
+                noiseSamples = repmat(nominalNoise, 1, 2 * L);
+                
+                valuesState2 = func(stateSamples, noiseSamples);
+                
+                a = 2 * valuesState(:, end);
+                b = bsxfun(@plus, valuesState2(:, 1:L) + valuesState2(:, L + 1:end), a);
+                c = valuesState(:, idxState) + valuesState(:, dimState + idxState);
+                d = bsxfun(@minus, c, a);
+                
+                dimFunc       = size(valuesState, 1);
+                stateHessians = nan(dimState, dimState, dimFunc);
+                
+                k = 1;
+                for i = 1:dimState
+                    stateHessians(i, i, :) = d(:, i);
+                    
+                    for j = (i + 1):dimState
+                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
+                        
+                        stateHessians(i, j, :) = vec;
+                        stateHessians(j, i, :) = vec;
+                        
+                        k = k + 1;
+                    end
+                end
+                
+                stateHessians = stateHessians / (step * step);
+                
+                % Noise Hessians
+                L     = (dimNoise * (dimNoise + 1)) * 0.5 - dimNoise;
+                steps = zeros(dimNoise, L);
+                
+                a = 1;
+                b = dimNoise - 1;
+                for i = 1:dimNoise - 1
+                    d = dimNoise - i;
+                    
+                    steps(i,         a:b) = step;
+                    steps(i + 1:end, a:b) = step * eye(d);
+                    
+                    a = b + 1;
+                    b = a + d - 2;
+                end
+                
+                stateSamples = repmat(nominalState, 1, 2 * L);
+                noiseSamples = bsxfun(@plus, [steps -steps], nominalNoise);
+                
+                valuesNoise2 = func(stateSamples, noiseSamples);
+                
+                a = 2 * valuesNoise(:, end);
+                b = bsxfun(@plus, valuesNoise2(:, 1:L) + valuesNoise2(:, L + 1:end), a);
+                c = valuesNoise(:, idxNoise) + valuesNoise(:, dimNoise + idxNoise);
+                d = bsxfun(@minus, c, a);
+                
+                dimFunc       = size(valuesNoise, 1);
+                noiseHessians = nan(dimNoise, dimNoise, dimFunc);
+                
+                k = 1;
+                for i = 1:dimNoise
+                    noiseHessians(i, i, :) = d(:, i);
+                    
+                    for j = (i + 1):dimNoise
+                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
+                        
+                        noiseHessians(i, j, :) = vec;
+                        noiseHessians(j, i, :) = vec;
+                        
+                        k = k + 1;
+                    end
+                end
+                
+                noiseHessians = noiseHessians / (step * step);
+            end
         end
     end
 end
