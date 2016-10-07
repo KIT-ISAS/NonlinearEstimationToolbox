@@ -1,5 +1,18 @@
 
-Changes in Nonlinear Estimation Toolbox 1.3.0
+Changes in Nonlinear Estimation Toolbox 1.4
+=============================================
+
+* Added the second-order EKF (EKF2). This also includes its iterated version (analogous to the iterated EKF).
+* The derivative() methods of all system models and measurement models now additionally return the Hessians (required for EKF2). By default, the Hessians are computed using central finite differences.
+* Utils.diffQuotientState() and Utils.diffQuotientStateAndNoise() now additionally compute approximative Hessian matrices using central finite differences. This also changes the Jacobian approximation from forward finite differences to central finite differences.
+* Updated Eigen to version 3.2.10.
+* Various code cleanups.
+
+* Bugs fixed
+  - #4    Please add second order EKF.
+
+
+Changes in Nonlinear Estimation Toolbox 1.3
 =============================================
 
 * All subclasses of GaussianFilter can now perform a semi-analytic filter step by using a state decomposition.
