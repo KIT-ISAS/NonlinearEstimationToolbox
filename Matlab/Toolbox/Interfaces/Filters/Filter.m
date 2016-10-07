@@ -371,6 +371,22 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
         end
         
+        function checkStateJacobian(obj, stateJacobian, dimOutput, dimState)
+            if ~Checks.isMat(stateJacobian, dimOutput, dimState)
+                obj.error('InvalidStateJacobian', ...
+                          'State Jacobian must be a matrix of dimension %dx%d.', ...
+                          dimOutput, dimState);
+            end
+        end
+        
+        function checkNoiseJacobian(obj, noiseJacobian, dimOutput, dimNoise)
+            if ~Checks.isMat(noiseJacobian, dimOutput, dimNoise)
+                obj.error('InvalidNoiseJacobian', ...
+                          'Noise Jacobian has to be a matrix of dimension %dx%d.', ...
+                          dimOutput, dimNoise);
+            end
+        end
+        
         function warning(obj, id, msg, varargin)
             msg = sprintf(msg, varargin{:});
             
