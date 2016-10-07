@@ -69,7 +69,7 @@ classdef MixedNoiseSystemModel < handle
             %
             % By default, the derivatives are computed using difference quotients.
             %
-            % Mainly used by the EKF.
+            % Mainly used by EKF and EKF2.
             %
             % Parameters:
             %   >> nominalState (Column vector)
