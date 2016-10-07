@@ -547,58 +547,19 @@ classdef Utils
             dimState = size(nominalState, 1);
             
             % State Jacobian
-            stateSamples = bsxfun(@plus, [step*eye(dimState) -step*eye(dimState) zeros(dimState, 1)], nominalState);
+            stateSamples = Utils.getJacobianSamples(dimState, nominalState, step);
             
-            values = func(stateSamples);
+            valuesState = func(stateSamples);
             
-            idx           = 1:dimState;
-            stateJacobian = values(:, idx) - values(:, dimState + idx);
-            stateJacobian = stateJacobian / (2 * step);
+            stateJacobian = Utils.getJacobian(dimState, valuesState, step);
             
-            % State Hessians
             if nargout == 2
-                L     = (dimState * (dimState + 1)) * 0.5 - dimState;
-                steps = zeros(dimState, L);
+                % State Hessians
+                [stateSamples, L] = Utils.getHessiansSamples(dimState, nominalState, step);
                 
-                a = 1;
-                b = dimState - 1;
-                for i = 1:dimState - 1
-                    d = dimState - i;
-                    
-                    steps(i,         a:b) = step;
-                    steps(i + 1:end, a:b) = step * eye(d);
-                    
-                    a = b + 1;
-                    b = a + d - 2;
-                end
+                valuesState2 = func(stateSamples);
                 
-                stateSamples = bsxfun(@plus, [steps -steps], nominalState);
-                
-                values2 = func(stateSamples);
-                
-                a = 2 * values(:, end);
-                b = bsxfun(@plus, values2(:, 1:L) + values2(:, L + 1:end), a);
-                c = values(:, idx) + values(:, dimState + idx);
-                d = bsxfun(@minus, c, a);
-                
-                dimFunc       = size(values, 1);
-                stateHessians = nan(dimState, dimState, dimFunc);
-                
-                k = 1;
-                for i = 1:dimState
-                    stateHessians(i, i, :) = d(:, i);
-                    
-                    for j = (i + 1):dimState
-                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
-                        
-                        stateHessians(i, j, :) = vec;
-                        stateHessians(j, i, :) = vec;
-                        
-                        k = k + 1;
-                    end
-                end
-                
-                stateHessians = stateHessians / (step * step);
+                stateHessians = Utils.getHessians(dimState, valuesState, valuesState2, L, step);
             end
         end
         
@@ -646,116 +607,96 @@ classdef Utils
             dimNoise = size(nominalNoise, 1);
             
             % State Jacobian
-            stateSamples = bsxfun(@plus, [step*eye(dimState) -step*eye(dimState) zeros(dimState, 1)], nominalState);
+            stateSamples = Utils.getJacobianSamples(dimState, nominalState, step);
             noiseSamples = repmat(nominalNoise, 1, 2 * dimState + 1);
             
             valuesState = func(stateSamples, noiseSamples);
             
-            idxState      = 1:dimState;
-            stateJacobian = valuesState(:, idxState ) - valuesState(:, dimState + idxState );
-            stateJacobian = stateJacobian / (2 * step);
+            stateJacobian = Utils.getJacobian(dimState, valuesState, step);
             
             % Noise Jacobian
+            noiseSamples = Utils.getJacobianSamples(dimNoise, nominalNoise, step);
             stateSamples = repmat(nominalState, 1, 2 * dimNoise + 1);
-            noiseSamples = bsxfun(@plus, [step*eye(dimNoise) -step*eye(dimNoise) zeros(dimNoise, 1)], nominalNoise);
             
             valuesNoise = func(stateSamples, noiseSamples);
             
-            idxNoise      = 1:dimNoise;
-            noiseJacobian = valuesNoise(:, idxNoise) - valuesNoise(:, dimNoise + idxNoise);
-            noiseJacobian = noiseJacobian / (2 * step);
+            noiseJacobian = Utils.getJacobian(dimNoise, valuesNoise, step);
             
             if nargout == 4
                 % State Hessians
-                L     = (dimState * (dimState + 1)) * 0.5 - dimState;
-                steps = zeros(dimState, L);
-                
-                a = 1;
-                b = dimState - 1;
-                for i = 1:dimState - 1
-                    d = dimState - i;
-                    
-                    steps(i,         a:b) = step;
-                    steps(i + 1:end, a:b) = step * eye(d);
-                    
-                    a = b + 1;
-                    b = a + d - 2;
-                end
-                
-                stateSamples = bsxfun(@plus, [steps -steps], nominalState);
+                [stateSamples, L] = Utils.getHessiansSamples(dimState, nominalState, step);
                 noiseSamples = repmat(nominalNoise, 1, 2 * L);
                 
                 valuesState2 = func(stateSamples, noiseSamples);
                 
-                a = 2 * valuesState(:, end);
-                b = bsxfun(@plus, valuesState2(:, 1:L) + valuesState2(:, L + 1:end), a);
-                c = valuesState(:, idxState) + valuesState(:, dimState + idxState);
-                d = bsxfun(@minus, c, a);
-                
-                dimFunc       = size(valuesState, 1);
-                stateHessians = nan(dimState, dimState, dimFunc);
-                
-                k = 1;
-                for i = 1:dimState
-                    stateHessians(i, i, :) = d(:, i);
-                    
-                    for j = (i + 1):dimState
-                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
-                        
-                        stateHessians(i, j, :) = vec;
-                        stateHessians(j, i, :) = vec;
-                        
-                        k = k + 1;
-                    end
-                end
-                
-                stateHessians = stateHessians / (step * step);
+                stateHessians = Utils.getHessians(dimState, valuesState, valuesState2, L, step);
                 
                 % Noise Hessians
-                L     = (dimNoise * (dimNoise + 1)) * 0.5 - dimNoise;
-                steps = zeros(dimNoise, L);
-                
-                a = 1;
-                b = dimNoise - 1;
-                for i = 1:dimNoise - 1
-                    d = dimNoise - i;
-                    
-                    steps(i,         a:b) = step;
-                    steps(i + 1:end, a:b) = step * eye(d);
-                    
-                    a = b + 1;
-                    b = a + d - 2;
-                end
-                
+                [noiseSamples, L] = Utils.getHessiansSamples(dimNoise, nominalNoise, step);
                 stateSamples = repmat(nominalState, 1, 2 * L);
-                noiseSamples = bsxfun(@plus, [steps -steps], nominalNoise);
                 
                 valuesNoise2 = func(stateSamples, noiseSamples);
                 
-                a = 2 * valuesNoise(:, end);
-                b = bsxfun(@plus, valuesNoise2(:, 1:L) + valuesNoise2(:, L + 1:end), a);
-                c = valuesNoise(:, idxNoise) + valuesNoise(:, dimNoise + idxNoise);
-                d = bsxfun(@minus, c, a);
-                
-                dimFunc       = size(valuesNoise, 1);
-                noiseHessians = nan(dimNoise, dimNoise, dimFunc);
-                
-                k = 1;
-                for i = 1:dimNoise
-                    noiseHessians(i, i, :) = d(:, i);
-                    
-                    for j = (i + 1):dimNoise
-                        vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
-                        
-                        noiseHessians(i, j, :) = vec;
-                        noiseHessians(j, i, :) = vec;
-                        
-                        k = k + 1;
-                    end
-                end
-                
-                noiseHessians = noiseHessians / (step * step);
+                noiseHessians = Utils.getHessians(dimNoise, valuesNoise, valuesNoise2, L, step);
             end
+        end
+    end
+    
+    methods (Static, Access = 'private')
+        function samples = getJacobianSamples(dim, nominalVec, step)
+            samples = bsxfun(@plus, [step*eye(dim) -step*eye(dim) zeros(dim, 1)], nominalVec);
+        end
+        
+        function jacobian = getJacobian(dim, values, step)
+            idx      = 1:dim;
+            jacobian = values(:, idx) - values(:, dim + idx);
+            jacobian = jacobian / (2 * step);
+        end
+        
+        function [samples, L] = getHessiansSamples(dim, nominalVec, step)
+            L     = (dim * (dim + 1)) * 0.5 - dim;
+            steps = zeros(dim, L);
+            
+            a = 1;
+            b = dim - 1;
+            for i = 1:dim - 1
+                d = dim - i;
+                
+                steps(i,         a:b) = step;
+                steps(i + 1:end, a:b) = step * eye(d);
+                
+                a = b + 1;
+                b = a + d - 2;
+            end
+            
+            samples = bsxfun(@plus, [steps -steps], nominalVec);
+        end
+        
+        function hessians = getHessians(dim, values, values2, L, step)
+            idx = 1:dim;
+            a   = 2 * values(:, end);
+            b   = bsxfun(@plus, values2(:, 1:L) + values2(:, L + 1:end), a);
+            c   = values(:, idx) + values(:, dim + idx);
+            d   = bsxfun(@minus, c, a);
+            
+            dimFunc  = size(values, 1);
+            hessians = nan(dim, dim, dimFunc);
+            
+            k = 1;
+            for i = 1:dim
+                hessians(i, i, :) = d(:, i);
+                
+                for j = (i + 1):dim
+                    vec = (b(:, k) - c(:, i) - c(:, j)) * 0.5;
+                    
+                    hessians(i, j, :) = vec;
+                    hessians(j, i, :) = vec;
+                    
+                    k = k + 1;
+                end
+            end
+            
+            hessians = hessians / (step * step);
         end
     end
 end
