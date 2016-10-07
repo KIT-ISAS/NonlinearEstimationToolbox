@@ -379,11 +379,27 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
         end
         
+        function checkStateHessians(obj, stateHessians, dimOutput, dimState)
+            if ~Checks.isMat3D(stateHessians, dimState, dimState, dimOutput)
+                obj.error('InvalidStateHessians', ...
+                          'State Hessians must be a matrix of dimension %dx%dx%d.', ...
+                          dimState, dimState, dimOutput);
+            end
+        end
+        
         function checkNoiseJacobian(obj, noiseJacobian, dimOutput, dimNoise)
             if ~Checks.isMat(noiseJacobian, dimOutput, dimNoise)
                 obj.error('InvalidNoiseJacobian', ...
                           'Noise Jacobian has to be a matrix of dimension %dx%d.', ...
                           dimOutput, dimNoise);
+            end
+        end
+        
+        function checkNoiseHessians(obj, noiseHessians, dimOutput, dimNoise)
+            if ~Checks.isMat3D(noiseHessians, dimNoise, dimNoise, dimOutput)
+                obj.error('InvalidNoiseHessians', ...
+                          'Noise Hessians must be a matrix of dimension %dx%dx%d.', ...
+                          dimNoise, dimNoise, dimOutput);
             end
         end
         
