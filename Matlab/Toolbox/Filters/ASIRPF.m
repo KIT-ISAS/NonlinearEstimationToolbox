@@ -1,6 +1,6 @@
 
 classdef ASIRPF < SIRPF
-    % The Auxiliary Sequential Importance Resampling Particle Filter (ASIRPF).
+    % The Auxiliary Sampling Importance Resampling Particle Filter (ASIRPF).
     %
     % Use the step() method to perform the auxiliary version of the SIR-PF (i.e.,
     % a combined time and measurement update). Note that the separated predictions

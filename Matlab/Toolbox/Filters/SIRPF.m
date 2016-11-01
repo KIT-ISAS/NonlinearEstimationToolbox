@@ -1,6 +1,6 @@
 
 classdef SIRPF < PF
-    % The Sequential Importance Resampling Particle Filter (SIRPF).
+    % The Sampling Importance Resampling Particle Filter (SIRPF).
     %
     % SIRPF Methods:
     %   SIRPF                      - Class constructor.
