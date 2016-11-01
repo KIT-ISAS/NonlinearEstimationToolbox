@@ -315,7 +315,6 @@ classdef EKF2 < KF
     
     methods (Static, Access = 'private')
         function [hessMean, hessCov] = getHessianMomentsState(dimState, stateHessians, stateCov, dimOutput)
-            % Compute predicted state mean
             hessProd = nan(dimState, dimState, dimState);
             hessMean = nan(dimOutput, 1);
             
@@ -346,7 +345,6 @@ classdef EKF2 < KF
                   hessMeanNoise, ...
                   hessCovNoise] = getHessianMomentsStateAndNoise(dimState, stateHessians, stateCov, ...
                                                                  dimNoise, noiseHessians, noiseCov, dimOutput)
-            % Compute predicted state mean
             hessProdState = nan(dimState, dimState, dimState);
             hessProdNoise = nan(dimNoise, dimNoise, dimState);
             hessMeanState = nan(dimOutput, 1);
@@ -360,7 +358,6 @@ classdef EKF2 < KF
                 hessMeanNoise(i)       = trace(hessProdNoise(:, :, i));
             end
             
-            % Compute predicted state covariance
             hessCovState = nan(dimOutput, dimOutput);
             hessCovNoise = nan(dimOutput, dimOutput);
             
