@@ -97,7 +97,7 @@ classdef GaussianMixture < Distribution
             end
         end
         
-        function rndSamples = drawRndSamples(obj, numSamples)
+        function [rndSamples, compIds] = drawRndSamples(obj, numSamples)
             if ~Checks.isPosScalar(numSamples)
                 error('GaussianMixture:InvalidNumberOfSamples', ...
                       'numSamples must be positive scalar.');
@@ -126,6 +126,7 @@ classdef GaussianMixture < Distribution
             
             % Generate random samples
             rndSamples = nan(obj.dimension, numSamples);
+            compIds    = nan(1, numSamples);
             
             a = 1;
             b = 0;
@@ -136,9 +137,13 @@ classdef GaussianMixture < Distribution
                 if numCompSamples > 0
                     b = b + numCompSamples;
                     
+                    % Compute random samples for ith component
                     rndSamples(:, a:b) = Utils.drawGaussianRndSamples(obj.means(:, i), ...
                                                                       obj.covSqrts(:, :, i), ...
                                                                       numCompSamples);
+                    
+                    % Save corresponding component id
+                    compIds(a:b) = i;
                     
                     a = b + 1;
                 end
