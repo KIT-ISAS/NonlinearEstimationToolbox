@@ -63,7 +63,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             trueMeasMean          = 2;
             trueMeasCov           = 1;
-            truestateMeasCrossCov = zeros(2, 1);
+            trueStateMeasCrossCov = zeros(2, 1);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
@@ -71,7 +71,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
-            obj.verifyEqual(stateMeasCrossCov, truestateMeasCrossCov);
+            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov);
         end
         
         function testGetMeanCovAndCrossCovWithWeights(obj)
@@ -83,7 +83,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             trueMeasMean          = 2;
             trueMeasCov           = 2;
-            truestateMeasCrossCov = zeros(2, 1);
+            trueStateMeasCrossCov = zeros(2, 1);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
@@ -91,7 +91,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
-            obj.verifyEqual(stateMeasCrossCov, truestateMeasCrossCov);
+            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov);
         end
         
         function testKalmanUpdate(obj)
@@ -113,6 +113,19 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testKalmanUpdateInvalidMeasCov(obj)
+            stateMean         = [];
+            stateCov          = [];
+            measurement       = [];
+            measMean          = [];
+            measCov           = ones(2, 2);
+            stateMeasCrossCov = [];
+            
+            obj.verifyError(@() Utils.kalmanUpdate(stateMean, stateCov, measurement, ...
+                                                   measMean, measCov, stateMeasCrossCov), ...
+                            'Utils:InvalidMeasurementCovariance');
         end
         
         function testDecomposedStateUpdatePriorUncorrelated(obj)
@@ -319,19 +332,6 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
-        end
-        
-        function testKalmanUpdateInvalidMeasCov(obj)
-            stateMean         = [];
-            stateCov          = [];
-            measurement       = [];
-            measMean          = [];
-            measCov           = ones(2, 2);
-            stateMeasCrossCov = [];
-            
-            obj.verifyError(@() Utils.kalmanUpdate(stateMean, stateCov, measurement, ...
-                                                   measMean, measCov, stateMeasCrossCov), ...
-                            'Utils:InvalidMeasurementCovariance');
         end
         
         function testBlockDiag(obj)
