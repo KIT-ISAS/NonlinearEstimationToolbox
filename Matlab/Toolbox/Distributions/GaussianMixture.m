@@ -51,7 +51,7 @@ classdef GaussianMixture < Distribution
             %
             %   >> weights (Row vector)
             %      Row-wise arranged weights of the Gaussian mixture components.
-            %      Default: All Gaussian mixture components are equally weighted.
+            %      If no weights are passed, all Gaussian mixture components are assumed to be equally weighted.
             
             if nargin == 3
                 obj.set(means, covariances, weights);
