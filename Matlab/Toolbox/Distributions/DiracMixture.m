@@ -46,7 +46,7 @@ classdef DiracMixture < Distribution
             %
             %   >> weights (Row vector)
             %      Row-wise arranged weights of the samples.
-            %      Default: All samples are equally weighted.
+            %      If no weights are passed, all samples are assumed to be equally weighted.
             
             if nargin == 2
                 obj.set(samples, weights)
