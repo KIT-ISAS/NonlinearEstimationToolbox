@@ -194,7 +194,7 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
         
         function [predictedStateMean, ...
                   predictedStateCov] = analyticPredictedMoments(obj, stateMean, stateCov)
-            [noiseMean, noiseCov] = obj.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov, noiseCovSqrt] = obj.noise.getMeanAndCovariance();
             dimState = size(stateMean, 1);
             dimNoise = size(noiseMean, 1);
             
@@ -204,8 +204,11 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
             else
                 obj.checkSysMatrix(dimState);
                 
+                stateCovSqrt = chol(stateCov, 'Lower');
+                G = obj.sysMatrix * stateCovSqrt;
+                
                 predictedStateMean = obj.sysMatrix * stateMean;
-                predictedStateCov  = obj.sysMatrix * stateCov * obj.sysMatrix';
+                predictedStateCov  = G * G';
             end
             
             if isempty(obj.sysNoiseMatrix)
@@ -216,8 +219,10 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
             else
                 obj.checkSysNoiseMatrix(dimState, dimNoise);
                 
+                G = obj.sysNoiseMatrix * noiseCovSqrt;
+                
                 predictedStateMean = predictedStateMean + obj.sysNoiseMatrix * noiseMean;
-                predictedStateCov  = predictedStateCov + obj.sysNoiseMatrix * noiseCov * obj.sysNoiseMatrix';
+                predictedStateCov  = predictedStateCov + G * G';
             end
             
             if ~isempty(obj.sysInput)
