@@ -53,9 +53,8 @@ classdef Utils
             %
             %   >> weights (Row vector)
             %      Column-wise arranged corresponding sample weights.
-            %      If weights is an empty matrix, all samples are assumed
+            %      If no weights are passed, all samples are assumed
             %      to be equally weighted.
-            %      Default: Empty matrix.
             %
             % Returns:
             %   << mean (Column vector)
@@ -108,9 +107,8 @@ classdef Utils
             %
             %   >> weights (Row vector)
             %      Column-wise arranged corresponding sample weights.
-            %      If weights is an empty matrix, all samples are assumed
+            %      If no weights are passed, all samples are assumed
             %      to be equally weighted.
-            %      Default: Empty matrix.
             %
             % Returns:
             %   << measMean (Column vector)
