@@ -130,7 +130,10 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
                 measMean = obj.measMatrix * stateMean + noiseMean;
                 
                 % Measurement covariance
-                measCov = obj.measMatrix * stateCov * obj.measMatrix';
+                stateCovSqrt = chol(stateCov, 'Lower');
+                G = obj.measMatrix * stateCovSqrt;
+                
+                measCov = G * G';
                 
                 % State measurement cross-covariance
                 stateMeasCrossCov = stateCov * obj.measMatrix';
