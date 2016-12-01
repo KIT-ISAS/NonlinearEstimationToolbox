@@ -411,34 +411,45 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function error(obj, id, msg, varargin)
-            msg = sprintf(msg, varargin{:});
+            userMsg    = sprintf(msg, varargin{:});
+            identifier = sprintf('Filter:%s', id);
+            message    = sprintf('From "%s":\n%s', obj.name, userMsg);
             
-            error(sprintf('Filter:%s', id), ...
-                  'From "%s":\n%s', obj.name, msg);
+            ex = MException(identifier, message);
+            
+            ex.throwAsCaller();
         end
         
         function errorSysModel(obj, varargin)
-            numModels = numel(varargin);
-            
-            msg = 'Supported system models:';
-            
-            for i = 1:numModels
-                msg = sprintf('%s\n * %s', msg, varargin{i});
+            try
+                numModels = numel(varargin);
+                
+                msg = 'Supported system models:';
+                
+                for i = 1:numModels
+                    msg = sprintf('%s\n * %s', msg, varargin{i});
+                end
+                
+                obj.error('UnsupportedSystemModel', msg);
+            catch ex
+                ex.throwAsCaller();
             end
-            
-            obj.error('UnsupportedSystemModel', msg);
         end
         
         function errorMeasModel(obj, varargin)
-            numModels = numel(varargin);
-            
-            msg = 'Supported measurement models:';
-            
-            for i = 1:numModels
-                msg = sprintf('%s\n * %s', msg, varargin{i});
+            try
+                numModels = numel(varargin);
+                
+                msg = 'Supported measurement models:';
+                
+                for i = 1:numModels
+                    msg = sprintf('%s\n * %s', msg, varargin{i});
+                end
+                
+                obj.error('UnsupportedMeasurementModel', msg);
+            catch ex
+                ex.throwAsCaller();
             end
-            
-            obj.error('UnsupportedMeasurementModel', msg);
         end
         
         function ignorePrediction(obj, reason, varargin)
