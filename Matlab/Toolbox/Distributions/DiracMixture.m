@@ -74,7 +74,7 @@ classdef DiracMixture < Distribution
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = chol(obj.covariance)';
+                    obj.covSqrt = chol(obj.covariance, 'Lower');
                 end
                 
                 covSqrt = obj.covSqrt;
