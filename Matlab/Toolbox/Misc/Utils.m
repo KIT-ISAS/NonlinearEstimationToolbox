@@ -83,9 +83,25 @@ classdef Utils
                 if nargout > 1
                     diffSamples = bsxfun(@minus, samples, mean);
                     
-                    weightedDiffSamples = bsxfun(@times, diffSamples, weights);
+                    % Weights can be negative => we have to treat them separately
                     
-                    cov = diffSamples * weightedDiffSamples';
+                    % Positive weights
+                    idx = weights >= 0;
+                    
+                    sqrtWeights         = sqrt(weights(idx));
+                    weightedDiffSamples = bsxfun(@times, diffSamples(:, idx), sqrtWeights);
+                    
+                    cov = weightedDiffSamples * weightedDiffSamples';
+                    
+                    % Negative weights
+                    idx = ~idx;
+                    
+                    if any(idx)
+                        sqrtWeights         = sqrt(abs(weights(idx)));
+                        weightedDiffSamples = bsxfun(@times, diffSamples(:, idx), sqrtWeights);
+                        
+                        cov = cov - weightedDiffSamples * weightedDiffSamples';
+                    end
                 end
             end
         end
