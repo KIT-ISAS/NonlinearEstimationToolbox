@@ -190,15 +190,30 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             numSamples = 1;
             
-            samples = gm.drawRndSamples(numSamples);
+            [samples, compIds] = gm.drawRndSamples(numSamples);
             
             obj.verifySize(samples, [2, numSamples]);
+            obj.verifySize(compIds, [1, numSamples]);
+            obj.verifyGreaterThanOrEqual(compIds, 1);
+            obj.verifyLessThanOrEqual(compIds, 2);
             
             numSamples = 19;
             
-            samples = gm.drawRndSamples(numSamples);
+            [samples, compIds] = gm.drawRndSamples(numSamples);
             
             obj.verifySize(samples, [2, numSamples]);
+            obj.verifySize(compIds, [1, numSamples]);
+            obj.verifyGreaterThanOrEqual(compIds, 1);
+            obj.verifyLessThanOrEqual(compIds, 2);
+            
+            % Check for monotonicity of component IDs
+            lastId = compIds(1);
+            
+            for i = 2:numSamples
+                obj.verifyGreaterThanOrEqual(compIds(i), lastId);
+                
+                lastId = compIds(i);
+            end
         end
         
         function testDrawRndSamplesInvalidNumSamples(obj)
