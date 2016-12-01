@@ -956,125 +956,289 @@ classdef TestChecks < matlab.unittest.TestCase
         function testIsCov(obj)
             func = @Checks.isCov;
             
-            obj.verifyFalse(func(obj.str));
+            [ret, cSqrt] = func(obj.str);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.flag));
-            obj.verifyFalse(func(obj.flag, 1));
+            [ret, cSqrt] = func(obj.flag);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.flag, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.scalar));
-            obj.verifyFalse(func(obj.scalar, 1));
-            obj.verifyFalse(func(obj.scalar, 0));
+            [ret, cSqrt] = func(obj.scalar);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.scalar, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.scalar, 0);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegScalar));
-            obj.verifyFalse(func(obj.nonNegScalar, 1));
-            obj.verifyFalse(func(obj.nonNegScalar, 2));
+            [ret, cSqrt] = func(obj.nonNegScalar);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegScalar, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegScalar, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyTrue(func(obj.posScalar));
-            obj.verifyTrue(func(obj.posScalar, 1));
-            obj.verifyFalse(func(obj.posScalar, 2));
+            [ret, cSqrt] = func(obj.posScalar);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(sqrt(obj.posScalar),  cSqrt);
+            [ret, cSqrt] = func(obj.posScalar, 1);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(sqrt(obj.posScalar),  cSqrt);
+            [ret, cSqrt] = func(obj.posScalar, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.rowVec));
-            obj.verifyFalse(func(obj.rowVec, 1));
+            [ret, cSqrt] = func(obj.rowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.rowVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegRowVec));
-            obj.verifyFalse(func(obj.nonNegRowVec, 2));
+            [ret, cSqrt] = func(obj.nonNegRowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegRowVec, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.posRowVec));
-            obj.verifyFalse(func(obj.posRowVec, 5));
+            [ret, cSqrt] = func(obj.posRowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.posRowVec, 5);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.colVec));
-            obj.verifyFalse(func(obj.colVec, 1));
+            [ret, cSqrt] = func(obj.colVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.colVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegColVec));
-            obj.verifyFalse(func(obj.nonNegColVec, 3));
+            [ret, cSqrt] = func(obj.nonNegColVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegColVec, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.posColVec));
-            obj.verifyFalse(func(obj.posColVec, 1));
+            [ret, cSqrt] = func(obj.posColVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.posColVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.emptyMat));
-            obj.verifyFalse(func(obj.emptyMat, 2));
+            [ret, cSqrt] = func(obj.emptyMat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.emptyMat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.mat));
-            obj.verifyFalse(func(obj.mat, 2));
+            [ret, cSqrt] = func(obj.mat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.mat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2));
-            obj.verifyFalse(func(obj.squareMat, 1));
+            [ret, cSqrt] = func(obj.squareMat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.squareMat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.squareMat, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyTrue(func(obj.cov));
-            obj.verifyTrue(func(obj.cov, 2));
-            obj.verifyFalse(func(obj.cov, 3));
+            [ret, cSqrt] = func(obj.cov);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.covSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov, 2);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.covSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.cov3D));
+            [ret, cSqrt] = func(obj.cov3D);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonCov3D));
+            [ret, cSqrt] = func(obj.nonCov3D);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
         end
         
         function testIsCov3D(obj)
             func = @Checks.isCov3D;
             
-            obj.verifyFalse(func(obj.str));
+            [ret, cSqrt] = func(obj.str);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.flag));
-            obj.verifyFalse(func(obj.flag, 1));
+            [ret, cSqrt] = func(obj.flag);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.flag, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.scalar));
-            obj.verifyFalse(func(obj.scalar, 1));
-            obj.verifyFalse(func(obj.scalar, 0));
+            [ret, cSqrt] = func(obj.scalar);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.scalar, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.scalar, 0);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegScalar));
-            obj.verifyFalse(func(obj.nonNegScalar, 1));
-            obj.verifyFalse(func(obj.nonNegScalar, 2));
+            [ret, cSqrt] = func(obj.nonNegScalar);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegScalar, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegScalar, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyTrue(func(obj.posScalar));
-            obj.verifyTrue(func(obj.posScalar, 1));
-            obj.verifyFalse(func(obj.posScalar, 2));
+            [ret, cSqrt] = func(obj.posScalar);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(sqrt(obj.posScalar),  cSqrt);
+            [ret, cSqrt] = func(obj.posScalar, 1);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(sqrt(obj.posScalar),  cSqrt);
+            [ret, cSqrt] = func(obj.posScalar, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.rowVec));
-            obj.verifyFalse(func(obj.rowVec, 1));
+            [ret, cSqrt] = func(obj.rowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.rowVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegRowVec));
-            obj.verifyFalse(func(obj.nonNegRowVec, 2));
+            [ret, cSqrt] = func(obj.nonNegRowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegRowVec, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.posRowVec));
-            obj.verifyFalse(func(obj.posRowVec, 5));
+            [ret, cSqrt] = func(obj.posRowVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.posRowVec, 5);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.colVec));
-            obj.verifyFalse(func(obj.colVec, 1));
+            [ret, cSqrt] = func(obj.colVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.colVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonNegColVec));
-            obj.verifyFalse(func(obj.nonNegColVec, 3));
+            [ret, cSqrt] = func(obj.nonNegColVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonNegColVec, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.posColVec));
-            obj.verifyFalse(func(obj.posColVec, 1));
+            [ret, cSqrt] = func(obj.posColVec);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.posColVec, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.emptyMat));
-            obj.verifyFalse(func(obj.emptyMat, 2));
+            [ret, cSqrt] = func(obj.emptyMat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.emptyMat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.mat));
-            obj.verifyFalse(func(obj.mat, 2));
+            [ret, cSqrt] = func(obj.mat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.mat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2));
-            obj.verifyFalse(func(obj.squareMat, 1));
+            [ret, cSqrt] = func(obj.squareMat);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.squareMat, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.squareMat, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyTrue(func(obj.cov));
-            obj.verifyTrue(func(obj.cov, 2));
-            obj.verifyTrue(func(obj.cov, 2, 1));
-            obj.verifyFalse(func(obj.cov, 3));
-            obj.verifyFalse(func(obj.cov, 2, 2));
+            [ret, cSqrt] = func(obj.cov);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.covSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov, 2);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.covSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov, 2, 1);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.covSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.cov, 2, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyTrue(func(obj.cov3D));
-            obj.verifyTrue(func(obj.cov3D, 2));
-            obj.verifyTrue(func(obj.cov3D, 2, 3));
-            obj.verifyFalse(func(obj.cov3D, 3));
-            obj.verifyFalse(func(obj.cov3D, 2, 4));
+            [ret, cSqrt] = func(obj.cov3D);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.cov3DSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov3D, 2);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.cov3DSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov3D, 2, 3);
+            obj.verifyTrue(ret);
+            obj.verifyEqual(obj.cov3DSqrt,  cSqrt);
+            [ret, cSqrt] = func(obj.cov3D, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.cov3D, 2, 4);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
             
-            obj.verifyFalse(func(obj.nonCov3D));
-            obj.verifyFalse(func(obj.nonCov3D, 2));
-            obj.verifyFalse(func(obj.nonCov3D, 3));
-            obj.verifyFalse(func(obj.nonCov3D, 2, 1));
-            obj.verifyFalse(func(obj.nonCov3D, 2, 2));
+            [ret, cSqrt] = func(obj.nonCov3D);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonCov3D, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonCov3D, 3);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonCov3D, 2, 1);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
+            [ret, cSqrt] = func(obj.nonCov3D, 2, 2);
+            obj.verifyFalse(ret);
+            obj.verifyEmpty(cSqrt);
         end
         
         
@@ -1093,7 +1257,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 'double', 3));
         end
     end
-      
+    
     properties (Constant)
         str          = 'string';
         flag         = true;
@@ -1110,7 +1274,9 @@ classdef TestChecks < matlab.unittest.TestCase
         mat          = [1 2 3; 4 5 6];
         squareMat    = [1 2; 3 4];
         cov          = [2 0.5; 0.5 1.2];
+        covSqrt      = chol([2 0.5; 0.5 1.2], 'Lower');
         cov3D        = cat(3, [2 0.5; 0.5 1.2], eye(2), 3 * eye(2));
+        cov3DSqrt    = cat(3, chol([2 0.5; 0.5 1.2], 'Lower'), eye(2), sqrt(3) * eye(2));
         nonCov3D     = cat(3, [2 0.5; 0.5 1.2], zeros(2, 2));
     end
 end
