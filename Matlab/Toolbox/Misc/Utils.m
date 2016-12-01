@@ -158,14 +158,32 @@ classdef Utils
                 % Compute measurement covariance
                 diffMeasSamples = bsxfun(@minus, measSamples, measMean);
                 
-                weightedDiffMeasSamples = bsxfun(@times, diffMeasSamples, weights);
+                % Weights can be negative => we have to treat them separately
                 
-                measCov = diffMeasSamples * weightedDiffMeasSamples';
+                % Positive weights
+                idx = weights >= 0;
+                
+                sqrtWeights             = sqrt(weights(idx));
+                weightedDiffMeasSamples = bsxfun(@times, diffMeasSamples(:, idx), sqrtWeights);
+                
+                measCov = weightedDiffMeasSamples * weightedDiffMeasSamples';
+                
+                % Negative weights
+                idx = ~idx;
+                
+                if any(idx)
+                    sqrtWeights             = sqrt(abs(weights(idx)));
+                    weightedDiffMeasSamples = bsxfun(@times, diffMeasSamples(:, idx), sqrtWeights);
+                    
+                    measCov = measCov - weightedDiffMeasSamples * weightedDiffMeasSamples';
+                end
                 
                 % Compute state measurement cross-covariance
                 diffStateSamples = bsxfun(@minus, stateSamples, stateMean);
                 
-                stateMeasCrossCov = diffStateSamples * weightedDiffMeasSamples';
+                weightedDiffStateSamples = bsxfun(@times, diffStateSamples, weights);
+                
+                stateMeasCrossCov = weightedDiffStateSamples * diffMeasSamples';
             end
         end
         
