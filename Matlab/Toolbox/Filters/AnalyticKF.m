@@ -89,11 +89,14 @@ classdef AnalyticKF < KF
     
     methods (Access = 'protected')
         function performPrediction(obj, sysModel)
-            if ~Checks.isClass(sysModel, 'AnalyticSystemModel')
+            if Checks.isClass(sysModel, 'AnalyticSystemModel')
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsAnalytic(sysModel);
+                
+                obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
+            else
                 obj.errorSysModel('AnalyticSystemModel');
             end
-            
-            obj.predictAnalytic(sysModel);
         end
         
         function predictedMomentsArbitraryNoise(~, ~)
