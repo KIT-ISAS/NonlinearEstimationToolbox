@@ -211,25 +211,30 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
-        function performUpdate(obj, measModel, measurements)
+        function [updatedMean, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                                                        priorMean, ~, priorCovSqrt)
             if Checks.isClass(measModel, 'Likelihood')
-                obj.updateLikelihood(measModel, measurements);
+                [updatedMean, ...
+                 updatedCov] = obj.updateLikelihood(measModel, measurements, ...
+                                                    priorMean, priorCovSqrt);
             else
                 obj.errorMeasModel('Likelihood');
             end
         end
         
-        function updateLikelihood(obj, measModel, measurements)
-            observableStateDim = obj.getObservableStateDim();
-            
+        function [updatedMean, ...
+                  updatedCov] = updateLikelihood(obj, measModel, measurements, ...
+                                                 priorMean, priorCovSqrt)
             % Initialize progression
-            mean        = obj.stateMean(1:observableStateDim);
-            covSqrt     = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
-            numSteps    = 0;
-            gamma       = 0;
+            dimState       = size(priorMean, 1);
+            updatedMean    = priorMean;
+            updatedCovSqrt = priorCovSqrt;
+            numSteps       = 0;
+            gamma          = 0;
             
             % Get standard normal approximation
-            [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(observableStateDim);
+            [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(dimState);
             
             % Set forced sample weight ratio
             logForcedRatio = -log(numSamples); % = log(1 / numSamples)
@@ -237,8 +242,8 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             % Start progression
             while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
                 % Sample intermediate Gaussian approximation
-                samples = covSqrt * stdNormalSamples;
-                samples = bsxfun(@plus, samples, mean);
+                samples = updatedCovSqrt * stdNormalSamples;
+                samples = bsxfun(@plus, samples, updatedMean);
                 
                 % Evaluate log likelihood
                 logValues = measModel.logLikelihood(samples, measurements);
@@ -284,7 +289,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 weights = weights / sumWeights;
                 
                 % Compute new intermediate mean and covariance
-                [mean, cov] = Utils.getMeanAndCov(samples, weights);
+                [updatedMean, updatedCov] = Utils.getMeanAndCov(samples, weights);
                 
                 % Increment gamma
                 gamma = gamma + deltaGamma;
@@ -294,7 +299,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 
                 if gamma ~= 1
                     % Check intermediate Gaussian is valid
-                    [isPosDef, covSqrt] = Checks.isCov(cov);
+                    [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
                     
                     if ~isPosDef
                         obj.ignoreMeas('Intermediate state covariance is not positive definite.');
@@ -302,15 +307,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 end
             end
             
-            % Use decomposed state update?
-            if observableStateDim < obj.dimState
-                % Update entire system state
-                [mean, cov] = obj.decomposedStateUpdate(mean, cov);
-            end
-            
             obj.lastNumSteps = numSteps;
-            
-            obj.checkAndSaveUpdate(mean, cov);
         end
     end
     
