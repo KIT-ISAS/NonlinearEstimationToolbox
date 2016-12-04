@@ -210,6 +210,10 @@ classdef GaussianFilter < Filter
         
         [predictedStateMean, ...
          predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel);
+        
+        [updatedMean, ...
+         updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                                               priorMean, priorCov, priorCovSqrt);
     end
     
     methods (Access = 'protected')
@@ -266,18 +270,39 @@ classdef GaussianFilter < Filter
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function checkAndSaveUpdate(obj, updatedStateMean, updatedStateCov)
-            % Check updated state covariance is valid
-            [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
+        function performUpdate(obj, measModel, measurements)
+            observableStateDim = obj.getObservableStateDim();
             
-            if ~isPosDef
-                obj.ignoreMeas('Updated state covariance is not positive definite.');
+            % Use decomposed state update?
+            if observableStateDim < obj.dimState
+                % Extract observable part of the system state
+                idx     = 1:observableStateDim;
+                mean    = obj.stateMean(idx);
+                cov     = obj.stateCov(idx, idx);
+                covSqrt = obj.stateCovSqrt(idx, idx);
+                
+                % Update observable state variables
+                [updatedMean, ...
+                 updatedCov] = obj.performUpdateObservable(measModel, measurements, ...
+                                                           mean, cov, covSqrt);
+                
+                % Check updated observable state covariance is valid
+                if ~Checks.isCov(updatedCov)
+                    obj.ignoreMeas('Updated observable state covariance matrix is not positive definite.');
+                end
+                
+                % Update entire system state
+                [updatedStateMean, ...
+                 updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, ...
+                                                                updatedMean, updatedCov);
+            else
+                % Update entire system state
+                [updatedStateMean, ...
+                 updatedStateCov] = obj.performUpdateObservable(measModel, measurements, ...
+                                                                obj.stateMean, obj.stateCov, obj.stateCovSqrt);
             end
             
-            % Save new state estimate
-            obj.stateMean    = updatedStateMean;
-            obj.stateCov     = updatedStateCov;
-            obj.stateCovSqrt = updatedStateCovSqrt;
+            obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
         end
         
         function observableStateDim = getObservableStateDim(obj)
@@ -290,17 +315,18 @@ classdef GaussianFilter < Filter
             end
         end
         
-        function [updatedStateMean, ...
-                  updatedStateCov] = decomposedStateUpdate(obj, updatedMean, updatedCov)
-            % Check updated observable state covariance is valid
-            if ~Checks.isCov(updatedCov)
-                obj.ignoreMeas('Updated observable state covariance matrix is not positive definite.');
+        function checkAndSaveUpdate(obj, updatedStateMean, updatedStateCov)
+            % Check updated state covariance is valid
+            [isPosDef, updatedStateCovSqrt] = Checks.isCov(updatedStateCov);
+            
+            if ~isPosDef
+                obj.ignoreMeas('Updated state covariance is not positive definite.');
             end
             
-            % Update entire system state
-            [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, ...
-                                                            updatedMean, updatedCov);
+            % Save new state estimate
+            obj.stateMean    = updatedStateMean;
+            obj.stateCov     = updatedStateCov;
+            obj.stateCovSqrt = updatedStateCovSqrt;
         end
     end
     
