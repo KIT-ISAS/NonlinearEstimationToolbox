@@ -250,18 +250,20 @@ classdef KF < GaussianFilter
     end
     
     methods (Access = 'protected')
-        function performUpdate(obj, measModel, measurements)
+        function [updatedMean, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                                                        priorMean, priorCov, priorCovSqrt)
             if obj.useAnalyticMeasModel && ...
                Checks.isClass(measModel, 'AnalyticMeasurementModel')
-                obj.updateAnalytic(measModel, measurements);
+                momentFunc = obj.getMomentFuncAnalytic(measModel, measurements);
             elseif Checks.isClass(measModel, 'LinearMeasurementModel')
-                obj.updateAnalytic(measModel, measurements);
+                momentFunc = obj.getMomentFuncAnalytic(measModel, measurements);
             elseif Checks.isClass(measModel, 'MeasurementModel')
-                obj.updateArbitraryNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncArbitraryNoise(measModel, measurements);
             elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
-                obj.updateAdditiveNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncAdditiveNoise(measModel, measurements);
             elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
-                obj.updateMixedNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncMixedNoise(measModel, measurements);
             else
                 obj.errorMeasModel('AnalyticMeasurementModel (if enabled, see setUseAnalyticMeasurementModel())', ...
                                    'LinearMeasurementModel', ...
@@ -269,93 +271,15 @@ classdef KF < GaussianFilter
                                    'AdditiveNoiseMeausrementModel', ...
                                    'MixedNoiseMeasurementModel');
             end
-        end
-        
-        function updateAnalytic(obj, measModel, measurements)
-            % Build function to for computing measurement moments
-            [dimMeas, numMeas] = size(measurements);
-            dimStackedMeas = dimMeas * numMeas;
             
-            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
-                         obj.momentFuncAnalytic(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                measModel, dimStackedMeas, numMeas);
-            
-            % Perform state update
-            obj.kalmanUpdate(measurements, momentFunc);
-        end
-        
-        function updateArbitraryNoise(obj, measModel, measurements)
-            % Build function to for computing measurement moments
-            momentFunc = obj.getMomentFuncArbitraryNoise(measModel, measurements);
-            
-            % Perform update
-            obj.kalmanUpdate(measurements, momentFunc);
-        end
-        
-        function updateAdditiveNoise(obj, measModel, measurements)
-            % Build function to for computing measurement moments
-            momentFunc = obj.getMomentFuncAdditiveNoise(measModel, measurements);
-            
-            % Perform update
-            obj.kalmanUpdate(measurements, momentFunc);
-        end
-        
-        function updateMixedNoise(obj, measModel, measurements)
-            % Build function to for computing measurement moments
-            momentFunc = obj.getMomentFuncMixedNoise(measModel, measurements);
-            
-            % Perform update
-            obj.kalmanUpdate(measurements, momentFunc);
-        end
-    end
-    
-    methods (Static, Access = 'protected')
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
-                                                        measMean, measCov, stateMeasCrossCov)
-            A = stateMeasCrossCov' / iterCov;
-            
-            measMean          = measMean + A * (priorMean - iterMean);
-            measCov           = measCov + A * (priorCov - iterCov) * A';
-            stateMeasCrossCov = priorCov * A';
-        end
-    end
-    
-    methods (Access = 'private')
-        function kalmanUpdate(obj, measurements, momentFunc)
-            observableStateDim = obj.getObservableStateDim();
-            
-            % Use decomposed state update?
-            if observableStateDim < obj.dimState
-                % Extract observable part of the system state
-                mean    = obj.stateMean(1:observableStateDim);
-                cov     = obj.stateCov(1:observableStateDim, 1:observableStateDim);
-                covSqrt = obj.stateCovSqrt(1:observableStateDim, 1:observableStateDim);
-                
-                % Standard KF update with observable part only
-                [updatedMean, ...
-                 updatedCov] = obj.kalmanUpdateObservable(mean, cov, covSqrt, ...
-                                                          measurements, momentFunc);
-                
-                % Update entire system state
-                [updatedStateMean, ...
-                 updatedStateCov] = obj.decomposedStateUpdate(updatedMean, updatedCov);
-            else
-                % Standard KF update
-                [updatedStateMean, ...
-                 updatedStateCov] = obj.kalmanUpdateObservable(obj.stateMean, ...
-                                                               obj.stateCov, ...
-                                                               obj.stateCovSqrt, ...
-                                                               measurements, ...
-                                                               momentFunc);
-            end
-            
-            obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
+            [updatedMean, ...
+             updatedCov] = obj.kalmanUpdate(measurements, momentFunc, ...
+                                            priorMean, priorCov, priorCovSqrt);
         end
         
         function [updatedMean, ...
-                  updatedCov] = kalmanUpdateObservable(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                       measurements, momentFunc)
+                  updatedCov] = kalmanUpdate(obj, measurements, momentFunc, ...
+                                             priorMean, priorCov, priorCovSqrt)
             stackedMeas = measurements(:);
             
             iterNum = 1;
@@ -407,6 +331,15 @@ classdef KF < GaussianFilter
             end
         end
         
+        function momentFunc = getMomentFuncAnalytic(obj, measModel, measurements)
+            [dimMeas, numMeas] = size(measurements);
+            dimStackedMeas = dimMeas * numMeas;
+            
+            momentFunc = @(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt) ...
+                         obj.momentFuncAnalytic(priorMean, priorCov, iterNum, iterMean, iterCov, iterCovSqrt, ...
+                                                measModel, dimStackedMeas, numMeas);
+        end
+        
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncAnalytic(obj, priorMean, priorCov, ...
                                                           iterNum, iterMean, iterCov, ~, ...
@@ -430,7 +363,21 @@ classdef KF < GaussianFilter
                                                           measMean, measCov, stateMeasCrossCov);
             end
         end
-        
+    end
+    
+    methods (Static, Access = 'protected')
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                                                        measMean, measCov, stateMeasCrossCov)
+            A = stateMeasCrossCov' / iterCov;
+            
+            measMean          = measMean + A * (priorMean - iterMean);
+            measCov           = measCov + A * (priorCov - iterCov) * A';
+            stateMeasCrossCov = priorCov * A';
+        end
+    end
+    
+    methods (Access = 'private')
         function checkMeasurementMoments(obj, mean, covariance, ...
                                          crossCovariance, dimState, dimMeas)
             if ~Checks.isColVec(mean, dimMeas)
