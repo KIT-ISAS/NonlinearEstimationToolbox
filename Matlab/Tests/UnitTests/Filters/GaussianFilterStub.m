@@ -19,7 +19,7 @@ classdef GaussianFilterStub < GaussianFilter
             obj.error('NotImplemented', 'Not implemented');
         end
         
-        function performUpdate(obj, ~, ~)
+        function performUpdateObservable(obj, ~, ~)
             obj.error('NotImplemented', 'Not implemented');
         end
     end
