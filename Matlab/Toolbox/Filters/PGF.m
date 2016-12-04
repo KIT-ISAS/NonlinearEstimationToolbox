@@ -212,7 +212,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     
     methods (Access = 'protected')
         function performUpdate(obj, measModel, measurements)
-            if isa(measModel, 'Likelihood')
+            if Checks.isClass(measModel, 'Likelihood')
                 obj.updateLikelihood(measModel, measurements);
             else
                 obj.errorMeasModel('Likelihood');
