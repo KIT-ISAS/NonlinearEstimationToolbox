@@ -108,12 +108,18 @@ classdef AnalyticKF < KF
             % Dummy implementation
         end
         
-        function performUpdate(obj, measModel, measurements)
-            if ~Checks.isClass(measModel, 'AnalyticMeasurementModel')
+        function [updatedMean, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                                                        priorMean, priorCov, priorCovSqrt)
+            if Checks.isClass(measModel, 'AnalyticMeasurementModel')
+                momentFunc = obj.getMomentFuncAnalytic(measModel, measurements);
+                
+                [updatedMean, ...
+                 updatedCov] = obj.kalmanUpdate(measurements, momentFunc, ...
+                                                priorMean, priorCov, priorCovSqrt);
+            else
                 obj.errorMeasModel('AnalyticMeasurementModel');
             end
-            
-            obj.updateAnalytic(measModel, measurements);
         end
         
         function getMomentFuncArbitraryNoise(~, ~, ~)
