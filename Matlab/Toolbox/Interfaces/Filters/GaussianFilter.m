@@ -220,15 +220,20 @@ classdef GaussianFilter < Filter
         function performPrediction(obj, sysModel)
             if obj.useAnalyticSysModel && ...
                Checks.isClass(sysModel, 'AnalyticSystemModel')
-                obj.predictAnalytic(sysModel);
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsAnalytic(sysModel);
             elseif Checks.isClass(sysModel, 'LinearSystemModel')
-                obj.predictAnalytic(sysModel);
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsAnalytic(sysModel);
             elseif Checks.isClass(sysModel, 'SystemModel')
-                obj.predictArbitraryNoise(sysModel);
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsArbitraryNoise(sysModel);
             elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
-                obj.predictAdditiveNoise(sysModel);
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsAdditiveNoise(sysModel);
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
-                obj.predictMixedNoise(sysModel);
+                [predictedStateMean, ...
+                 predictedStateCov] = obj.predictedMomentsMixedNoise(sysModel);
             else
                 obj.errorSysModel('AnalyticSystemModel (if enabled, see setUseAnalyticSystemModel())', ...
                                   'LinearSystemModel', ...
@@ -236,38 +241,31 @@ classdef GaussianFilter < Filter
                                   'AdditiveNoiseSystemModel', ...
                                   'MixedNoiseSystemModel');
             end
+            
+            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictAnalytic(obj, sysModel)
-            % Compute predicted state moments
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsAnalytic(obj, sysModel)
             [predictedStateMean, ...
              predictedStateCov] = sysModel.analyticPredictedMoments(obj.stateMean, ...
                                                                     obj.stateCov);
             
             obj.checkPredictedMoments(predictedStateMean, predictedStateCov);
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function predictArbitraryNoise(obj, sysModel)
-            [predictedStateMean, ...
-             predictedStateCov] = obj.predictedMomentsArbitraryNoise(sysModel);
+        function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
+            % Check predicted state covariance is valid
+            [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
             
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
-        end
-        
-        function predictAdditiveNoise(obj, sysModel)
-            [predictedStateMean, ...
-             predictedStateCov] = obj.predictedMomentsAdditiveNoise(sysModel);
+            if ~isPosDef
+                obj.ignorePrediction('Predicted state covariance is not positive definite.');
+            end
             
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
-        end
-        
-        function predictMixedNoise(obj, sysModel)
-            [predictedStateMean, ...
-             predictedStateCov] = obj.predictedMomentsMixedNoise(sysModel);
-            
-            obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
+            % Save new state estimate
+            obj.stateMean    = predictedStateMean;
+            obj.stateCov     = predictedStateCov;
+            obj.stateCovSqrt = predictedStateCovSqrt;
         end
         
         function performUpdate(obj, measModel, measurements)
@@ -331,20 +329,6 @@ classdef GaussianFilter < Filter
     end
     
     methods (Access = 'private')
-        function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
-            % Check predicted state covariance is valid
-            [isPosDef, predictedStateCovSqrt] = Checks.isCov(predictedStateCov);
-            
-            if ~isPosDef
-                obj.ignorePrediction('Predicted state covariance is not positive definite.');
-            end
-            
-            % Save new state estimate
-            obj.stateMean    = predictedStateMean;
-            obj.stateCov     = predictedStateCov;
-            obj.stateCovSqrt = predictedStateCovSqrt;
-        end
-        
         function checkPredictedMoments(obj, mean, covariance)
             if ~Checks.isColVec(mean, obj.dimState)
                 obj.error('InvalidPredictedStateMean', ...
