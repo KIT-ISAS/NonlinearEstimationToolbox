@@ -52,7 +52,7 @@ classdef Utils
             %      Column-wise arranged samples.
             %
             %   >> weights (Row vector)
-            %      Column-wise arranged corresponding sample weights.
+            %      Column-wise arranged corresponding normalized sample weights.
             %      If no weights are passed, all samples are assumed
             %      to be equally weighted.
             %
@@ -122,7 +122,7 @@ classdef Utils
             %      Column-wise arranged measurement samples.
             %
             %   >> weights (Row vector)
-            %      Column-wise arranged corresponding sample weights.
+            %      Column-wise arranged corresponding normalized sample weights.
             %      If no weights are passed, all samples are assumed
             %      to be equally weighted.
             %
