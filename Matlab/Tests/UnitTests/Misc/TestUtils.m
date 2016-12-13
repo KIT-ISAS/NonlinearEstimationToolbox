@@ -73,42 +73,85 @@ classdef TestUtils < matlab.unittest.TestCase
         end
         
         function testGetMeanCovAndCrossCov(obj)
-            stateMean    = zeros(2, 1);
+            stateMean    = [2 -1]';
             stateSamples = [zeros(2, 1) sqrt(2.5) * eye(2) -sqrt(2.5) * eye(2)];
             stateSamples = bsxfun(@plus, stateSamples, stateMean);
-            measSamples  = stateSamples(1, :).^2 + stateSamples(2, :).^2;
+            measSamples  = [-stateSamples(1, :)
+                            stateSamples(2, :)
+                            stateSamples(1, :) - stateSamples(2, :)];
             
-            trueMeasMean          = 2;
-            trueMeasCov           = 1;
-            trueStateMeasCrossCov = zeros(2, 1);
+            trueMeasMean = [-2 -1 3]';
+            trueMeasCov  = [ 1  0 -1
+                             0  1 -1
+                            -1 -1  2];
+            trueStateMeasCrossCov = [-1 0  1
+                                      0 1 -1];
             
             [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, ...
+                                                              stateSamples, ...
                                                               measSamples);
             
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(measCov, measCov');
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
-            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov);
+            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov, 'AbsTol', 1e-12);
         end
         
         function testGetMeanCovAndCrossCovWithWeights(obj)
-            stateMean    = zeros(2, 1);
+            stateMean    = [2 -1]';
             stateSamples = [zeros(2, 1) sqrt(3) * eye(2) -sqrt(3) * eye(2)];
             stateSamples = bsxfun(@plus, stateSamples, stateMean);
             weights      = [1/3 1/6 1/6 1/6 1/6];
-            measSamples  = stateSamples(1, :).^2 + stateSamples(2, :).^2;
+            measSamples  = [-stateSamples(1, :)
+                            stateSamples(2, :)
+                            stateSamples(1, :) - stateSamples(2, :)];
             
-            trueMeasMean          = 2;
-            trueMeasCov           = 2;
-            trueStateMeasCrossCov = zeros(2, 1);
+            trueMeasMean = [-2 -1 3]';
+            trueMeasCov  = [ 1  0 -1
+                             0  1 -1
+                            -1 -1  2];
+            trueStateMeasCrossCov = [-1 0  1
+                                      0 1 -1];
             
             [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
-                                                              measSamples, weights);
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, ...
+                                                              stateSamples, ...
+                                                              measSamples, ...
+                                                              weights);
             
             obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(measCov, measCov');
             obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
-            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov);
+            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov, 'AbsTol', 1e-12);
+        end
+        
+        function testGetMeanCovAndCrossCovWithNegativeWeights(obj)
+            stateMean    = [2 -1]';
+            stateSamples = [zeros(2, 1) eye(2) -eye(2)];
+            stateSamples = bsxfun(@plus, stateSamples, stateMean);
+            weights      = [-1 0.5 0.5 0.5 0.5];
+            measSamples  = [-stateSamples(1, :)
+                            stateSamples(2, :)
+                            stateSamples(1, :) - stateSamples(2, :)];
+            
+            trueMeasMean = [-2 -1 3]';
+            trueMeasCov  = [ 1  0 -1
+                             0  1 -1
+                            -1 -1  2];
+            trueStateMeasCrossCov = [-1 0  1
+                                      0 1 -1];
+            
+            [measMean, measCov, ...
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, ...
+                                                              stateSamples, ...
+                                                              measSamples, ...
+                                                              weights);
+            
+            obj.verifyEqual(measMean, trueMeasMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(measCov, measCov');
+            obj.verifyEqual(measCov, trueMeasCov, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov, 'AbsTol', 1e-12);
         end
         
         function testKalmanUpdate(obj)
