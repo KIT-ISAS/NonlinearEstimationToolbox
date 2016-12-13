@@ -168,6 +168,7 @@ classdef TestUniform < matlab.unittest.TestCase
             
             [m, c, cSqrt] = u.getMeanAndCovariance();
             obj.verifyEqual(m, mean, 'RelTol', tol);
+            obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'RelTol', tol);
             obj.verifyEqual(cSqrt, covSqrt, 'RelTol', tol);
         end

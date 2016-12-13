@@ -225,6 +225,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             
             [m, c, cSqrt] = g.getMeanAndCovariance();
             obj.verifyEqual(m, mean);
+            obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov);
             obj.verifyEqual(cSqrt, covSqrt);
         end

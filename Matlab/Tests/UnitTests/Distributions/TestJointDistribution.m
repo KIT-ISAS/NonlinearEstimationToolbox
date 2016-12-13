@@ -177,6 +177,7 @@ classdef TestJointDistribution < matlab.unittest.TestCase
             
             [m, c, cSqrt] = j.getMeanAndCovariance();
             obj.verifyEqual(m, mean);
+            obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov);
             obj.verifyEqual(cSqrt, covSqrt);
         end

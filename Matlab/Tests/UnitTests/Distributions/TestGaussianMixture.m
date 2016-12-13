@@ -334,6 +334,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             
             [m, c, cSqrt] = gm.getMeanAndCovariance();
             obj.verifyEqual(m, mean, 'AbsTol', absTol);
+            obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'AbsTol', absTol);
             obj.verifyEqual(cSqrt, covSqrt, 'AbsTol', absTol);
         end
