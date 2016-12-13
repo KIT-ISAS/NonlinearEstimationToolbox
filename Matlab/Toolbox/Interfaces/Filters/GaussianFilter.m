@@ -285,14 +285,16 @@ classdef GaussianFilter < Filter
                                                            mean, cov, covSqrt);
                 
                 % Check updated observable state covariance is valid
-                if ~Checks.isCov(updatedCov)
+                [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
+                
+                if ~isPosDef
                     obj.ignoreMeas('Updated observable state covariance matrix is not positive definite.');
                 end
                 
                 % Update entire system state
                 [updatedStateMean, ...
-                 updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, ...
-                                                                updatedMean, updatedCov);
+                 updatedStateCov] = Utils.decomposedStateUpdate(obj.stateMean, obj.stateCov, obj.stateCovSqrt, ...
+                                                                updatedMean, updatedCov, updatedCovSqrt);
             else
                 % Update entire system state
                 [updatedStateMean, ...
