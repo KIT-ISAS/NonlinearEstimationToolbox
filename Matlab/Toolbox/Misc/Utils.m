@@ -94,9 +94,9 @@ classdef Utils
                     cov = weightedDiffSamples * weightedDiffSamples';
                     
                     % Negative weights
-                    idx = ~idx;
-                    
-                    if any(idx)
+                    if ~all(idx)
+                        idx = ~idx;
+                        
                         sqrtWeights         = sqrt(abs(weights(idx)));
                         weightedDiffSamples = bsxfun(@times, diffSamples(:, idx), sqrtWeights);
                         
