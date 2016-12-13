@@ -86,7 +86,7 @@ classdef EKF < KF
     methods (Access = 'protected')
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
             % Linearize system model around current state mean and noise mean
@@ -101,8 +101,10 @@ classdef EKF < KF
             predictedStateMean = sysModel.systemEquation(obj.stateMean, noiseMean);
             
             % Compute predicted state covariance
-            predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + ...
-                                noiseJacobian * noiseCov * noiseJacobian';
+            A = stateJacobian * obj.stateCovSqrt;
+            B = noiseJacobian * noiseCovSqrt;
+            
+            predictedStateCov = A * A' + B * B';
         end
         
         function [predictedStateMean, ...
@@ -122,7 +124,9 @@ classdef EKF < KF
             predictedStateMean = sysModel.systemEquation(obj.stateMean) + noiseMean;
             
             % Compute predicted state covariance
-            predictedStateCov = stateJacobian * obj.stateCov * stateJacobian' + noiseCov;
+            A = stateJacobian * obj.stateCovSqrt;
+            
+            predictedStateCov = A * A' + noiseCov;
         end
         
         function [predictedStateMean, ...
