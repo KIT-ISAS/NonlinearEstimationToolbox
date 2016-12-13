@@ -38,6 +38,7 @@ classdef TestUtils < matlab.unittest.TestCase
             [mean, cov] = Utils.getMeanAndCov(samples);
             
             obj.verifyEqual(mean, trueMean);
+            obj.verifyEqual(cov, cov');
             obj.verifyEqual(cov, trueCov);
         end
         
@@ -50,9 +51,25 @@ classdef TestUtils < matlab.unittest.TestCase
             trueCov  = eye(3);
             
             [mean, cov] = Utils.getMeanAndCov(samples, weights);
-             
+            
             obj.verifyEqual(mean, trueMean);
-            obj.verifyEqual(cov, trueCov);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testGetMeanAndCovWithNegativeWeights(obj)
+            samples = [zeros(3, 1) sqrt(2) * eye(3) -sqrt(2) * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            weights = [-0.5 0.25 * ones(1, 6)];
+            
+            trueMean = [-4 -4 -4]';
+            trueCov  = eye(3);
+            
+            [mean, cov] = Utils.getMeanAndCov(samples, weights);
+            
+            obj.verifyEqual(mean, trueMean);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
         function testGetMeanCovAndCrossCov(obj)
