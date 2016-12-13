@@ -191,13 +191,15 @@ classdef TestUtils < matlab.unittest.TestCase
         
         function testDecomposedStateUpdatePriorUncorrelated(obj)
             % 1D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7  0.0  0.0
-                          0.0  1.3 -0.3
-                          0.0 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7  0.0  0.0
+                             0.0  1.3 -0.3
+                             0.0 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA = 3.0;
-            updatedStateCovA  = 0.9;
+            updatedStateMeanA    = 3.0;
+            updatedStateCovA     = 0.9;
+            updatedStateCovASqrt = sqrt(updatedStateCovA);
             
             trueMean = [ 3.0 -1.0 -2.0]';
             trueCov  = [ 0.9  0.0  0.0
@@ -205,21 +207,24 @@ classdef TestUtils < matlab.unittest.TestCase
                          0.0 -0.3  2.0];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
             
             % 2D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.0
-                         -0.5  1.3  0.0
-                          0.0  0.0  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.0
+                            -0.5  1.3  0.0
+                             0.0  0.0  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA = [ 3.0 2.0]';
-            updatedStateCovA  = [ 0.9 -0.1
-                                 -0.1  1.0];
+            updatedStateMeanA    = [ 3.0 2.0]';
+            updatedStateCovA     = [ 0.9 -0.1
+                                    -0.1  1.0];
+            updatedStateCovASqrt = chol(updatedStateCovA, 'Lower');
             
             trueMean = [ 3.0  2.0 -2.0]';
             trueCov  = [ 0.9 -0.1  0.0
@@ -227,22 +232,25 @@ classdef TestUtils < matlab.unittest.TestCase
                          0.0  0.0  2.0];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
         end
         
         function testDecomposedStateUpdateMeanChanged(obj)
             % 1D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA = -3.0;
-            updatedStateCovA  =  1.7;
+            updatedStateMeanA    = -3.0;
+            updatedStateCovA     =  1.7;
+            updatedStateCovASqrt = sqrt(updatedStateCovA);
             
             stateMeanB = [-1.0 -2.0]' + ([-0.5  0.1]' / 1.7) * (-3.0 - 1.0);
             trueMean   = [-3.0 stateMeanB']';
@@ -251,21 +259,24 @@ classdef TestUtils < matlab.unittest.TestCase
                            0.1 -0.3  2.0];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
             
             % 2D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA = [ 3.0 2.0]';
-            updatedStateCovA  = [ 1.7 -0.5
-                                 -0.5  1.3];
+            updatedStateMeanA    = [ 3.0 2.0]';
+            updatedStateCovA     = [ 1.7 -0.5
+                                    -0.5  1.3];
+            updatedStateCovASqrt = chol(updatedStateCovA, 'Lower');
             
             stateMeanB = -2.0 + ([0.1 -0.3] / [ 1.7 -0.5
                                                -0.5  1.3]) * ([ 3.0 2.0]' - [ 1.0 -1.0]');
@@ -275,22 +286,25 @@ classdef TestUtils < matlab.unittest.TestCase
                            0.1 -0.3  2.0];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
         end
         
         function testDecomposedStateUpdateCovChanged(obj)
             % 1D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA =  1.0;
-            updatedStateCovA  =  0.9;
+            updatedStateMeanA    =  1.0;
+            updatedStateCovA     =  0.9;
+            updatedStateCovASqrt = sqrt(updatedStateCovA);
             
             K          = [-0.5  0.1]' / 1.7;
             covBA      = K * 0.9;
@@ -301,21 +315,24 @@ classdef TestUtils < matlab.unittest.TestCase
                           covBA covB  ];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
             
             % 2D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
-            updatedStateMeanA = [ 1.0 -1.0]';
-            updatedStateCovA  = [ 0.9 -0.1
-                                 -0.1  1.0];
+            updatedStateMeanA    = [ 1.0 -1.0]';
+            updatedStateCovA     = [ 0.9 -0.1
+                                    -0.1  1.0];
+            updatedStateCovASqrt = chol(updatedStateCovA, 'Lower');
             
             K          = [ 0.1 -0.3] / [ 1.7 -0.5
                                         -0.5  1.3];
@@ -330,19 +347,21 @@ classdef TestUtils < matlab.unittest.TestCase
                            covBA      covB  ];
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
         end
         
         function testDecomposedStateUpdateEquivalentToKalmanUpdate(obj)
             % 1D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
             H                 = [ 1.0  0.0  0.0
                                  -0.5  0.0  0.0];
@@ -352,25 +371,30 @@ classdef TestUtils < matlab.unittest.TestCase
             measCov           = H * stateCov * H' + R;
             stateMeasCrossCov = stateCov * H';
             
-            K        = stateMeasCrossCov / measCov;
+            sqrtMeasCov = chol(measCov);
+            A = stateMeasCrossCov / sqrtMeasCov;
+            K = A / sqrtMeasCov';
             trueMean = stateMean + K * (measurement - measMean);
-            trueCov  = (eye(3) - K * H) * stateCov;
+            trueCov  = stateCov - A * A';
             
-            updatedStateMeanA = trueMean(1);
-            updatedStateCovA  = trueCov(1);
+            updatedStateMeanA    = trueMean(1);
+            updatedStateCovA     = trueCov(1);
+            updatedStateCovASqrt = sqrt(updatedStateCovA);
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
             
             % 2D subspace A
-            stateMean = [ 1.0 -1.0 -2.0]';
-            stateCov  = [ 1.7 -0.5  0.1
-                         -0.5  1.3 -0.3
-                          0.1 -0.3  2.0];
+            stateMean    = [ 1.0 -1.0 -2.0]';
+            stateCov     = [ 1.7 -0.5  0.1
+                            -0.5  1.3 -0.3
+                             0.1 -0.3  2.0];
+            stateCovSqrt = chol(stateCov, 'Lower');
             
             H                 = [ 1.0  1.0  0.0
                                  -0.5  0.0  0.0];
@@ -380,18 +404,22 @@ classdef TestUtils < matlab.unittest.TestCase
             measCov           = H * stateCov * H' + R;
             stateMeasCrossCov = stateCov * H';
             
-            K        = stateMeasCrossCov / measCov;
+            sqrtMeasCov = chol(measCov);
+            A = stateMeasCrossCov / sqrtMeasCov;
+            K = A / sqrtMeasCov';
             trueMean = stateMean + K * (measurement - measMean);
-            trueCov  = (eye(3) - K * H) * stateCov;
+            trueCov  = stateCov - A * A';
             
-            updatedStateMeanA = trueMean(1:2);
-            updatedStateCovA  = trueCov(1:2, 1:2);
+            updatedStateMeanA    = trueMean(1:2);
+            updatedStateCovA     = trueCov(1:2, 1:2);
+            updatedStateCovASqrt = chol(updatedStateCovA, 'Lower');
             
             [updatedStateMean, ...
-             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, ...
-                                                            updatedStateMeanA, updatedStateCovA);
+             updatedStateCov] = Utils.decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                            updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt);
             
             obj.verifyEqual(updatedStateMean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(updatedStateCov, updatedStateCov');
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
         end
         
