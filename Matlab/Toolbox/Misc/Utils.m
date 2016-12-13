@@ -238,8 +238,8 @@ classdef Utils
         end
         
         function [updatedStateMean, ...
-                  updatedStateCov] = decomposedStateUpdate(stateMean, stateCov, ...
-                                                           updatedStateMeanA, updatedStateCovA)
+                  updatedStateCov] = decomposedStateUpdate(stateMean, stateCov, stateCovSqrt, ...
+                                                           updatedStateMeanA, updatedStateCovA, updatedStateCovASqrt)
             % Perform an update for a system state decomposed into two parts A and B.
             %
             % Parameters:
@@ -249,11 +249,17 @@ classdef Utils
             %   >> stateCov (Positive definite matrix)
             %      Prior covariance matrix of the entire state.
             %
+            %   >> stateCovSqrt (Square matrix)
+            %      Square root of the prior covariance matrix.
+            %
             %   >> updatedStateMeanA (Column vector)
             %      Already updated mean of subspace A.
             %
             %   >> updatedStateCovA (Positive definite matrix)
             %      Already updated covariance matrix of subspace A.
+            %
+            %   >> updatedStateCovASqrt (Square matrix)
+            %      Square root of the already updated covariance matrix of subspace A.
             %
             % Returns:
             %   << updatedStateMean (Column vector)
@@ -264,16 +270,19 @@ classdef Utils
             
             D = size(updatedStateMeanA, 1);
             
-            priorStateMeanA = stateMean(1:D);
-            priorStateMeanB = stateMean(D+1:end);
-            priorStateCovA  = stateCov(1:D, 1:D);
-            priorStateCovB  = stateCov(D+1:end, D+1:end);
-            priorStateCovBA = stateCov(D+1:end, 1:D);
+            priorStateMeanA    = stateMean(1:D);
+            priorStateMeanB    = stateMean(D+1:end);
+            priorStateCovA     = stateCov(1:D, 1:D);
+            priorStateCovB     = stateCov(D+1:end, D+1:end);
+            priorStateCovBA    = stateCov(D+1:end, 1:D);
+            priorStateCovASqrt = stateCovSqrt(1:D, 1:D);
             
             % Computed updated mean, covariance, and cross-covariance for the subspace B
-            K                 = priorStateCovBA / priorStateCovA;
+            K = priorStateCovBA / priorStateCovA;
+            A = K * updatedStateCovASqrt;
+            B = K * priorStateCovASqrt;
             updatedStateMeanB = priorStateMeanB + K * (updatedStateMeanA - priorStateMeanA);
-            updatedStateCovB  = priorStateCovB + K * (updatedStateCovA - priorStateCovA) * K';
+            updatedStateCovB  = priorStateCovB + A * A' - B * B';
             updatedStateCovBA = K * updatedStateCovA;
             
             % Construct updated state mean and covariance
