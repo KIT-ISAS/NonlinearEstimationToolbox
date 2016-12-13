@@ -360,7 +360,8 @@ classdef KF < GaussianFilter
             
             if iterNum > 1
                 [measMean, measCov, ...
-                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
+                                                          iterMean, iterCov, iterCovSqrt, ...
                                                           measMean, measCov, stateMeasCrossCov);
             end
         end
@@ -368,12 +369,15 @@ classdef KF < GaussianFilter
     
     methods (Static, Access = 'protected')
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, iterMean, iterCov, ...
+                  stateMeasCrossCov] = momentCorrection(priorMean, priorCov, priorCovSqrt, ...
+                                                        iterMean, iterCov, iterCovSqrt, ...
                                                         measMean, measCov, stateMeasCrossCov)
             A = stateMeasCrossCov' / iterCov;
+            B = A * priorCovSqrt;
+            C = A * iterCovSqrt;
             
             measMean          = measMean + A * (priorMean - iterMean);
-            measCov           = measCov + A * (priorCov - iterCov) * A';
+            measCov           = measCov + B * B' - C * C';
             stateMeasCrossCov = priorCov * A';
         end
     end
