@@ -158,14 +158,14 @@ classdef EKF2 < KF
         end
         
         function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]    = size(measurements);
-            [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
+            [dimMeas, numMeas]                  = size(measurements);
+            [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
             dimNoise = size(noiseMean, 1);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncArbitraryNoise(priorMean, priorCov, priorCovSqrt, ...
                                                       iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                      measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov);
+                                                      measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov, noiseCovSqrt);
         end
         
         function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
@@ -182,9 +182,9 @@ classdef EKF2 < KF
         end
         
         function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]          = size(measurements);
-            [noiseMean, noiseCov]       = measModel.noise.getMeanAndCovariance();
-            [addNoiseMean, addNoiseCov] = measModel.additiveNoise.getMeanAndCovariance();
+            [dimMeas, numMeas]                  = size(measurements);
+            [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov]         = measModel.additiveNoise.getMeanAndCovariance();
             dimNoise    = size(noiseMean, 1);
             dimAddNoise = size(addNoiseMean, 1);
             
@@ -194,13 +194,13 @@ classdef EKF2 < KF
                          obj.momentFuncMixedNoise(priorMean, priorCov, priorCovSqrt, ...
                                                   iterNum, iterMean, iterCov, iterCovSqrt, ...
                                                   measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
-                                                  addNoiseCov, noiseMean, noiseCov);
+                                                  addNoiseCov, noiseMean, noiseCov, noiseCovSqrt);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                 ~, iterMean, iterCov, ~, ...
-                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov)
+                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov, noiseCovSqrt)
             dimState = size(iterMean, 1);
             
             % Compute measurement model derivatives around current state mean and noise mean
@@ -230,8 +230,11 @@ classdef EKF2 < KF
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * priorCov * stateJacobian' + hessCovState;
-            matDiag = noiseJacobian * noiseCov * noiseJacobian' + hessCovNoise;
+            A = stateJacobian * priorCovSqrt;
+            B = noiseJacobian * noiseCovSqrt;
+            
+            matBase = A * A' + hessCovState;
+            matDiag = B * B' + hessCovNoise;
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
@@ -264,7 +267,9 @@ classdef EKF2 < KF
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * priorCov * stateJacobian' + hessCov;
+            A = stateJacobian * priorCovSqrt;
+            
+            matBase = A * A' + hessCov;
             
             measCov = Utils.baseBlockDiag(matBase, noiseCov, numMeas);
             
@@ -277,7 +282,8 @@ classdef EKF2 < KF
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                             ~, iterMean, iterCov, ~, ...
-                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCov)
+                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
+                                                            addNoiseCov, noiseMean, noiseCov, noiseCovSqrt)
             dimState = size(iterMean, 1);
             
             % Compute measurement model derivatives around current state mean and noise mean
@@ -307,8 +313,11 @@ classdef EKF2 < KF
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
-            matBase = stateJacobian * priorCov * stateJacobian' + hessCovState;
-            matDiag = noiseJacobian * noiseCov * noiseJacobian' + hessCovNoise + addNoiseCov;
+            A = stateJacobian * priorCovSqrt;
+            B = noiseJacobian * noiseCovSqrt;
+            
+            matBase = A * A' + hessCovState;
+            matDiag = B * B' + hessCovNoise + addNoiseCov;
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
