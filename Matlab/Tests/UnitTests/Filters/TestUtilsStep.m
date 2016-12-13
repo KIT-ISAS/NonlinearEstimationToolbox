@@ -51,6 +51,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -77,6 +78,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -104,6 +106,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -130,6 +133,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -159,6 +163,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -185,6 +190,7 @@ classdef TestUtilsStep
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
     end
