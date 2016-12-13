@@ -172,6 +172,7 @@ classdef TestUtils < matlab.unittest.TestCase
                                              measMean, measCov, stateMeasCrossCov);
             
             obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(cov, cov');
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
