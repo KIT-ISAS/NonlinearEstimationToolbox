@@ -139,6 +139,7 @@ classdef TestUtilsMeasurementModel
             [mean, cov] = f.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
             test.verifyEqual(cov, trueCov, 'RelTol', tol);
         end
         
@@ -151,6 +152,7 @@ classdef TestUtilsMeasurementModel
             
             test.verifyEqual(meas, measurements(:), 'RelTol', tol);
             test.verifyEqual(measMean, trueMeasMean, 'RelTol', tol);
+            test.verifyEqual(measCov, measCov');
             test.verifyEqual(measCov, trueMeasCov, 'RelTol', tol);
             test.verifyEqual(stateMeasCrossCov, trueCrossCov, 'RelTol', tol);
             
