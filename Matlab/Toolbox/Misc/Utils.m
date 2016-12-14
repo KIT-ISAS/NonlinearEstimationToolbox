@@ -218,7 +218,7 @@ classdef Utils
             %   << updatedStateCov (Positive definite matrix)
             %      Posterior state covariance matrix.
             
-            [sqrtMeasCov, isNonPos] = chol(measCov);
+            [measCovSqrt, isNonPos] = chol(measCov);
             
             if isNonPos
                 error('Utils:InvalidMeasurementCovariance', ...
@@ -226,12 +226,10 @@ classdef Utils
             end
             
             % Compute Kalman gain
-            A = stateMeasCrossCov / sqrtMeasCov;
-            
-            kalmanGain = A / sqrtMeasCov';
+            A = stateMeasCrossCov / measCovSqrt;
             
             % Compute updated state mean
-            updatedStateMean = stateMean + kalmanGain * (measurement - measMean);
+            updatedStateMean = stateMean + A * (measCovSqrt' \ (measurement - measMean));
             
             % Compute updated state covariance
             updatedStateCov = stateCov - A * A';
