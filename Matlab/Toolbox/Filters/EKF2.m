@@ -1,6 +1,6 @@
 
-classdef EKF2 < KF
-    % The Second-Order Extended Kalman Filter (EKF).
+classdef EKF2 < KF & SOTaylorBasedJointlyGaussianPrediction
+    % The Second-Order Extended Kalman Filter (EKF2).
     %
     % EKF2 Methods:
     %   EKF2                           - Class constructor.
@@ -78,89 +78,13 @@ classdef EKF2 < KF
                 name = 'EKF2';
             end
             
-            % Superclass constructor
+            % Superclass constructors
             obj = obj@KF(name);
+            obj = obj@SOTaylorBasedJointlyGaussianPrediction(name);
         end
     end
     
     methods (Access = 'protected')
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
-            [noiseMean, noiseCov, noiseCovSqrt] = sysModel.noise.getMeanAndCovariance();
-            dimNoise = size(noiseMean, 1);
-            
-            % Compute system model derivatives around current state mean and noise mean
-            [stateJacobian, ...
-             noiseJacobian, ...
-             stateHessians, ...
-             noiseHessians] = sysModel.derivative(obj.stateMean, noiseMean);
-            
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
-            obj.checkStateHessians(stateHessians, obj.dimState, obj.dimState);
-            
-            obj.checkNoiseJacobian(noiseJacobian, obj.dimState, dimNoise);
-            obj.checkNoiseHessians(noiseHessians, obj.dimState, dimNoise);
-            
-            [hessMeanState, ...
-             hessCovState, ...
-             hessMeanNoise, ...
-             hessCovNoise] = EKF2.getHessianMomentsStateAndNoise(obj.dimState, stateHessians, obj.stateCov, ...
-                                                                 dimNoise, noiseHessians, noiseCov, obj.dimState);
-            
-            % Compute predicted state mean
-            predictedStateMean = sysModel.systemEquation(obj.stateMean, noiseMean) + ...
-                                 hessMeanState + hessMeanNoise;
-            
-            % Compute predicted state covariance
-            A = stateJacobian * obj.stateCovSqrt;
-            B = noiseJacobian * noiseCovSqrt;
-            
-            predictedStateCov = A * A' + hessCovState + B * B' + hessCovNoise;
-        end
-        
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
-            dimNoise = size(noiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimNoise);
-            
-            % Compute system model derivatives around current state mean
-            [stateJacobian, stateHessians] = sysModel.derivative(obj.stateMean);
-            
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, obj.dimState, obj.dimState);
-            obj.checkStateHessians(stateHessians, obj.dimState, obj.dimState);
-            
-            [hessMean, hessCov] = EKF2.getHessianMomentsState(obj.dimState, stateHessians, ...
-                                                              obj.stateCov, obj.dimState);
-            
-            % Compute predicted state mean
-            predictedStateMean = sysModel.systemEquation(obj.stateMean) + hessMean + noiseMean;
-            
-            % Compute predicted state covariance
-            A = stateJacobian * obj.stateCovSqrt;
-            
-            predictedStateCov = A * A' + hessCov + noiseCov;
-        end
-        
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
-            
-            % Compute predicted state mean
-            predictedStateMean = mean + addNoiseMean;
-            
-            % Compute predicted state covariance
-            predictedStateCov = cov + addNoiseCov;
-        end
-        
         function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas]                  = size(measurements);
             [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
@@ -220,16 +144,16 @@ classdef EKF2 < KF
             obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
             obj.checkNoiseHessians(noiseHessians, dimMeas, dimNoise);
             
-            [hessMeanState, ...
-             hessCovState, ...
-             hessMeanNoise, ...
-             hessCovNoise] = EKF2.getHessianMomentsStateAndNoise(dimState, stateHessians, iterCov, ...
-                                                                 dimNoise, noiseHessians, noiseCov, dimMeas);
+            [stateHessMean, ...
+             stateHessCov, ...
+             noiseHessMean, ...
+             noiseHessCov] = obj.getHessianMomentsStateAndNoise(dimState, stateHessians, iterCov, ...
+                                                                dimNoise, noiseHessians, noiseCov, dimMeas);
             
             % Compute measurement mean
             measMean = measModel.measurementEquation(iterMean, noiseMean) + ...
                        stateJacobian * (priorMean - iterMean) + ...
-                       hessMeanState + hessMeanNoise;
+                       stateHessMean + noiseHessMean;
             
             measMean = repmat(measMean, numMeas, 1);
             
@@ -237,8 +161,8 @@ classdef EKF2 < KF
             A = stateJacobian * priorCovSqrt;
             B = noiseJacobian * noiseCovSqrt;
             
-            matBase = A * A' + hessCovState;
-            matDiag = B * B' + hessCovNoise;
+            matBase = A * A' + stateHessCov;
+            matDiag = B * B' + noiseHessCov;
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
@@ -261,19 +185,20 @@ classdef EKF2 < KF
             obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
             obj.checkStateHessians(stateHessians, dimMeas, dimState);
             
-            [hessMean, hessCov] = EKF2.getHessianMomentsState(dimState, stateHessians, iterCov, dimMeas);
+            [stateHessMean, ...
+             stateHessCov] = obj.getHessianMomentsState(dimState, stateHessians, iterCov, dimMeas);
             
             % Compute measurement mean
             measMean = measModel.measurementEquation(iterMean) + ...
                        stateJacobian * (priorMean - iterMean) + ...
-                       hessMean + noiseMean;
+                       stateHessMean + noiseMean;
             
             measMean = repmat(measMean, numMeas, 1);
             
             % Compute measurement covariance
             A = stateJacobian * priorCovSqrt;
             
-            matBase = A * A' + hessCov;
+            matBase = A * A' + stateHessCov;
             
             measCov = Utils.baseBlockDiag(matBase, noiseCov, numMeas);
             
@@ -303,16 +228,16 @@ classdef EKF2 < KF
             obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
             obj.checkNoiseHessians(noiseHessians, dimMeas, dimNoise);
             
-            [hessMeanState, ...
-             hessCovState, ...
-             hessMeanNoise, ...
-             hessCovNoise] = EKF2.getHessianMomentsStateAndNoise(dimState, stateHessians, iterCov, ...
-                                                                 dimNoise, noiseHessians, noiseCov, dimMeas);
+            [stateHessMean, ...
+             stateHessCov, ...
+             noiseHessMean, ...
+             noiseHessCov] = obj.getHessianMomentsStateAndNoise(dimState, stateHessians, iterCov, ...
+                                                                dimNoise, noiseHessians, noiseCov, dimMeas);
             
             % Compute measurement mean
             measMean = measModel.measurementEquation(iterMean, noiseMean) + ...
                        stateJacobian * (priorMean - iterMean) + ...
-                       hessMeanState + hessMeanNoise + addNoiseMean;
+                       stateHessMean + noiseHessMean + addNoiseMean;
             
             measMean = repmat(measMean, numMeas, 1);
             
@@ -320,8 +245,8 @@ classdef EKF2 < KF
             A = stateJacobian * priorCovSqrt;
             B = noiseJacobian * noiseCovSqrt;
             
-            matBase = A * A' + hessCovState;
-            matDiag = B * B' + hessCovNoise + addNoiseCov;
+            matBase = A * A' + stateHessCov;
+            matDiag = B * B' + noiseHessCov + addNoiseCov;
             
             measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
             
@@ -329,79 +254,6 @@ classdef EKF2 < KF
             stateMeasCrossCov = priorCov * stateJacobian';
             
             stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
-        end
-    end
-    
-    methods (Static, Access = 'private')
-        function [hessMean, hessCov] = getHessianMomentsState(dimState, stateHessians, stateCov, dimOutput)
-            hessProd = nan(dimState, dimState, dimState);
-            hessMean = nan(dimOutput, 1);
-            
-            for i = 1:dimOutput
-                hessProd(:, :, i) = stateHessians(:, :, i) * stateCov;
-                hessMean(i)       = trace(hessProd(:, :, i));
-            end
-            
-            hessCov = nan(dimOutput, dimOutput);
-            
-            for i = 1:dimOutput
-                mat           = hessProd(:, :, i) .* hessProd(:, :, i)';
-                hessCov(i, i) = sum(mat(:));        % = trace(hessProd(:, :, i)^2)
-                
-                for j = (i + 1):dimOutput
-                    mat           = hessProd(:, :, i) .* hessProd(:, :, j)';
-                    hessCov(i, j) = sum(mat(:));    % = trace(hessProd(:, :, i) * hessProd(:, :, j))
-                    hessCov(j, i) = hessCov(i, j);
-                end
-            end
-            
-            hessMean = 0.5 * hessMean;
-            hessCov  = 0.5 * hessCov;
-        end
-        
-        function [hessMeanState, ...
-                  hessCovState, ...
-                  hessMeanNoise, ...
-                  hessCovNoise] = getHessianMomentsStateAndNoise(dimState, stateHessians, stateCov, ...
-                                                                 dimNoise, noiseHessians, noiseCov, dimOutput)
-            hessProdState = nan(dimState, dimState, dimState);
-            hessProdNoise = nan(dimNoise, dimNoise, dimState);
-            hessMeanState = nan(dimOutput, 1);
-            hessMeanNoise = nan(dimOutput, 1);
-            
-            for i = 1:dimOutput
-                hessProdState(:, :, i) = stateHessians(:, :, i) * stateCov;
-                hessMeanState(i)       = trace(hessProdState(:, :, i));
-                
-                hessProdNoise(:, :, i) = noiseHessians(:, :, i) * noiseCov;
-                hessMeanNoise(i)       = trace(hessProdNoise(:, :, i));
-            end
-            
-            hessCovState = nan(dimOutput, dimOutput);
-            hessCovNoise = nan(dimOutput, dimOutput);
-            
-            for i = 1:dimOutput
-                mat                = hessProdState(:, :, i) .* hessProdState(:, :, i)';
-                hessCovState(i, i) = sum(mat(:));           % = trace(hessProdState(:, :, i)^2)
-                
-                mat                = hessProdNoise(:, :, i) .* hessProdNoise(:, :, i)';
-                hessCovNoise(i, i) = sum(mat(:));           % = trace(hessProdNoise(:, :, i)^2)
-                
-                for j = (i + 1):dimOutput
-                    mat                = hessProdState(:, :, i) .* hessProdState(:, :, j)';
-                    hessCovState(i, j) = sum(mat(:));       % = trace(hessProdState(:, :, i) * hessProdState(:, :, j))
-                    hessCovState(j, i) = hessCovState(i, j);
-                    
-                    mat                = hessProdNoise(:, :, i) .* hessProdNoise(:, :, j)';
-                    hessCovNoise(i, j) = sum(mat(:));       % = trace(hessProdNoise(:, :, i) * hessProdNoise(:, :, j))
-                    hessCovNoise(j, i) = hessCovNoise(i, j);
-                end
-            end
-            
-            hessMeanState = 0.5 * hessMeanState;
-            hessMeanNoise = 0.5 * hessMeanNoise;
-            hessCovState  = 0.5 * hessCovState;
-            hessCovNoise  = 0.5 * hessCovNoise;
         end
     end
 end
