@@ -102,6 +102,34 @@ classdef TestPF < matlab.unittest.TestCase
         end
         
         
+        function testSetNumParticles(obj)
+            f = PFStub();
+            
+            f.setNumParticles(2000);
+            
+            obj.verifyEqual(f.getNumParticles(), 2000);
+        end
+        
+        function testSetNumParticlesWithResampling(obj)
+            f = PFStub();
+            
+            d = Gaussian(zeros(2, 1), diag([1.5, 2]));
+            f.setState(d);
+            
+            f.setNumParticles(2000);
+            
+            obj.verifyEqual(f.getNumParticles(), 2000);
+            
+            dm = f.getState();
+            
+            [samples, weights] = dm.getComponents();
+            
+            obj.verifySize(samples, [2, 2000]);
+            obj.verifySize(weights, [1, 2000]);
+            obj.verifyEqual(weights, repmat(1/2000, 1, 2000), 'AbsTol', 1e-14);
+        end
+        
+        
         function testGetPointEstimate(obj)
             f = PFStub();
             
