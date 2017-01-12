@@ -130,6 +130,15 @@ classdef TestPF < matlab.unittest.TestCase
         end
         
         
+        function testSetMinAllowedNormalizedESS(obj)
+            f = PFStub();
+            
+            f.setMinAllowedNormalizedESS(0.3);
+            
+            obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.3);
+        end
+        
+        
         function testGetPointEstimate(obj)
             f = PFStub();
             
