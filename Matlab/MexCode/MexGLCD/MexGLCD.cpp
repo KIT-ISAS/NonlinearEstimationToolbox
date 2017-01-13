@@ -47,8 +47,8 @@ void mexFunction(int numOutputs, mxArray *outputs[],
                << "  This is free software; see the source for copying conditions. There is NO\n"
                << "  warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
                
-               << "  Copyright (C) 2015  Jannik Steinbring <jannik.steinbring@kit.edu>\n"
-               << "                      Martin Pander <martin.pander@student.kit.edu>\n\n"
+               << "  Copyright (C) 2017  Jannik Steinbring <jannik.steinbring@kit.edu>\n"
+               << "                      Martin Pander <martin.pander@kit.edu>\n\n"
                
                << "  Institute for Anthropomatics and Robotics\n"
                << "  Chair for Intelligent Sensor-Actuator-Systems (ISAS)\n"
