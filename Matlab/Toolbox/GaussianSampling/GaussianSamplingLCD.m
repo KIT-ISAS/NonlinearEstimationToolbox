@@ -131,11 +131,7 @@ classdef GaussianSamplingLCD < GaussianSampling
                       'onlineMode must be a logical scalar.');
             end
             
-            if onlineMode
-                obj.computingMethod = @GaussianSamplingLCD.computeOnline;
-            else
-                obj.computingMethod = @GaussianSamplingLCD.computeOffline;
-            end
+            obj.onlineMode = onlineMode;
         end
         
         function setSymmetricMode(obj, useSymmetric)
@@ -170,7 +166,11 @@ classdef GaussianSamplingLCD < GaussianSampling
             
             numSamples = obj.computeNumSamples(dimension);
             
-            [samples, weights] = obj.computingMethod(obj, dimension, numSamples);
+            if obj.onlineMode
+                [samples, weights] = obj.computeOnline(dimension, numSamples);
+            else
+                [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
+            end
         end
     end
     
@@ -185,10 +185,6 @@ classdef GaussianSamplingLCD < GaussianSampling
             else
                 numSamples = obj.numSamplesAbsolute;
             end
-        end
-        
-        function [samples, weights] = computeOffline(obj, dim, numSamples)
-            [samples, weights] = obj.sampleCache.getSamples(dim, numSamples);
         end
         
         function [samples, weights] = computeOnline(obj, dim, numSamples)
@@ -228,7 +224,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             cpObj.numSamplesAbsolute = obj.numSamplesAbsolute;
             cpObj.numSamplesFactor   = obj.numSamplesFactor;
             cpObj.useSymmetric       = obj.useSymmetric;
-            cpObj.computingMethod    = obj.computingMethod;
+            cpObj.onlineMode         = obj.onlineMode;
         end
     end
     
@@ -237,7 +233,7 @@ classdef GaussianSamplingLCD < GaussianSampling
         sampleCache;
         
         % Absolute number of samples.
-        numSamplesAbsolute; 
+        numSamplesAbsolute;
         
         % Linear factor to determine the number of samples.
         numSamplesFactor;
@@ -246,8 +242,8 @@ classdef GaussianSamplingLCD < GaussianSampling
         % Otherwise, the asymmetric one is used.
         useSymmetric;
         
-        % Function handle to select between online computation and sample
-        % lookup using the sample cache (offline computation).
-        computingMethod;    
+        % If true, the online sample computation is used.
+        % Otherwise, samples are used from the sample cache (offline computation).
+        onlineMode;
     end
 end
