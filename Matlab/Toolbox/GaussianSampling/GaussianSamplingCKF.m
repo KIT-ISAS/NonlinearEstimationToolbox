@@ -4,6 +4,7 @@ classdef GaussianSamplingCKF < GaussianSampling
     %
     % GaussianSamplingCKF Methods:
     %   GaussianSamplingCKF - Class constructor.
+    %   copy                - Copy a GaussianSampling instance.
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
     
@@ -57,6 +58,14 @@ classdef GaussianSamplingCKF < GaussianSampling
             numSamples = 2 * dimension^2 + 1;
             
             [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@GaussianSampling();
+            
+            cpObj.sampleCache = obj.sampleCache.copy();
         end
     end
     

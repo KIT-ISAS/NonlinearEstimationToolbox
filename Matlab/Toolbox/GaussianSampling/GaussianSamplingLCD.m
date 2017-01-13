@@ -4,6 +4,7 @@ classdef GaussianSamplingLCD < GaussianSampling
     %
     % GaussianSamplingLCD Methods:
     %   GaussianSamplingLCD   - Class constructor.
+    %   copy                  - Copy a GaussianSampling instance.
     %   getStdNormalSamples   - Get a set of samples approximating a standard normal distribution.
     %   getSamples            - Get a set of samples approximating a Gaussian distribution.
     %   setNumSamples         - Set an absolute number of samples.
@@ -131,9 +132,9 @@ classdef GaussianSamplingLCD < GaussianSampling
             end
             
             if onlineMode
-                obj.computingMethod = @obj.computeOnline;
+                obj.computingMethod = @GaussianSamplingLCD.computeOnline;
             else
-                obj.computingMethod = @obj.computeOffline;
+                obj.computingMethod = @GaussianSamplingLCD.computeOffline;
             end
         end
         
@@ -169,7 +170,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             
             numSamples = obj.computeNumSamples(dimension);
             
-            [samples, weights] = obj.computingMethod(dimension, numSamples);
+            [samples, weights] = obj.computingMethod(obj, dimension, numSamples);
         end
     end
     
@@ -216,6 +217,18 @@ classdef GaussianSamplingLCD < GaussianSampling
                             'Computing Gaussian LCD samples failed. Trying again.');
                 end
             end
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@GaussianSampling();
+            
+            cpObj.sampleCache        = obj.sampleCache.copy();
+            cpObj.numSamplesAbsolute = obj.numSamplesAbsolute;
+            cpObj.numSamplesFactor   = obj.numSamplesFactor;
+            cpObj.useSymmetric       = obj.useSymmetric;
+            cpObj.computingMethod    = obj.computingMethod;
         end
     end
     

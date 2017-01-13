@@ -4,6 +4,7 @@ classdef GaussianSamplingUKF < GaussianSampling
     %
     % GaussianSamplingUKF Methods:
     %   GaussianSamplingUKF - Class constructor.
+    %   copy                - Copy a GaussianSampling instance.
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
     %   getSampleScaling    - Get the current sample scaling factor.

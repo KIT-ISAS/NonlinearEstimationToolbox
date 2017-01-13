@@ -4,6 +4,7 @@ classdef GaussianSamplingRnd < GaussianSampling
     %
     % GaussianSamplingRnd Methods:
     %   GaussianSamplingRnd - Class constructor.
+    %   copy                - Copy a GaussianSampling instance.
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
     %   setNumSamples       - Set the number of samples used to approximate a Gaussian.

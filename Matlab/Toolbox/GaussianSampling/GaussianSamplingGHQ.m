@@ -4,6 +4,7 @@ classdef GaussianSamplingGHQ < GaussianSampling
     %
     % GaussianSamplingGHQ Methods:
     %   GaussianSamplingGHQ    - Class constructor.
+    %   copy                   - Copy a GaussianSampling instance.
     %   getStdNormalSamples    - Get a set of samples approximating a standard normal distribution.
     %   getSamples             - Get a set of samples approximating a Gaussian distribution.
     %   setNumQuadraturePoints - Set the number of quadrature points.
@@ -82,6 +83,14 @@ classdef GaussianSamplingGHQ < GaussianSampling
             numSamples = numPoints^dimension;
             
             [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@GaussianSampling();
+            
+            cpObj.sampleCache = obj.sampleCache.copy();
         end
     end
     
