@@ -4,6 +4,7 @@ classdef SampleCacheGLCDAsym < SampleCache
     %
     % SampleCacheGLCDAsym Methods:
     %   SampleCacheGLCDAsym - Class constructor.
+    %   copy                - Copy a SampleCache instance.
     %   getSamples          - Retrieve samples from the sample cache.
     %   generateSamples     - Generate and store samples in the sample cache.
     

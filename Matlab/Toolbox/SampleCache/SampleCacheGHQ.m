@@ -4,6 +4,7 @@ classdef SampleCacheGHQ < SampleCache
     %
     % SampleCacheGHQ Methods:
     %   SampleCacheGHQ         - Class constructor.
+    %   copy                   - Copy a SampleCache instance.
     %   getSamples             - Retrieve samples from the sample cache.
     %   generateSamples        - Generate and store samples in the sample cache.
     %   setNumQuadraturePoints - Set the number of quadrature points.
