@@ -474,7 +474,7 @@ classdef FilterSet < handle
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function index = getMapIndex(obj, name)
             index = find(strcmp(obj.filterMap.keys(), name), 1);
         end
@@ -500,7 +500,7 @@ classdef FilterSet < handle
         end
     end
     
-    properties (Access = 'private')
+    properties (Access = 'protected')
         % Key (filter name) / value (filter itself) storage.
         filterMap;
         
