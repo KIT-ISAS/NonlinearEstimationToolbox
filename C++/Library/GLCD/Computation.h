@@ -50,7 +50,7 @@ class Computation {
         
     private:
         bool    useSymmetric;
-        double  bMax;
+        double  forceBMax;
         
 };
 

@@ -36,8 +36,8 @@ namespace GLCD {
 
 Computation::Computation()
 {
-    // Default bMax value
-    setBMax(200);
+    // By default, use varying bMax
+    setBMax(-1);
     
     // By default, use point symmetric sampling
     setSymmetric(true);
@@ -55,7 +55,7 @@ void Computation::setSymmetric(bool useSymmetric)
 
 void Computation::setBMax(double bMax)
 {
-    this->bMax = bMax;
+    this->forceBMax = bMax;
 }
 
 Optimization::Result Computation::operator()(int dimension,
@@ -97,6 +97,25 @@ Optimization::Result Computation::operator()(int dimension,
         if (initialParameters.size() == 0) {
             stdNormalRndMatrix(dimension, numSamples, initialParameters);
         }
+    }
+    
+    double bMax;
+    
+    if (forceBMax < 0) {
+        // Use different bMax for different dimensions
+        if (dimension == 1) {
+            bMax =   5;
+        } else if (dimension <= 10) {
+            bMax =  10;
+        } else if (dimension <= 100) {
+            bMax =  50;
+        } else if (dimension <= 1000) {
+            bMax = 100;
+        } else {
+            bMax = 200;
+        }
+    } else {
+        bMax = forceBMax;
     }
     
     distance->setBMax(bMax);

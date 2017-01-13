@@ -77,7 +77,11 @@ void mexFunction(int numOutputs, mxArray *outputs[],
                << "        compute the mCvM distance and its derivatives. The larger the specified\n"
                << "        dimension the larger bMax has to be to generate meaningful sample positions.\n\n"
                
-               << "        Default: 200 (should be large enough for up to 5,000 dimensions)\n\n"
+               << "        Default: Dimension ==    1:   5\n"
+               << "                 Dimension <=   10:  10\n"
+               << "                 Dimension <=  100:  50\n"
+               << "                 Dimension <= 1000: 100\n"
+               << "                 Dimension >  1000: 200\n\n"
                
                << "    * Initial sample positions (optional)\n"
                << "        Provide column-wise arranged initial sample positions for the\n"
