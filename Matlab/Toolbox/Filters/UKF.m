@@ -4,6 +4,8 @@ classdef UKF < LRKF
     %
     % UKF Methods:
     %   UKF                            - Class constructor.
+    %   copy                           - Copy a Filter instance.
+    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
     %   getName                        - Get the filter name / description.
     %   setColor                       - Set the filter color / plotting properties.
     %   getColor                       - Get the current filter color / plotting properties.
@@ -116,6 +118,16 @@ classdef UKF < LRKF
             %      The current sample scaling factor.
             
             scaling = obj.ukfSampling.getSampleScaling();
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpUkfSampling = obj.ukfSampling.copy();
+            
+            cpObj = obj.copyElement@LRKF(cpUkfSampling);
+            
+            cpObj.ukfSampling = cpUkfSampling;
         end
     end
     

@@ -6,6 +6,8 @@ classdef CKF < LRKF
     %
     % CKF Methods:
     %   CKF                            - Class constructor.
+    %   copy                           - Copy a Filter instance.
+    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
     %   getName                        - Get the filter name / description.
     %   setColor                       - Set the filter color / plotting properties.
     %   getColor                       - Get the current filter color / plotting properties.
@@ -86,6 +88,16 @@ classdef CKF < LRKF
             obj = obj@LRKF(name, sampling);
             
             obj.ckfSampling = sampling;
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpCkfSampling = obj.ckfSampling.copy();
+            
+            cpObj = obj.copyElement@LRKF(cpCkfSampling);
+            
+            cpObj.ckfSampling = cpCkfSampling;
         end
     end
     

@@ -4,6 +4,8 @@ classdef Filter < handle & matlab.mixin.Copyable
     %
     % Filter Methods:
     %   Filter           - Class constructor.
+    %   copy             - Copy a Filter instance.
+    %   copyWithName     - Copy a Filter instance and give the copy a new name / description.
     %   getName          - Get the filter name / description.
     %   setColor         - Set the filter color / plotting properties.
     %   getColor         - Get the current filter color / plotting properties.
@@ -69,6 +71,35 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             % Initially, there is no valid state.
             obj.dimState = 0;
+        end
+        
+        function cpObj = copyWithName(obj, cpName)
+            % Copy a Filter instance and give the copy a new name / description.
+            %
+            % The standard copy() method also copies the name of the filter instance
+            % to be copied. However, a filter cannot change its name after construction.
+            % If it is desired to have different names for different copies of a filter
+            % instance, use this method to select proper names during the copy procedure,
+            % e.g., to put several copies of a filter instance in the same FilterSet
+            % (which requires the filters to have different names to allow for a
+            % unique identification).
+            %
+            % Parameters:
+            %   >> cpName (Char)
+            %      A new filter name / description for the filter copy.
+            %
+            % Returns:
+            %   << cpObj (Sublcass of Filter)
+            %      A copy of the filter instance.
+            
+            if ~ischar(cpName)
+                error('Filter:InvalidFilterName', ...
+                      'cpName must be a char.');
+            end
+            
+            cpObj = obj.copy();
+            
+            cpObj.name = cpName;
         end
         
         function filterName = getName(obj)

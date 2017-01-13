@@ -4,6 +4,8 @@ classdef GHKF < LRKF
     %
     % GHKF Methods:
     %   GHKF                           - Class constructor.
+    %   copy                           - Copy a Filter instance.
+    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
     %   getName                        - Get the filter name / description.
     %   setColor                       - Set the filter color / plotting properties.
     %   getColor                       - Get the current filter color / plotting properties.
@@ -107,6 +109,16 @@ classdef GHKF < LRKF
             %      The current number of quadrature points.
             
             numPoints = obj.ghqSampling.getNumQuadraturePoints();
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpGhqSampling = obj.ghqSampling.copy();
+            
+            cpObj = obj.copyElement@LRKF(cpGhqSampling);
+            
+            cpObj.ghqSampling = cpGhqSampling;
         end
     end
     

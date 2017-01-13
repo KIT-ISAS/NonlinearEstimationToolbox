@@ -5,6 +5,8 @@ classdef SampleBasedJointlyGaussianPrediction < GaussianFilter
     %
     % SampleBasedJointlyGaussianPrediction Methods:
     %   SampleBasedJointlyGaussianPrediction - Class constructor.
+    %   copy                                 - Copy a Filter instance.
+    %   copyWithName                         - Copy a Filter instance and give the copy a new name / description.
     %   getName                              - Get the filter name / description.
     %   setColor                             - Set the filter color / plotting properties.
     %   getColor                             - Get the current filter color / plotting properties.
@@ -142,6 +144,14 @@ classdef SampleBasedJointlyGaussianPrediction < GaussianFilter
             
             % Compute predicted state covariance
             predictedStateCov = cov + addNoiseCov;
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj, cpSamplingPrediction)
+            cpObj = obj.copyElement@GaussianFilter();
+            
+            cpObj.samplingPrediction = cpSamplingPrediction;
         end
     end
     

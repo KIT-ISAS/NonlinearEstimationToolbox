@@ -5,6 +5,8 @@ classdef FOTaylorBasedJointlyGaussianPrediction < GaussianFilter
     %
     % FOTaylorBasedJointlyGaussianPrediction Methods:
     %   FOTaylorBasedJointlyGaussianPrediction - Class constructor.
+    %   copy                                   - Copy a Filter instance.
+    %   copyWithName                           - Copy a Filter instance and give the copy a new name / description.
     %   getName                                - Get the filter name / description.
     %   setColor                               - Set the filter color / plotting properties.
     %   getColor                               - Get the current filter color / plotting properties.

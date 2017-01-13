@@ -7,6 +7,8 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     %
     % LRKF Methods:
     %   LRKF                           - Class constructor.
+    %   copy                           - Copy a Filter instance.
+    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
     %   getName                        - Get the filter name / description.
     %   setColor                       - Set the filter color / plotting properties.
     %   getColor                       - Get the current filter color / plotting properties.
@@ -279,6 +281,19 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                  stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
                                                           iterMean, iterCov, iterCovSqrt, ...
                                                           measMean, measCov, stateMeasCrossCov);
+            end
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj, cpSamplingPrediction, cpSamplingUpdate)
+            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction(cpSamplingPrediction);
+            
+            if nargin == 3
+                cpObj.samplingUpdate = cpSamplingUpdate;
+            else
+                % Use the same samplings for both prediction and update
+                cpObj.samplingUpdate = cpSamplingPrediction;
             end
         end
     end

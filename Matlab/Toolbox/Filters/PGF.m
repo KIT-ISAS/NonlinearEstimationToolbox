@@ -4,6 +4,8 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     %
     % PGF Methods:
     %   PGF                       - Class constructor.
+    %   copy                      - Copy a Filter instance.
+    %   copyWithName              - Copy a Filter instance and give the copy a new name / description.
     %   getName                   - Get the filter name / description.
     %   setColor                  - Set the filter color / plotting properties.
     %   getColor                  - Get the current filter color / plotting properties.
@@ -308,6 +310,19 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             end
             
             obj.lastNumSteps = numSteps;
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpSamplingPrediction = obj.samplingPrediction.copy();
+            
+            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction(cpSamplingPrediction);
+            
+            cpObj.samplingPrediction = cpSamplingPrediction;
+            cpObj.samplingUpdate     = obj.samplingUpdate.copy();
+            cpObj.lastNumSteps       = obj.lastNumSteps;
+            cpObj.maxNumProgSteps    = obj.maxNumProgSteps;
         end
     end
     

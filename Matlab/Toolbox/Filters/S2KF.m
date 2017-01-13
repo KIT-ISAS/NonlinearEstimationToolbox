@@ -4,6 +4,8 @@ classdef S2KF < LRKF
     %
     % S2KF Methods:
     %   S2KF                           - Class constructor.
+    %   copy                           - Copy a Filter instance.
+    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
     %   getName                        - Get the filter name / description.
     %   setColor                       - Set the filter color / plotting properties.
     %   getColor                       - Get the current filter color / plotting properties.
@@ -186,6 +188,18 @@ classdef S2KF < LRKF
             
             obj.samplingPrediction.setSymmetricMode(useSymmetric);
             obj.samplingUpdate.setSymmetricMode(useSymmetric);
+        end
+    end
+    
+    methods (Access = 'protected')
+        function cpObj = copyElement(obj)
+            cpSamplingPrediction = obj.samplingPrediction.copy();
+            cpSamplingUpdate     = obj.samplingUpdate.copy();
+            
+            cpObj = obj.copyElement@LRKF(cpSamplingPrediction, cpSamplingUpdate);
+            
+            cpObj.samplingPrediction = cpSamplingPrediction;
+            cpObj.samplingUpdate     = cpSamplingUpdate;
         end
     end
     
