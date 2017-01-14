@@ -38,6 +38,28 @@ classdef TestRUKF < TestKFSubclasses
             obj.verifyEqual(numIterationsPrediction, 5);
             obj.verifyEqual(numIterationsUpdate, 5);
         end
+        
+        function testSetNumIterationsDefault(obj)
+            f = obj.initFilter();
+            
+            f.setNumIterations(10);
+            
+            [numIterationsPrediction, numIterationsUpdate] = f.getNumIterations();
+            
+            obj.verifyEqual(numIterationsPrediction, 10);
+            obj.verifyEqual(numIterationsUpdate, 10);
+        end
+        
+        function testSetNumIterations(obj)
+            f = obj.initFilter();
+            
+            f.setNumIterations(10, 6);
+            
+            [numIterationsPrediction, numIterationsUpdate] = f.getNumIterations();
+            
+            obj.verifyEqual(numIterationsPrediction, 10);
+            obj.verifyEqual(numIterationsUpdate, 6);
+        end
     end
     
     methods (Access = 'protected')
