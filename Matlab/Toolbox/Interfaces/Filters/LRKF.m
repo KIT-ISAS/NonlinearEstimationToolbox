@@ -168,24 +168,8 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-            measSamples = nan(dimMeas * numMeas, numSamples);
-            a = 1; c = 1;
-            
-            for i = 1:numMeas
-                b = i * dimMeas;
-                d = i * dimNoise;
-                
-                % Propagate samples through measurement equation
-                meas = measModel.measurementEquation(stateSamples, noiseSamples(c:d, :));
-                
-                % Check computed measurements
-                obj.checkComputedMeasurements(meas, dimMeas, numSamples);
-                
-                measSamples(a:b, :) = meas;
-                
-                a = b + 1;
-                c = d + 1;
-            end
+            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
+                                                    numSamples, dimMeas, numMeas, dimNoise);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
@@ -247,6 +231,29 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
+            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
+                                                    numSamples, dimMeas, numMeas, dimNoise);
+            
+            [measMean, measCov, ...
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
+                                                              measSamples, weights);
+            
+            % Compute measurement mean
+            measMean = measMean + repmat(addNoiseMean, numMeas, 1);
+            
+            % Compute measurement covariance
+            measCov = measCov + Utils.blockDiag(addNoiseCov, numMeas);
+            
+            if iterNum > 1
+                [measMean, measCov, ...
+                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
+                                                          iterMean, iterCov, iterCovSqrt, ...
+                                                          measMean, measCov, stateMeasCrossCov);
+            end
+        end
+        
+        function measSamples = getStackedMeasSamples(obj, measModel, stateSamples, noiseSamples, ...
+                                                     numSamples, dimMeas, numMeas, dimNoise)
             measSamples = nan(dimMeas * numMeas, numSamples);
             a = 1; c = 1;
             
@@ -264,23 +271,6 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                 
                 a = b + 1;
                 c = d + 1;
-            end
-            
-            [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                              measSamples, weights);
-            
-            % Compute measurement mean
-            measMean = measMean + repmat(addNoiseMean, numMeas, 1);
-            
-            % Compute measurement covariance
-            measCov = measCov + Utils.blockDiag(addNoiseCov, numMeas);
-            
-            if iterNum > 1
-                [measMean, measCov, ...
-                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
-                                                          iterMean, iterCov, iterCovSqrt, ...
-                                                          measMean, measCov, stateMeasCrossCov);
             end
         end
     end
