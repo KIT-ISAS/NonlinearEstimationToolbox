@@ -32,7 +32,33 @@ classdef TestGHKF < TestKFSubclasses
             f = obj.initFilter();
             
             obj.verifyEqual(f.getName(), 'GHKF');
-            obj.verifyEqual(f.getNumQuadraturePoints(), 2);
+            
+            [numPointsPrediction, numPointsUpdate] = f.getNumQuadraturePoints();
+            
+            obj.verifyEqual(numPointsPrediction, 2);
+            obj.verifyEqual(numPointsUpdate, 2);
+        end
+        
+        function testSetNumQuadraturePointsDefault(obj)
+            f = obj.initFilter();
+            
+            f.setNumQuadraturePoints(3);
+            
+            [numPointsPrediction, numPointsUpdate] = f.getNumQuadraturePoints();
+            
+            obj.verifyEqual(numPointsPrediction, 3);
+            obj.verifyEqual(numPointsUpdate, 3);
+        end
+        
+        function testSetNumQuadraturePoints(obj)
+            f = obj.initFilter();
+            
+            f.setNumQuadraturePoints(4, 3);
+            
+            [numPointsPrediction, numPointsUpdate] = f.getNumQuadraturePoints();
+            
+            obj.verifyEqual(numPointsPrediction, 4);
+            obj.verifyEqual(numPointsUpdate, 3);
         end
     end
     
