@@ -32,7 +32,33 @@ classdef TestUKF < TestKFSubclasses
             f = obj.initFilter();
             
             obj.verifyEqual(f.getName(), 'UKF');
-            obj.verifyEqual(f.getSampleScaling(), 0.5);
+            
+            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
+            
+            obj.verifyEqual(scalingPrediction, 0.5);
+            obj.verifyEqual(scalingUpdate, 0.5);
+        end
+        
+        function testSetSampleScalingDefault(obj)
+            f = obj.initFilter();
+            
+            f.setSampleScaling(1);
+            
+            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
+            
+            obj.verifyEqual(scalingPrediction, 1);
+            obj.verifyEqual(scalingUpdate, 1);
+        end
+        
+        function testSetSampleScaling(obj)
+            f = obj.initFilter();
+            
+            f.setSampleScaling(1, 0);
+            
+            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
+            
+            obj.verifyEqual(scalingPrediction, 1);
+            obj.verifyEqual(scalingUpdate, 0);
         end
     end
     
