@@ -1,4 +1,44 @@
 
+Changes in Nonlinear Estimation Toolbox 1.5
+=============================================
+
+* Added the regularized particle filter (class RPF).
+* The UKF uses individual sample scalings for prediction and update.
+* The GHKF uses individual number of quadrature points for prediction and update.
+* The S2KF now overwrites the moment computations for the state prediction and the measurement update in order to exploit
+  the fact that all samples used by the S²KF are equally weighted. This reduces runtime and has numerical benefits.
+* The LCD-based Gaussian sampling now uses different bMax for different dimensions by default.
+* Analogous to the SampleBasedJointlyGaussianPrediction interface, the FOTaylorBasedJointlyGaussianPrediction and
+  SOTaylorBasedJointlyGaussianPrediction interfaces are added to separate the first-order and second-order Taylor series
+  based prediction from the EKF and EKF2, respectively.
+* State covariance matrices of Gaussian filters are now guaranteed to be symmetric.
+  This includes:
+    - LinearSystemModel.analyticPredictedMoments() guarantees a symmetric predicted state covariance matrix.
+    - LinearMeasurementModel.analyticMeasurementMoments() guarantees a symmetric measurement covariance matrix.
+    - Utils.getMeanAndCov() and Utils.getMeanCovAndCrossCov() guarantees a symmetric measurement covariance matrix
+      in case of non-equally weighted samples.
+    - Utils.decomposedStateUpdate() guarantees a symmetric posterior covariance matrix.
+      Note that Utils.decomposedStateUpdate() now additionally requires the square root of the prior covariance matrix
+      and the square root of the already updated state covariance matrix.
+* Refactoring of the GaussianFilter measurement updates: the GaussianFilter class now handles the state decomposition.
+  As a consquence, subclasses of GaussianFilter now have to implement performUpdateObservable() rather than performUpdate().
+* All GaussianSampling subclasses can now be copied.
+* Although the Filter class already inherits from matlab.mixin.Copyable, not all implemented filters could be correctly copied
+  (in particular filters that inherit from LRKF). This is now fixed. Using the copy() method, for example,
+  Gaussian mixture estimators can now be easily created by configuring a GaussianFilter subclass (e.g., select number of
+  samples in the S²KF) and copy it several times to get an identical filter instance for each Gaussian mixture component.
+* In addition, the Filter.copyWithName() method is introduced to be able to give the copied filter instance a different name.
+  The standard copy() method also copies the name of the filter instance to be copied. However, a filter cannot change its
+  name after construction. If it is desired to have different names for different copies of a filter instance, use this
+  method to select proper names during the copy procedure, e.g., to put several copies of a filter instance in the same
+  FilterSet (which requires the filters to have different names to allow for a unique identification).
+* GaussianMixture.drawRndSamples() now additionally returns for each sample the ID of its corresponding component.
+* New and improved unit tests.
+* Various code cleanups and documentation improvements.
+* When compiling MEX files with compileMexOpenMP(), OpenMP is disabled by default on Mac OS.
+* Updated Eigen linear algebra library to version 3.3.1
+
+
 Changes in Nonlinear Estimation Toolbox 1.4
 =============================================
 
