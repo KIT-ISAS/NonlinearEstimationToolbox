@@ -1,5 +1,5 @@
 
-classdef TestUKF < TestKFSubclasses
+classdef TestUKF < TestKFSubclasses & TestCopy
     % Provides unit tests for the UKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

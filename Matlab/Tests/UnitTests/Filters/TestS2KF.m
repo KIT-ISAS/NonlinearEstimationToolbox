@@ -1,5 +1,5 @@
 
-classdef TestS2KF < TestKFSubclasses
+classdef TestS2KF < TestKFSubclasses & TestCopy
     % Provides unit tests for the S2KF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

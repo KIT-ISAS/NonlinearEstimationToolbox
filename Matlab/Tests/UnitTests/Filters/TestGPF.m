@@ -1,5 +1,5 @@
 
-classdef TestGPF < matlab.unittest.TestCase
+classdef TestGPF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the GPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -151,7 +151,7 @@ classdef TestGPF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = GPF();
         end

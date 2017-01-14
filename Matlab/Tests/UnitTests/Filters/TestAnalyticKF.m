@@ -1,5 +1,5 @@
 
-classdef TestAnalyticKF < matlab.unittest.TestCase
+classdef TestAnalyticKF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the AnalyticKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -114,7 +114,7 @@ classdef TestAnalyticKF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = AnalyticKF();
         end

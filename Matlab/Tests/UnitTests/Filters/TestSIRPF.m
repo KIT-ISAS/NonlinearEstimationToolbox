@@ -1,5 +1,5 @@
 
-classdef TestSIRPF < matlab.unittest.TestCase
+classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the SIRPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -110,7 +110,7 @@ classdef TestSIRPF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = SIRPF();
         end

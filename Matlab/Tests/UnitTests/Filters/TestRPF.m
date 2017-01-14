@@ -1,5 +1,5 @@
 
-classdef TestRPF < matlab.unittest.TestCase
+classdef TestRPF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the RPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -138,7 +138,7 @@ classdef TestRPF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = RPF();
         end

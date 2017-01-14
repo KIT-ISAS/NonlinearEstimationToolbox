@@ -1,12 +1,12 @@
 
-classdef TestEKF2 < TestKFSubclasses & TestCopy
-    % Provides unit tests for the EKF2 class.
+classdef TestCopy < matlab.unittest.TestCase
+    % Provides unit tests for Filter copy methods.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
     %
-    %    Copyright (C) 2016  Jannik Steinbring <jannik.steinbring@kit.edu>
+    %    Copyright (C) 2017  Jannik Steinbring <jannik.steinbring@kit.edu>
     %
     %                        Institute for Anthropomatics and Robotics
     %                        Chair for Intelligent Sensor-Actuator-Systems (ISAS)
@@ -28,16 +28,25 @@ classdef TestEKF2 < TestKFSubclasses & TestCopy
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
+        function testCopy(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'EKF2');
+            g = f.copy();
+            
+            obj.verifyEqual(g.getName(), f.getName());
+        end
+        
+        function testCopyWithName(obj)
+            f = obj.initFilter();
+            
+            g = f.copyWithName('Copy');
+            
+            obj.verifyEqual(g.getName(), 'Copy');
         end
     end
     
-    methods (Access = 'protected')
-        function f = initFilter(~)
-            f = EKF2();
-        end
+    methods (Abstract, Access = 'protected')
+        f = initFilter(obj);
     end
 end
+

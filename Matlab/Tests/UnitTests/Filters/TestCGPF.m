@@ -1,5 +1,5 @@
 
-classdef TestCGPF < matlab.unittest.TestCase
+classdef TestCGPF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the CGPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -208,7 +208,7 @@ classdef TestCGPF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = CGPF();
         end

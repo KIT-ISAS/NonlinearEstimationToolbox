@@ -1,5 +1,5 @@
 
-classdef TestPGF < matlab.unittest.TestCase
+classdef TestPGF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the PGF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -159,7 +159,7 @@ classdef TestPGF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = PGF();
         end

@@ -1,5 +1,5 @@
 
-classdef TestEnKF < matlab.unittest.TestCase
+classdef TestEnKF < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for the EnKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -148,7 +148,7 @@ classdef TestEnKF < matlab.unittest.TestCase
         end
     end
     
-    methods (Access = 'private')
+    methods (Access = 'protected')
         function f = initFilter(~)
             f = EnKF();
         end
