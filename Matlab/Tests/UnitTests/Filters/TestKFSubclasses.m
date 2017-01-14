@@ -1,5 +1,5 @@
 
-classdef TestKFSubclasses < matlab.unittest.TestCase
+classdef TestKFSubclasses < matlab.unittest.TestCase & TestCopy
     % Provides unit tests for subclasses of the KF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

@@ -1,5 +1,5 @@
 
-classdef TestEKF < TestKFSubclasses & TestCopy
+classdef TestEKF < TestKFSubclasses
     % Provides unit tests for the EKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

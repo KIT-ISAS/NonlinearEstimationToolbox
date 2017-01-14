@@ -1,5 +1,5 @@
 
-classdef TestGHKF < TestKFSubclasses & TestCopy
+classdef TestGHKF < TestKFSubclasses
     % Provides unit tests for the GHKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

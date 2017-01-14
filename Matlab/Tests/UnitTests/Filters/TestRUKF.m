@@ -1,5 +1,5 @@
 
-classdef TestRUKF < TestKFSubclasses & TestCopy
+classdef TestRUKF < TestKFSubclasses
     % Provides unit tests for the RUKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
