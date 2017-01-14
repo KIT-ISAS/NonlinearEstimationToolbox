@@ -298,7 +298,7 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
         end
     end
     
-    properties (Access = 'private')
+    properties (SetAccess = 'private', GetAccess = 'protected')
         % Gaussian sampling technique used for the measurement update.
         samplingUpdate;
     end
