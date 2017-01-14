@@ -155,7 +155,7 @@ classdef SampleBasedJointlyGaussianPrediction < GaussianFilter
         end
     end
     
-    properties (Access = 'private')
+    properties (SetAccess = 'private', GetAccess = 'protected')
         % Gaussian sampling technique used for prediction.
         samplingPrediction;
     end
