@@ -88,9 +88,6 @@ classdef RUKF < LRKF
             
             obj = obj@LRKF(name, samplingPred, samplingUp);
             
-            obj.samplingPrediction = samplingPred;
-            obj.samplingUpdate     = samplingUp;
-            
             % By default, 5 iterations are used for prediction and update.
             obj.setNumIterations(5);
         end
@@ -130,25 +127,5 @@ classdef RUKF < LRKF
             numIterationsPrediction = obj.samplingPrediction.getNumIterations();
             numIterationsUpdate     = obj.samplingUpdate.getNumIterations();
         end
-    end
-    
-    methods (Access = 'protected')
-        function cpObj = copyElement(obj)
-            cpSamplingPrediction = obj.samplingPrediction.copy();
-            cpSamplingUpdate     = obj.samplingUpdate.copy();
-            
-            cpObj = obj.copyElement@LRKF(cpSamplingPrediction, cpSamplingUpdate);
-            
-            cpObj.samplingPrediction = cpSamplingPrediction;
-            cpObj.samplingUpdate     = cpSamplingUpdate;
-        end
-    end
-    
-    properties (Access = 'private')
-        % Gaussian sampling used for prediction.
-        samplingPrediction;
-        
-        % Gaussian sampling used for update.
-        samplingUpdate;
     end
 end

@@ -93,9 +93,6 @@ classdef S2KF < LRKF
             
             obj = obj@LRKF(name, samplingPred, samplingUp);
             
-            obj.samplingPrediction = samplingPred;
-            obj.samplingUpdate     = samplingUp;
-            
             % By default, determine the number of samples for prediction
             % and update by using a factor of 10.
             obj.setNumSamplesByFactor(10);
@@ -189,25 +186,5 @@ classdef S2KF < LRKF
             obj.samplingPrediction.setSymmetricMode(useSymmetric);
             obj.samplingUpdate.setSymmetricMode(useSymmetric);
         end
-    end
-    
-    methods (Access = 'protected')
-        function cpObj = copyElement(obj)
-            cpSamplingPrediction = obj.samplingPrediction.copy();
-            cpSamplingUpdate     = obj.samplingUpdate.copy();
-            
-            cpObj = obj.copyElement@LRKF(cpSamplingPrediction, cpSamplingUpdate);
-            
-            cpObj.samplingPrediction = cpSamplingPrediction;
-            cpObj.samplingUpdate     = cpSamplingUpdate;
-        end
-    end
-    
-    properties (Access = 'private')
-        % Gaussian LCD sampling used for prediction.
-        samplingPrediction;
-        
-        % Gaussian LCD sampling used for update.
-        samplingUpdate;
     end
 end

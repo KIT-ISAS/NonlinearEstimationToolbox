@@ -86,23 +86,6 @@ classdef CKF < LRKF
             
             % Call superclass constructor
             obj = obj@LRKF(name, sampling);
-            
-            obj.ckfSampling = sampling;
         end
-    end
-    
-    methods (Access = 'protected')
-        function cpObj = copyElement(obj)
-            cpCkfSampling = obj.ckfSampling.copy();
-            
-            cpObj = obj.copyElement@LRKF(cpCkfSampling);
-            
-            cpObj.ckfSampling = cpCkfSampling;
-        end
-    end
-    
-    properties (Access = 'private')
-        % Gaussian sampling used for prediction and update.
-        ckfSampling;
     end
 end

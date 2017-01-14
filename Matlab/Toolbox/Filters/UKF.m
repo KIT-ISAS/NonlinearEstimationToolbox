@@ -27,8 +27,8 @@ classdef UKF < LRKF
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setSampleScaling               - Set the sample scaling factor.
-    %   getSampleScaling               - Get the current sample scaling factor.
+    %   setSampleScaling               - Set the sample scaling factors for prediction and upate.
+    %   getSampleScaling               - Get the current sample scaling factors for prediction and update.
     
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
@@ -82,18 +82,18 @@ classdef UKF < LRKF
                 name = 'UKF';
             end
             
-            sampling = GaussianSamplingUKF();
+            samplingPred = GaussianSamplingUKF();
+            samplingUp   = GaussianSamplingUKF();
             
             % Call superclass constructor
-            obj = obj@LRKF(name, sampling);
+            obj = obj@LRKF(name, samplingPred, samplingUp);
             
-            obj.ukfSampling = sampling;
-            
+            % By default, all samples are equally weighted for prediction and update.
             obj.setSampleScaling(0.5);
         end
         
-        function setSampleScaling(obj, scaling)
-            % Set the sample scaling factor.
+        function setSampleScaling(obj, scalingPrediction, scalingUpdate)
+            % Set the sample scaling factors for prediction and upate.
             % 
             % For example, a scaling factor of 0.5 results in an equal sample
             % weight for all samples, a factor of 1 results in a double
@@ -101,38 +101,40 @@ classdef UKF < LRKF
             % of 0 results in a zero weight for the sample located at the state
             % space origin.
             %
-            % By default, the sample scaling factor is set to 0.5.
+            % Note: a valid sampling requires a scaling factor larger than -N,
+            % where N denotes the requested dimension of the samples.
+            %
+            % By default, the sample scaling factor is set to 0.5 for prediction and update.
             %
             % Parameters:
-            %   >> scaling (Non-negative scalar)
-            %      The new sample scaling factor.
+            %   >> scalingPrediction (Scalar)
+            %      The new sample scaling factor used for the prediction.
+            %
+            %   >> scalingUpdate (Scalar)
+            %      The new sample scaling factor used for the update.
+            %      Default: the same scaling factor specified for the prediction.
             
-            obj.ukfSampling.setSampleScaling(scaling);
+            obj.samplingPrediction.setSampleScaling(scalingPrediction);
+            
+            if nargin == 3
+                obj.samplingUpdate.setSampleScaling(scalingUpdate);
+            else
+                obj.samplingUpdate.setSampleScaling(scalingPrediction);
+            end
         end
         
-        function scaling = getSampleScaling(obj)
-            % Get the current sample scaling factor.
+        function [scalingPrediction, scalingUpdate] = getSampleScaling(obj)
+            % Get the current sample scaling factors for prediction and update.
             % 
             % Returns:
-            %   << scaling (Non-negative scalar)
-            %      The current sample scaling factor.
+            %   << scalingPrediction (Scalar)
+            %      The current sample scaling factor for the prediction.
+            %
+            %   << scalingUpdate (Scalar)
+            %      The current sample scaling factor for the update.
             
-            scaling = obj.ukfSampling.getSampleScaling();
+            scalingPrediction = obj.samplingPrediction.getSampleScaling();
+            scalingUpdate     = obj.samplingUpdate.getSampleScaling();
         end
-    end
-    
-    methods (Access = 'protected')
-        function cpObj = copyElement(obj)
-            cpUkfSampling = obj.ukfSampling.copy();
-            
-            cpObj = obj.copyElement@LRKF(cpUkfSampling);
-            
-            cpObj.ukfSampling = cpUkfSampling;
-        end
-    end
-    
-    properties (Access = 'private')
-        % Gaussian sampling used for prediction and update.
-        ukfSampling;
     end
 end

@@ -148,10 +148,10 @@ classdef SampleBasedJointlyGaussianPrediction < GaussianFilter
     end
     
     methods (Access = 'protected')
-        function cpObj = copyElement(obj, cpSamplingPrediction)
+        function cpObj = copyElement(obj)
             cpObj = obj.copyElement@GaussianFilter();
             
-            cpObj.samplingPrediction = cpSamplingPrediction;
+            cpObj.samplingPrediction = obj.samplingPrediction.copy();
         end
     end
     

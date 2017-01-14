@@ -95,8 +95,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             % Call superclass constructor
             obj = obj@SampleBasedJointlyGaussianPrediction(name, samplingPred);
             
-            obj.samplingPrediction = samplingPred;
-            obj.samplingUpdate     = samplingUp;
+            obj.samplingUpdate = samplingUp;
             
             obj.lastNumSteps = 0;
             
@@ -315,21 +314,15 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     
     methods (Access = 'protected')
         function cpObj = copyElement(obj)
-            cpSamplingPrediction = obj.samplingPrediction.copy();
+            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction();
             
-            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction(cpSamplingPrediction);
-            
-            cpObj.samplingPrediction = cpSamplingPrediction;
-            cpObj.samplingUpdate     = obj.samplingUpdate.copy();
-            cpObj.lastNumSteps       = obj.lastNumSteps;
-            cpObj.maxNumProgSteps    = obj.maxNumProgSteps;
+            cpObj.samplingUpdate  = obj.samplingUpdate.copy();
+            cpObj.lastNumSteps    = obj.lastNumSteps;
+            cpObj.maxNumProgSteps = obj.maxNumProgSteps;
         end
     end
     
     properties (Access = 'private')
-        % Gaussian LCD sampling used for prediction.
-        samplingPrediction;
-        
         % Gaussian LCD sampling used for update.
         samplingUpdate;
         

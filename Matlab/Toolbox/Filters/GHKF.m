@@ -27,8 +27,8 @@ classdef GHKF < LRKF
     %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
     %   getMeasValidationThreshold     - Get the current measurement validation threshold.
     %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setNumQuadraturePoints         - Set the number of quadrature points.
-    %   getNumQuadraturePoints         - Get the current number of quadrature points.
+    %   setNumQuadraturePoints         - Set the number of quadrature points for prediction and update.
+    %   getNumQuadraturePoints         - Get the current number of quadrature points for prediction and update.
     
     % Literature:
     %   Kazufumi Ito and Kaiqi Xiong,
@@ -82,48 +82,47 @@ classdef GHKF < LRKF
                 name = 'GHKF';
             end
             
-            sampling = GaussianSamplingGHQ();
+            samplingPred = GaussianSamplingGHQ();
+            samplingUp   = GaussianSamplingGHQ();
             
-            obj = obj@LRKF(name, sampling);
-            
-            obj.ghqSampling = sampling;
+            % Call superclass constructor
+            obj = obj@LRKF(name, samplingPred, samplingUp);
         end
         
-        function setNumQuadraturePoints(obj, numPoints)
-            % Set the number of quadrature points.
+        function setNumQuadraturePoints(obj, numPointsPrediction, numPointsUpdate)
+            % Set the number of quadrature points for prediction and update.
             %
-            % By default, 2 quadrature points are used.
+            % By default, 2 quadrature points are used for prediction and update.
             %
             % Parameters:
-            %   >> numPoints (Scalar in { 2, 3, 4 })
-            %      The new number of quadrature points.
+            %   >> numPointsPrediction (Scalar in { 2, 3, 4 })
+            %      The new number of quadrature points used for the prediction.
+            %
+            %   >> numPointsUpdate (Scalar in { 2, 3, 4 })
+            %      The new number of quadrature points used for the update.
+            %      Default: the same number of quadrature points specified for the prediction.
             
-            obj.ghqSampling.setNumQuadraturePoints(numPoints);
+            obj.samplingPrediction.setNumQuadraturePoints(numPointsPrediction);
+            
+            if nargin == 3
+                obj.samplingUpdate.setNumQuadraturePoints(numPointsUpdate);
+            else
+                obj.samplingUpdate.setNumQuadraturePoints(numPointsPrediction);
+            end
         end
         
-        function numPoints = getNumQuadraturePoints(obj)
-            % Get the current number of quadrature points.
+        function [numPointsPrediction, numPointsUpdate] = getNumQuadraturePoints(obj)
+            % Get the current number of quadrature points for prediction and update.
             %
             % Returns:
-            %   << numPoints (Scalar in { 2, 3, 4 })
-            %      The current number of quadrature points.
+            %   << numPointsPrediction (Scalar in { 2, 3, 4 })
+            %      The current number of quadrature points for the prediction.
+            %
+            %   << numPointsUpdate (Scalar in { 2, 3, 4 })
+            %      The current number of quadrature points for the update.
             
-            numPoints = obj.ghqSampling.getNumQuadraturePoints();
+            numPointsPrediction = obj.samplingPrediction.getNumQuadraturePoints();
+            numPointsUpdate     = obj.samplingUpdate.getNumQuadraturePoints();
         end
-    end
-    
-    methods (Access = 'protected')
-        function cpObj = copyElement(obj)
-            cpGhqSampling = obj.ghqSampling.copy();
-            
-            cpObj = obj.copyElement@LRKF(cpGhqSampling);
-            
-            cpObj.ghqSampling = cpGhqSampling;
-        end
-    end
-    
-    properties (Access = 'private')
-        % Gaussian sampling used for prediction and update.
-        ghqSampling;
     end
 end

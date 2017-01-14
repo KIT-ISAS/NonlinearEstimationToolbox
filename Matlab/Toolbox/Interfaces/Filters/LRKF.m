@@ -286,14 +286,14 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
-        function cpObj = copyElement(obj, cpSamplingPrediction, cpSamplingUpdate)
-            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction(cpSamplingPrediction);
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction();
             
-            if nargin == 3
-                cpObj.samplingUpdate = cpSamplingUpdate;
+            if obj.samplingPrediction == obj.samplingUpdate
+                % Still use the same samplings for both prediction and update
+                cpObj.samplingUpdate = cpObj.samplingPrediction;
             else
-                % Use the same samplings for both prediction and update
-                cpObj.samplingUpdate = cpSamplingPrediction;
+                cpObj.samplingUpdate = obj.samplingUpdate.copy();
             end
         end
     end
