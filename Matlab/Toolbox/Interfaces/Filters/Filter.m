@@ -489,7 +489,7 @@ classdef Filter < handle & matlab.mixin.Copyable
             obj.warning('IgnoringPrediction', ...
                         '%s\nIgnoring prediction and leaving state estimate unchanged.', reason);
             
-            error('Filter:IgnorePrediction', 'Ingore prediction');
+            error(Filter.IgnorePredictionID, 'Ingore prediction');
         end
         
         function ignoreMeas(obj, reason, varargin)
@@ -498,20 +498,20 @@ classdef Filter < handle & matlab.mixin.Copyable
             obj.warning('IgnoringMeasurement', ...
                         '%s\nIgnoring measurement and leaving state estimate unchanged.', reason);
             
-            error('Filter:IgnoreMeasurement', 'Ingore measurement');
+            error(Filter.IgnoreMeasID, 'Ingore measurement');
         end
     end
     
     methods (Static, Access = 'private')
         function handleIgnorePrediction(ex)
-            if ~strcmp(ex.identifier, 'Filter:IgnorePrediction')
+            if ~strcmp(ex.identifier, Filter.IgnorePredictionID)
                 % Real error => do not catch it
                 ex.rethrow();
             end
         end
         
         function handleIgnoreMeas(ex)
-            if ~strcmp(ex.identifier, 'Filter:IgnoreMeasurement')
+            if ~strcmp(ex.identifier, Filter.IgnoreMeasID)
                 % Real error => do not catch it
                 ex.rethrow();
             end
@@ -529,5 +529,10 @@ classdef Filter < handle & matlab.mixin.Copyable
         
         % The filter color / plotting properties.
         color;
+    end
+    
+    properties (Constant, Access = 'private')
+        IgnorePredictionID = 'Filter:IgnorePrediction';
+        IgnoreMeasID       = 'Filter:IgnoreMeasurement';
     end
 end
