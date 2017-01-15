@@ -210,9 +210,6 @@ classdef GaussianFilter < Filter
         [predictedStateMean, ...
          predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel);
         
-        [predictedStateMean, ...
-         predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel);
-        
         [updatedMean, ...
          updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                priorMean, priorCov, priorCovSqrt);
@@ -254,6 +251,22 @@ classdef GaussianFilter < Filter
                                                                     obj.stateCov);
             
             obj.checkPredictedMoments(predictedStateMean, predictedStateCov);
+        end
+        
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
+            [addNoiseMean, addNoiseCov]  = sysModel.additiveNoise.getMeanAndCovariance();
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveSysNoise(dimAddNoise);
+            
+            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
+            
+            % Compute predicted state mean
+            predictedStateMean = mean + addNoiseMean;
+            
+            % Compute predicted state covariance
+            predictedStateCov = cov + addNoiseCov;
         end
         
         function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)

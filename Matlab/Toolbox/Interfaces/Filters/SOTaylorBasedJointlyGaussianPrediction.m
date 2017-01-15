@@ -136,22 +136,6 @@ classdef SOTaylorBasedJointlyGaussianPrediction < GaussianFilter
             predictedStateCov = A * A' + stateHessCov + noiseCov;
         end
         
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
-            
-            % Compute predicted state mean
-            predictedStateMean = mean + addNoiseMean;
-            
-            % Compute predicted state covariance
-            predictedStateCov = cov + addNoiseCov;
-        end
-        
         function [stateHessMean, ...
                   stateHessCov] = getHessianMomentsState(~, dimState, stateHessians, stateCov, dimOutput)
             stateHessProd = nan(dimState, dimState, dimState);

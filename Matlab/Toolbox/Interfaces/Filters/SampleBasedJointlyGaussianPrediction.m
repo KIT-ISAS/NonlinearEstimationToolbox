@@ -129,22 +129,6 @@ classdef SampleBasedJointlyGaussianPrediction < GaussianFilter
             % Compute predicted state covariance
             predictedStateCov = cov + noiseCov;
         end
-        
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            [addNoiseMean, addNoiseCov]  = sysModel.additiveNoise.getMeanAndCovariance();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
-            
-            % Compute predicted state mean
-            predictedStateMean = mean + addNoiseMean;
-            
-            % Compute predicted state covariance
-            predictedStateCov = cov + addNoiseCov;
-        end
     end
     
     methods (Access = 'protected')
