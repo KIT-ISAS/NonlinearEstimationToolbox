@@ -98,6 +98,20 @@ classdef GaussianMixture < Distribution
         end
         
         function [rndSamples, compIds] = drawRndSamples(obj, numSamples)
+            % Draw random samples from the distribution.
+            %
+            % Parameters:
+            %   >> numSamples (Positive scalar)
+            %      Number of samples to draw from the distribution.
+            %
+            % Returns:
+            %   << rndSamples (Matrix)
+            %      Column-wise arranged random samples.
+            %
+            %   << compIds (Row vector)
+            %      Column-wise arranged corresponding ID of the Gaussian mixture
+            %      component from which a sample was drawn.
+            
             if ~Checks.isPosScalar(numSamples)
                 error('GaussianMixture:InvalidNumberOfSamples', ...
                       'numSamples must be positive scalar.');
