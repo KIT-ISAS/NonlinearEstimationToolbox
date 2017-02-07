@@ -76,7 +76,7 @@ classdef MeasurementModel < handle
             %   << noiseHessians (3D matrix)
             %      The Hessians of the noise variables.
             
-            if nargout == 1
+            if nargout == 2
                 [stateJacobian, noiseJacobian] = Utils.diffQuotientStateAndNoise(@obj.measurementEquation, ...
                                                                                  nominalState, nominalNoise);
             else
