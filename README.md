@@ -6,4 +6,4 @@ To install the Nonlinear Estimation Toolbox, recursively add the Matlab/Toolbox 
 
 ## Documentation
 
-For more information, see the [documentation](http://nonlinearestimation.bitbucket.org).
+For more information, see the [documentation](https://nonlinearestimation.bitbucket.io).
