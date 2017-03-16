@@ -118,7 +118,7 @@ classdef FilterSet < handle
             % Get a particular filter from the set.
             %
             % Parameters:
-            %   >> id (Char or scalar)
+            %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
             % Returns:
@@ -136,7 +136,7 @@ classdef FilterSet < handle
                         rethrow(ex);
                     end
                 end
-            elseif Checks.isScalar(id)
+            elseif Checks.isPosScalar(id)
                 try
                     filter = obj.filters{id};
                 catch ex
@@ -149,7 +149,7 @@ classdef FilterSet < handle
                 end
             else
                 error('FilterSet:InvalidIdentifier', ...
-                      'id must be a filter name or an index.');
+                      'id must be a filter name or a positive index.');
             end
         end
         
@@ -258,7 +258,7 @@ classdef FilterSet < handle
             % Predict the filter with the given id and system model.
             %
             % Parameters:
-            %   >> id (Char or scalar)
+            %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
             %   >> sysModel (Arbitrary class (filter dependent))
@@ -319,7 +319,7 @@ classdef FilterSet < handle
             % Update the filter with the given id, measurement model, and measurements.
             %
             % Parameters:
-            %   >> id (Char or scalar)
+            %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
             %   >> measModel (Arbitrary class (filter dependent))
@@ -404,7 +404,7 @@ classdef FilterSet < handle
             % Predict and update the filter with the given id, system model, measurement model, and measurements.
             %
             % Parameters:
-            %   >> id (Char or scalar)
+            %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
             %   >> sysModel (Arbitrary class (filter dependent))
