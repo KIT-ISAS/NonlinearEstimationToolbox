@@ -32,9 +32,11 @@ classdef TestSystemModel < matlab.unittest.TestCase
             sysModel = SysModel();
             sysModel.setNoise(Uniform([0 0], [1 1]));
             
-            detSimState = sysModel.sysMatrix * TestUtilsSystemModel.initMean;
+            state = [0.3 -pi]';
             
-            simState = sysModel.simulate(TestUtilsSystemModel.initMean);
+            detSimState = sysModel.sysMatrix * state;
+            
+            simState = sysModel.simulate(state);
             
             obj.verifyEqual(size(simState), [2 1]);
             obj.verifyGreaterThanOrEqual(simState, detSimState);

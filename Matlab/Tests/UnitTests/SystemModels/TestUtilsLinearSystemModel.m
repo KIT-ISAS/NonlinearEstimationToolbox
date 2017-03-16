@@ -28,59 +28,22 @@ classdef TestUtilsLinearSystemModel
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkPrediction(test, f, tol)
-            TestUtilsLinearSystemModel.testNoSysMatNoInputNoSysNoise(test, f, tol);
-            TestUtilsLinearSystemModel.testSysMatNoInputNoSysNoise(test, f, tol);
+        function checkPrediction(test, filter, tol)
+            configs    = logical(dec2bin(0:7) - '0');
+            numConfigs = 8;
             
-            TestUtilsLinearSystemModel.testNoSysMatInputNoSysNoise(test, f, tol);
-            TestUtilsLinearSystemModel.testSysMatInputNoSysNoise(test, f, tol);
-            
-            TestUtilsLinearSystemModel.testNoSysMatNoInputSysNoise(test, f, tol);
-            TestUtilsLinearSystemModel.testSysMatNoInputSysNoise(test, f, tol);
-            
-            TestUtilsLinearSystemModel.testNoSysMatInputSysNoise(test, f, tol);
-            TestUtilsLinearSystemModel.testSysMatInputSysNoise(test, f, tol);
+            for i = 1:numConfigs
+                TestUtilsLinearSystemModel.checkPredictionConfig(configs(i, :), test, filter, tol);
+            end
         end
     end
     
     methods (Static, Access = 'private')
-        function testNoSysMatNoInputNoSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(false, false, false, test, f, tol);
-        end
-        
-        function testSysMatNoInputNoSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(true, false, false, test, f, tol);
-        end
-        
-        
-        function testNoSysMatInputNoSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(false, true, false, test, f, tol);
-        end
-        
-        function testSysMatInputNoSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(true, true, false, test, f, tol);
-        end
-        
-        
-        function testNoSysMatNoInputSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(false, false, true, test, f, tol);
-        end
-        
-        function testSysMatNoInputSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(true, false, true, test, f, tol);
-        end
-        
-        
-        function testNoSysMatInputSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(false, true, true, test, f, tol);
-        end
-        
-        function testSysMatInputSysNoise(test, f, tol)
-            TestUtilsLinearSystemModel.checkPredictionConfig(true, true, true, test, f, tol);
-        end
-        
-        
-        function checkPredictionConfig(sysMat, input, noiseMat, test, f, tol)
+        function checkPredictionConfig(config, test, filter, tol)
+            sysMat   = config(1);
+            input    = config(2);
+            noiseMat = config(3);
+            
             sysModel = LinearSystemModel();
             sysModel.setNoise(TestUtilsLinearSystemModel.sysNoise);
             
@@ -112,12 +75,12 @@ classdef TestUtilsLinearSystemModel
                 trueCov  = trueCov + noiseCov;
             end
             
-            f.setState(Gaussian(TestUtilsLinearSystemModel.initMean, ...
-                                TestUtilsLinearSystemModel.initCov));
+            filter.setState(Gaussian(TestUtilsLinearSystemModel.initMean, ...
+                                     TestUtilsLinearSystemModel.initCov));
             
-            f.predict(sysModel);
+            filter.predict(sysModel);
             
-            [mean, cov] = f.getPointEstimate();
+            [mean, cov] = filter.getPointEstimate();
             
             test.verifyEqual(mean, trueMean, 'RelTol', tol);
             test.verifyEqual(cov, cov');
@@ -125,7 +88,7 @@ classdef TestUtilsLinearSystemModel
         end
     end
     
-    properties (Constant)
+    properties (Constant, Access = 'private')
         initMean       = [0.3 -pi]';
         initCov        = [0.5 0.1; 0.1 3];
         sysMatrix      = [3 -4; 0 2];

@@ -44,73 +44,11 @@ classdef TestAnalyticKF < matlab.unittest.TestCase & TestCopy
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            testUtils = TestUtilsLinearMeasurementModel();
             
-            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            createFilter = @() obj.initFilter;
             
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasMultiIterStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
+            testUtils.checkUpdateKF(obj, createFilter);
         end
     end
     

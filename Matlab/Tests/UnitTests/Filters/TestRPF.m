@@ -1,5 +1,5 @@
 
-classdef TestRPF < matlab.unittest.TestCase & TestCopy
+classdef TestRPF < TestSIRPF
     % Provides unit tests for the RPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -60,81 +60,6 @@ classdef TestRPF < matlab.unittest.TestCase & TestCopy
             obj.verifySize(samples, [2, 2000]);
             obj.verifySize(weights, [1, 2000]);
             obj.verifyEqual(weights, repmat(1/2000, 1, 2000), 'AbsTol', 1e-14);
-        end
-        
-        
-        function testPredictLinearSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        function testPredictAddNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        function testPredictSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsSystemModel.checkPrediction(obj,f, tol);
-        end
-        
-        function testPredictMixedNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        
-        function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
-        
-        function testUpdateAddNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
         end
     end
     

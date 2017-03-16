@@ -63,12 +63,17 @@ classdef TestLinearMeasurementModel < matlab.unittest.TestCase
 
         
         function testSimulateDefaultNumMeasurements(obj)
-            measModel = LinearMeasurementModel(TestUtilsLinearMeasurementModel.measMatrix);
+            measMatrix = [3    -4
+                          pi/4  0
+                          0.5   2];
+            state      = [0.3 -pi]';
+            
+            measModel = LinearMeasurementModel(measMatrix);
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             
-            detMeas = TestUtilsLinearMeasurementModel.measMatrix * TestUtilsLinearMeasurementModel.initMean;
+            detMeas = measMatrix * state;
             
-            measurements = measModel.simulate(TestUtilsLinearMeasurementModel.initMean);
+            measurements = measModel.simulate(state);
             
             obj.verifyEqual(size(measurements), [3 1]);
             obj.verifyGreaterThanOrEqual(measurements, detMeas);
@@ -76,14 +81,19 @@ classdef TestLinearMeasurementModel < matlab.unittest.TestCase
         end
         
         function testSimulate(obj)
-            measModel = LinearMeasurementModel(TestUtilsLinearMeasurementModel.measMatrix);
+            measMatrix = [3    -4
+                          pi/4  0
+                          0.5   2];
+            state      = [0.3 -pi]';
+            
+            measModel = LinearMeasurementModel(measMatrix);
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             
-            detMeas = TestUtilsLinearMeasurementModel.measMatrix * TestUtilsLinearMeasurementModel.initMean;
+            detMeas = measMatrix * state;
             
             n = 3;
             
-            measurements = measModel.simulate(TestUtilsLinearMeasurementModel.initMean, n);
+            measurements = measModel.simulate(state, n);
             
             obj.verifyEqual(size(measurements), [3 n]);
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));

@@ -58,286 +58,35 @@ classdef TestKFSubclasses < matlab.unittest.TestCase & TestCopy
         
         
         function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            testUtils = TestUtilsLinearMeasurementModel();
             
-            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 1);
+            createFilter = @() obj.initFilter;
+            
+            testUtils.checkUpdateKF(obj, createFilter);
         end
-        
-        function testUpdateLinearMeasModelMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKF(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasMultiIterStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
-        end
-        
         
         function testUpdateAddNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 1);
+            createFilter = @() obj.initFilter;
+            
+            testUtils.checkUpdateKF(obj, createFilter);
         end
-        
-        function testUpdateAddNoiseMeasModelMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 3);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeasMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeasStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
-        end
-        
         
         function testUpdateMeasModel(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            testUtils = TestUtilsMeasurementModel();
             
-            TestUtilsMeasurementModel.checkUpdateKF(obj, f, tol, 1);
+            createFilter = @() obj.initFilter;
+            
+            testUtils.checkUpdateKF(obj, createFilter);
         end
-        
-        function testUpdateMeasModelMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMeasurementModel.checkUpdateKF(obj, f, tol, 3);
-        end
-        
-        function testUpdateMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateMeasModelStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
-        end
-        
-        function testUpdateMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            TestUtilsMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
-        end
-        
-        function testUpdateMeasModelMultiMeasMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
-        end
-        
-        function testUpdateMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateMeasModelMultiMeasStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
-        end
-        
         
         function testUpdateMixedNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            testUtils = TestUtilsMixedNoiseMeasurementModel();
             
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 1);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
+            createFilter = @() obj.initFilter;
             
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKF(obj, f, tol, 3);
-        end
-        
-        function testUpdateMixedNoiseMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateMixedNoiseMeasModelStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFStateDecomp(obj, f, tol, 3);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 1);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiMeasMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeas(obj, f, tol, 3);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 1);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiMeasStateDecompMultiIter(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
-            
-            f.setStateDecompDim(1);
-            f.setMaxNumIterations(3);
-            
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateKFMultiMeasStateDecomp(obj, f, tol, 3);
+            testUtils.checkUpdateKF(obj, createFilter);
         end
     end
     

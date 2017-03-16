@@ -32,9 +32,11 @@ classdef TestAdditiveNoiseSystemModel < matlab.unittest.TestCase
             sysModel = AddNoiseSysModel();
             sysModel.setNoise(Uniform([0 0], [1 1]));
             
-            detSimState = sysModel.sysMatrix * TestUtilsAdditiveNoiseSystemModel.initMean;
+            state = [0.3 -pi]';
             
-            simState = sysModel.simulate(TestUtilsAdditiveNoiseSystemModel.initMean);
+            detSimState = sysModel.sysMatrix * state;
+            
+            simState = sysModel.simulate(state);
             
             obj.verifyEqual(size(simState), [2 1]);
             obj.verifyGreaterThanOrEqual(simState, detSimState);

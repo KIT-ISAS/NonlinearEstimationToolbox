@@ -28,182 +28,132 @@ classdef TestUtilsStep
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkAdditiveNoiseSystemModel(test, f, tol)
+        function checkAdditiveNoiseSystemModel(test, filter, tol)
             % True prediction
-            sysModel = AddNoiseSysModel();
-            sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsAdditiveNoiseSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsAdditiveNoiseSystemModel.initMean + noiseMean;
-            truePredCov  = mat * TestUtilsAdditiveNoiseSystemModel.initCov * mat' + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdate(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
         
-        function checkAdditiveNoiseSystemModelMultiMeas(test, f, tol)
+        function checkAdditiveNoiseSystemModelMultiMeas(test, filter, tol)
             % True prediction
-            sysModel = AddNoiseSysModel();
-            sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsAdditiveNoiseSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsAdditiveNoiseSystemModel.initMean + noiseMean;
-            truePredCov  = mat * TestUtilsAdditiveNoiseSystemModel.initCov * mat' + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdateMultiMeas(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
         
         
-        function checkSystemModel(test, f, tol)
+        function checkSystemModel(test, filter, tol)
             % True prediction
-            sysModel = SysModel();
-            sysModel.setNoise(TestUtilsSystemModel.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsSystemModel.initMean + noiseMean;
-            truePredCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdate(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
         
-        function checkSystemModelMultiMeas(test, f, tol)
+        function checkSystemModelMultiMeas(test, filter, tol)
             % True prediction
-            sysModel = SysModel();
-            sysModel.setNoise(TestUtilsSystemModel.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsSystemModel.initMean + noiseMean;
-            truePredCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdateMultiMeas(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
         
         
-        function checkMixedNoiseSystemModel(test, f, tol)
+        function checkMixedNoiseSystemModel(test, filter, tol)
             % True prediction
-            sysModel = MixedNoiseSysModel();
-            sysModel.setAdditiveNoise(TestUtilsMixedNoiseSystemModel.addSysNoise);
-            sysModel.setNoise(TestUtilsMixedNoiseSystemModel.sysNoise);
-            
-            mat                         = sysModel.sysMatrix;
-            [addNoiseMean, addNoiseCov] = TestUtilsMixedNoiseSystemModel.addSysNoise.getMeanAndCovariance();
-            [noiseMean, noiseCov]       = TestUtilsMixedNoiseSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsMixedNoiseSystemModel.initMean       + addNoiseMean + noiseMean;
-            truePredCov  = mat * TestUtilsMixedNoiseSystemModel.initCov * mat' + addNoiseCov  + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdate(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
         
-        function checkMixedNoiseSystemModelMultiMeas(test, f, tol)
+        function checkMixedNoiseSystemModelMultiMeas(test, filter, tol)
             % True prediction
-            sysModel = SysModel();
-            sysModel.setNoise(TestUtilsSystemModel.sysNoise);
-            
-            mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCovariance();
-            
-            truePredMean = mat * TestUtilsSystemModel.initMean + noiseMean;
-            truePredCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;
+            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
             
             % True update
-            [measModel, measurements, trueMean, trueCov] = TestUtilsStep.performUpdateMultiMeas(truePredMean, truePredCov);
+            [measModel, measurements, ...
+             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
             
             % Test step method
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.step(sysModel, measModel, measurements);
-            
-            [mean, cov] = f.getPointEstimate();
-            
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+                                    trueMean, trueCov, test, filter, tol);
         end
     end
     
     methods (Static, Access = 'private')
-        function [measModel, measurements, trueMean, trueCov] = performUpdate(truePredMean, truePredCov)
+        function [sysModel, truePredMean, truePredCov] = predAddNoiseSysModel()
+            sysModel = AddNoiseSysModel();
+            sysModel.setNoise(TestUtilsStep.sysNoise);
+            
+            mat                   = sysModel.sysMatrix;
+            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
+            
+            truePredMean = mat * TestUtilsStep.initMean + noiseMean;
+            truePredCov  = mat * TestUtilsStep.initCov * mat' + noiseCov;
+        end
+        
+        function [sysModel, truePredMean, truePredCov] = predSysModel()
+            sysModel = SysModel();
+            sysModel.setNoise(TestUtilsStep.sysNoise);
+            
+            mat                   = sysModel.sysMatrix;
+            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
+            
+            truePredMean = mat * TestUtilsStep.initMean + noiseMean;
+            truePredCov  = mat * TestUtilsStep.initCov * mat' + noiseCov;
+        end
+        
+        function [sysModel, truePredMean, truePredCov] = predMixedNoiseSysModel()
+            sysModel = MixedNoiseSysModel();
+            sysModel.setAdditiveNoise(TestUtilsStep.sysNoise);
+            sysModel.setNoise(TestUtilsStep.sysNoise2);
+            
+            mat                         = sysModel.sysMatrix;
+            [addNoiseMean, addNoiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov]       = TestUtilsStep.sysNoise2.getMeanAndCovariance();
+            
+            truePredMean = mat * TestUtilsStep.initMean       + addNoiseMean + noiseMean;
+            truePredCov  = mat * TestUtilsStep.initCov * mat' + addNoiseCov  + noiseCov;
+        end
+        
+        function [measModel, measurements, ...
+                  trueMean, trueCov] = update(truePredMean, truePredCov)
             measModel = AddNoiseMeasModel();
-            measModel.setNoise(TestUtilsAdditiveNoiseMeasurementModel.measNoise);
+            measModel.setNoise(TestUtilsStep.measNoise);
             
             mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsAdditiveNoiseMeasurementModel.measNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCovariance();
             
-            measurements = [1 -2 5]';
+            measurements = TestUtilsStep.singleMeas;
             
             trueMeasMean = mat * truePredMean + noiseMean;
             trueMeasCov  = mat * truePredCov * mat' + noiseCov;
@@ -217,16 +167,15 @@ classdef TestUtilsStep
             trueCov  = truePredCov - K * trueCrossCov';
         end
         
-        function [measModel, measurements, trueMean, trueCov] = performUpdateMultiMeas(truePredMean, truePredCov)
+        function [measModel, measurements, ...
+                  trueMean, trueCov] = updateMultiMeas(truePredMean, truePredCov)
             measModel = AddNoiseMeasModel();
-            measModel.setNoise(TestUtilsAdditiveNoiseMeasurementModel.measNoise);
+            measModel.setNoise(TestUtilsStep.measNoise);
             
             mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsAdditiveNoiseMeasurementModel.measNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCovariance();
             
-            measurements = [ 1  1.5
-                            -2 -1.85
-                             2 -4   ];
+            measurements = TestUtilsStep.twoMeas;
             
             trueMeasMean = mat * truePredMean + noiseMean;
             trueMeasMean = repmat(trueMeasMean, 2, 1);
@@ -243,5 +192,35 @@ classdef TestUtilsStep
             trueMean = truePredMean + K * (measurements(:) - trueMeasMean);
             trueCov  = truePredCov - K * trueCrossCov';
         end
+        
+        function checkStep(sysModel, measModel, measurements, trueMean, trueCov, test, filter, tol)
+            filter.setState(Gaussian(TestUtilsStep.initMean, ...
+                                     TestUtilsStep.initCov));
+            
+            filter.step(sysModel, measModel, measurements);
+            
+            [mean, cov] = filter.getPointEstimate();
+            
+            test.verifyEqual(mean, trueMean, 'RelTol', tol);
+            test.verifyEqual(cov, cov');
+            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+        end
+    end
+    
+    properties (Constant, Access = 'private')
+        initMean   = [0.3 -pi]';
+        initCov    = [0.5 0.1; 0.1 3];
+        sysNoise   = Gaussian([2 -1]', 0.01 * [ 2   -0.5
+                                               -0.5  1.3]);
+        sysNoise2  = Gaussian([0, 3]', 0.01 * diag([5, 1]));
+        measNoise  = Gaussian([2 -1 0.5]', 10 * [ 2   -0.5 0
+                                            -0.5  1.3 0.5
+                                             0    0.5 sqrt(2)]);
+        singleMeas = [ 1
+                      -2
+                       5];
+        twoMeas    = [ 1  1.5
+                      -2 -1.85
+                       2 -4   ];
     end
 end

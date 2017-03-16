@@ -32,9 +32,11 @@ classdef TestAdditiveNoiseMeasurementModel < matlab.unittest.TestCase
             measModel = AddNoiseMeasModel();
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             
-            detMeas = measModel.measMatrix * TestUtilsAdditiveNoiseMeasurementModel.initMean;
+            state = [0.3 -pi]';
             
-            measurements = measModel.simulate(TestUtilsAdditiveNoiseMeasurementModel.initMean);
+            detMeas = measModel.measMatrix * state;
+            
+            measurements = measModel.simulate(state);
             
             obj.verifyEqual(size(measurements), [3 1]);
             obj.verifyGreaterThanOrEqual(measurements, detMeas);
@@ -45,11 +47,13 @@ classdef TestAdditiveNoiseMeasurementModel < matlab.unittest.TestCase
             measModel = AddNoiseMeasModel();
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
             
-            detMeas = measModel.measMatrix * TestUtilsAdditiveNoiseMeasurementModel.initMean;
+            state = [0.3 -pi]';
+            
+            detMeas = measModel.measMatrix * state;
             
             n = 3;
             
-            measurements = measModel.simulate(TestUtilsAdditiveNoiseMeasurementModel.initMean, n);
+            measurements = measModel.simulate(state, n);
             
             obj.verifyEqual(size(measurements), [3 n]);
             obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));

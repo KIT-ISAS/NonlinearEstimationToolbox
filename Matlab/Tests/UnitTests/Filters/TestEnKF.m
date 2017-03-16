@@ -78,16 +78,18 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
+            testUtils = TestUtilsLinearMeasurementModel();
+            testUtils.checkUpdate(obj, f, tol);
         end
-
+        
         function testUpdateLinearMeasModelMultiMeas(obj)
             f   = obj.initFilter();
             tol = 5 * 1e-2;
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            testUtils = TestUtilsLinearMeasurementModel();
+            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
         
         
@@ -97,7 +99,8 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
+            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
+            testUtils.checkUpdate(obj, f, tol);
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
@@ -106,7 +109,8 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
+            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
         
         
@@ -116,7 +120,8 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsMeasurementModel.checkUpdate(obj, f, tol);
+            testUtils = TestUtilsMeasurementModel();
+            testUtils.checkUpdate(obj, f, tol);
         end
         
         function testUpdateMeasModelMultiMeas(obj)
@@ -125,7 +130,8 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            testUtils = TestUtilsMeasurementModel();
+            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
         
         
@@ -135,7 +141,8 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             f.setEnsembleSize(5000000);
             
-            TestUtilsMixedNoiseMeasurementModel.checkUpdate(obj, f, tol);
+            testUtils = TestUtilsMixedNoiseMeasurementModel();
+            testUtils.checkUpdate(obj, f, tol);
         end
         
         function testUpdateMixedNoiseMeasModelMultiMeas(obj)
@@ -143,8 +150,9 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             tol = 5 * 1e-2;
             
             f.setEnsembleSize(5000000);
-                      
-            TestUtilsMixedNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
+            
+            testUtils = TestUtilsMixedNoiseMeasurementModel();
+            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
     end
     

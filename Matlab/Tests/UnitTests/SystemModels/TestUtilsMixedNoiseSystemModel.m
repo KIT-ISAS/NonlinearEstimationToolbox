@@ -53,7 +53,7 @@ classdef TestUtilsMixedNoiseSystemModel
         end
     end
     
-    properties (Constant)
+    properties (Constant, Access = 'private')
         initMean    = [0.3 -pi]';
         initCov     = [0.5 0.1; 0.1 3];
         addSysNoise = Gaussian([2 -1]', 0.01 * [2 -0.5; -0.5 1.3]);

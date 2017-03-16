@@ -1,5 +1,5 @@
 
-classdef TestCGPF < matlab.unittest.TestCase & TestCopy
+classdef TestCGPF < TestGPF
     % Provides unit tests for the CGPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -36,124 +36,9 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         end
         
         
-        function testPredictLinearSysModel(obj)
-            f = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        function testPredictAddNoiseSysModel(obj)
-            f = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        function testPredictSysModel(obj)
-            f = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsSystemModel.checkPrediction(obj,f, tol);
-        end
-        
-        function testPredictMixedNoiseSysModel(obj)
-            f = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        
-        function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearMeasurementModel.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            f.setStateDecompDim(1);
-            
-            TestUtilsLinearMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
-        end
-        
-        
-        function testUpdateAddNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            f.setStateDecompDim(1);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateStateDecomp(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeasStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            f.setStateDecompDim(1);
-            
-            TestUtilsAdditiveNoiseMeasurementModel.checkUpdateMultiMeasStateDecomp(obj, f, tol);
-        end
-        
-        
         function testStepAddNoiseSysModel(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             
@@ -162,7 +47,7 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         
         function testStepAddNoiseSysModelMultiMeas(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             
@@ -172,7 +57,7 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         
         function testStepSysModel(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             
@@ -181,7 +66,7 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         
         function testStepSysModelMultiMeas(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             
@@ -191,7 +76,7 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         
         function testStepMixedNoiseSysModel(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             
@@ -200,7 +85,7 @@ classdef TestCGPF < matlab.unittest.TestCase & TestCopy
         
         function testStepMixedNoiseSysModelMultiMeas(obj)
             f   = obj.initFilter();
-            tol = 5 * 1e-2;
+            tol = 0.5;
             
             f.setNumParticles(5000000);
             

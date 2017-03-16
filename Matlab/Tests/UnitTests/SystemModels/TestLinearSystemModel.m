@@ -126,12 +126,15 @@ classdef TestLinearSystemModel < matlab.unittest.TestCase
         
         
         function testSimulate(obj)
-            sysModel = LinearSystemModel(TestUtilsLinearSystemModel.sysMatrix);
+            sysMatrix = [3 -4; 0 2];
+            state     = [0.3 -pi]';
+            
+            sysModel = LinearSystemModel(sysMatrix);
             sysModel.setNoise(Uniform([0 0], [1 1]));
             
-            detSimState = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initMean;
+            detSimState = sysMatrix * state;
             
-            simState = sysModel.simulate(TestUtilsLinearSystemModel.initMean);
+            simState = sysModel.simulate(state);
             
             obj.verifyEqual(size(simState), [2 1]);
             obj.verifyGreaterThanOrEqual(simState, detSimState);
