@@ -157,36 +157,6 @@ classdef GPF < BasePF & GaussianFilter
             predictedStateCov = cov + noiseCov;
         end
         
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            % Get additive noise moments
-            [addNoiseMean, addNoiseCov] = sysModel.additiveNoise.getMeanAndCovariance();
-            
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimAddNoise);
-            
-            % Sample system noise
-            noise = sysModel.noise.drawRndSamples(obj.numParticles);
-            
-            % Sample system state
-            particles = obj.getStateParticles();
-            
-            % Propagate state particles through system equation
-            predictedParticles = sysModel.systemEquation(particles, noise);
-            
-            % Check predicted state particles
-            obj.checkPredictedStateSamples(predictedParticles, obj.numParticles);
-            
-            [mean, cov] = Utils.getMeanAndCov(predictedParticles);
-            
-            % Compute predicted state mean
-            predictedStateMean = mean + addNoiseMean;
-            
-            % Compute predicted state covariance
-            predictedStateCov = cov + addNoiseCov;
-        end
-        
         function [updatedMean, ...
                   updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                         priorMean, ~, priorCovSqrt)

@@ -109,10 +109,6 @@ classdef AnalyticKF < KF
             % Dummy implementation
         end
         
-        function predictedMomentsMixedNoise(~, ~)
-            % Dummy implementation
-        end
-        
         function [updatedMean, ...
                   updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                         priorMean, priorCov, priorCovSqrt)
