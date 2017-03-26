@@ -23,6 +23,18 @@ classdef GaussianFilter < Filter
     %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
     
+    % Literature:
+    %   Jannik Steinbring, Antonio Zea, Uwe D. Hanebeck,
+    %   Semi-Analytic Progressive Gaussian Filtering,
+    %   Proceedings of the 2016 IEEE International Conference on Multisensor Fusion and Integration for Intelligent Systems (MFI),
+    %   Baden-Baden, Germany, September 2016.
+    %
+    %   Tine Lefebvre, Herman Bruyninckx, Joris De Schutter,
+    %   Nonlinear Kalman Filtering for Force-Controlled Robot Tasks,
+    %   Appendix E: Partial Observation with the Kalman Filter,
+    %   ser. Springer Tracts in Advanced Robotics.
+    %   Berlin Heidelberg: Springer, 2005, vol. 19.
+    
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
@@ -167,18 +179,6 @@ classdef GaussianFilter < Filter
             %
             % By default, the dimension of the unobservable part is set to
             % zero.
-            %
-            % Literature:
-            %   Jannik Steinbring, Antonio Zea, Uwe D. Hanebeck,
-            %   Semi-Analytic Progressive Gaussian Filtering,
-            %   Proceedings of the 2016 IEEE International Conference on Multisensor Fusion and Integration for Intelligent Systems (MFI),
-            %   Baden-Baden, Germany, September 2016.
-            %
-            %   Tine Lefebvre, Herman Bruyninckx, Joris De Schutter,
-            %   Nonlinear Kalman Filtering for Force-Controlled Robot Tasks,
-            %   Appendix E: Partial Observation with the Kalman Filter,
-            %   ser. Springer Tracts in Advanced Robotics.
-            %   Berlin Heidelberg: Springer, 2005, vol. 19.
             %
             % Parameters:
             %   >> dim (Non-negative scalar)
