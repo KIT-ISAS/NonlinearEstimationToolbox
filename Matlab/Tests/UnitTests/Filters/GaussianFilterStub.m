@@ -15,10 +15,6 @@ classdef GaussianFilterStub < GaussianFilter
             obj.error('NotImplemented', 'Not implemented');
         end
         
-        function predictedMomentsMixedNoise(obj, ~)
-            obj.error('NotImplemented', 'Not implemented');
-        end
-        
         function performUpdateObservable(obj, ~, ~)
             obj.error('NotImplemented', 'Not implemented');
         end

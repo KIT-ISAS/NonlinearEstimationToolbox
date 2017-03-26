@@ -15,10 +15,6 @@ classdef KFStub < KF
             obj.error('NotImplemented', 'Not implemented');
         end
         
-        function predictedMomentsMixedNoise(obj, ~)
-            obj.error('NotImplemented', 'Not implemented');
-        end
-        
         function getMomentFuncArbitraryNoise(~, ~, ~)
             obj.error('NotImplemented', 'Not implemented');
         end
