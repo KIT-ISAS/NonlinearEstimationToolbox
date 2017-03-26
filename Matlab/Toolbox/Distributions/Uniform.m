@@ -75,7 +75,7 @@ classdef Uniform < Distribution
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = chol(obj.covariance, 'Lower');
+                    obj.covSqrt = sqrt(obj.covariance);
                 end
                 
                 covSqrt = obj.covSqrt;
@@ -96,7 +96,7 @@ classdef Uniform < Distribution
             obj.checkValues(values);
             
             numValues = size(values, 2);
-
+            
             idxValid                   = zeros(2 * obj.dim, numValues);
             idxValid(1:obj.dim, :)     = bsxfun(@ge, values, obj.a);
             idxValid(obj.dim+1:end, :) = bsxfun(@le, values, obj.b);
