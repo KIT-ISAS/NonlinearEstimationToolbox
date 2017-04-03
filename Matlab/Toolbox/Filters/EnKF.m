@@ -18,7 +18,6 @@ classdef EnKF < BasePF
     %   getPointEstimate - Get a point estimate of the current system state.
     %   setEnsembleSize  - Set the size of the ensemble (i.e., the number of samples).
     %   getEnsembleSize  - Get the current ensemble size of the filter.
-    %   getEstimate      - Get the current state estimate (i.e., the filter ensemble)
     
     % Literature:
     %   S. Gillijns, O. Barrero Mendoza, J. Chandrasekar, B. L. R. De Moor, D. S. Bernstein, and A. Ridley,
