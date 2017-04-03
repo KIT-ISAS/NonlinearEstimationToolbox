@@ -30,7 +30,7 @@ classdef S2KF < LRKF
     %   setNumSamples                  - Set an absolute number of samples used by the S2KF for prediction and upate.
     %   setNumSamplesByFactor          - Set a linear factor to determine the number of samples used by the S2KF for prediction and upate.
     %   setOnlineMode                  - Select between online and offline sampling.
-    %   setSymmetricMode               - Select between symmetric and asymmetric sampling.
+    %   setSymmetricMode               - Select between point-symmetric and asymmetric sampling.
     
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
@@ -161,8 +161,8 @@ classdef S2KF < LRKF
         function setOnlineMode(obj, onlineMode)
             % Select between online and offline sampling.
             %
-            % By default, the offline sample computation, i.e., the sample
-            % cache, is used.
+            % By default, the recommended offline sample computation, i.e.,
+            % the sample cache, is used.
             %
             % Parameters:
             %   >> onlineMode (Logical scalar)
@@ -174,9 +174,9 @@ classdef S2KF < LRKF
         end
         
         function setSymmetricMode(obj, useSymmetric)
-            % Select between symmetric and asymmetric sampling.
+            % Select between point-symmetric and asymmetric sampling.
             %
-            % By default, the symmetric sampling mode is used.
+            % By default, the recommended point-symmetric sampling mode is used.
             %
             % Parameters:
             %   >> useSymmetric (Logcial scalar)
