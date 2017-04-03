@@ -142,16 +142,6 @@ classdef KF < GaussianFilter
             % By default, only one iteration is performed during a measurement update,
             % i.e., the usual non-iterated update.
             %
-            % Literature:
-            %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
-            %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
-            %   IEEE Transactions on Signal Processing, Vol. 63, No. 20, Oct 2015, pp. 5561–5573.
-            %
-            %   Dan Simon,
-            %   Optimal State Estimation,
-            %   Section 13.3.1: The iterated extended Kalman filter,
-            %   1st ed. Wiley & Sons, 2006.
-            %
             % Parameters:
             %   >> maxNumIterations (Positive scalar)
             %      The new maximum number of iterations that will be performed during a measurement update.

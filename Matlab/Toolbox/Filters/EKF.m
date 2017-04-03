@@ -31,6 +31,7 @@ classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
     % Literature:
     %   Dan Simon,
     %   Optimal State Estimation,
+    %   Sections 13.2-13.3,
     %   1st ed. Wiley & Sons, 2006.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

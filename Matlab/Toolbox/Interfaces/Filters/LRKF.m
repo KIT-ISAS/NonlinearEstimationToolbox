@@ -32,6 +32,10 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     %   getLastUpdateData              - Get information from the last performed measurement update.
     
     % Literature:
+    %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
+    %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
+    %   IEEE Transactions on Signal Processing, Vol. 63, No. 20, Oct 2015, pp. 5561–5573.
+    %
     %   Jannik Steinbring and Uwe D. Hanebeck,
     %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
     %   Journal of Advances in Information Fusion, Vol. 9, No. 2, Dec 2014, pp. 106-123.

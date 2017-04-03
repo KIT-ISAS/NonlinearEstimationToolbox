@@ -25,6 +25,7 @@ classdef FOTaylorBasedJointlyGaussianPrediction < GaussianFilter
     % Literature:
     %   Dan Simon,
     %   Optimal State Estimation,
+    %   Section 13.2,
     %   1st ed. Wiley & Sons, 2006.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
