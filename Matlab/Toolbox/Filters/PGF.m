@@ -212,6 +212,64 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
+        % We overwrite the moment computations for the state prediction
+        % in order to exploit the fact that all samples used by the LCD-based
+        % Gaussian sampling are equally weighted. This reduces runtime and has
+        % numerical benefits.
+        
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
+            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCovariance();
+            
+            % Generate state and noise samples
+            % Keep in mind that we know that all samples are equally weighted
+            [stateSamples, ...
+             noiseSamples, ...
+             ~, ...
+             numSamples] = Utils.getStateNoiseSamples(obj.samplingPrediction, ...
+                                                      obj.stateMean, obj.stateCovSqrt, ...
+                                                      noiseMean, noiseCovSqrt);
+            
+            % Propagate samples through system equation
+            predictedStates = sysModel.systemEquation(stateSamples, noiseSamples);
+            
+            % Check predicted state samples
+            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            
+            % Compute predicted state mean and covariance
+            [predictedStateMean, ...
+             predictedStateCov] = Utils.getMeanAndCov(predictedStates);
+        end
+        
+        function [predictedStateMean, ...
+                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
+            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            dimNoise = size(noiseMean, 1);
+            
+            obj.checkAdditiveSysNoise(dimNoise);
+            
+            % Generate state samples
+            % Keep in mind that we know that all samples are equally weighted
+            [stateSamples, ...
+             ~, ...
+             numSamples] = Utils.getStateSamples(obj.samplingPrediction, ...
+                                                 obj.stateMean, obj.stateCovSqrt);
+            
+            % Propagate samples through deterministic system equation
+            predictedStates = sysModel.systemEquation(stateSamples);
+            
+            % Check predicted state samples
+            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            
+            [mean, cov] = Utils.getMeanAndCov(predictedStates);
+            
+            % Compute predicted state mean
+            predictedStateMean = mean + noiseMean;
+            
+            % Compute predicted state covariance
+            predictedStateCov = cov + noiseCov;
+        end
+        
         function [updatedMean, ...
                   updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                         priorMean, ~, priorCovSqrt)
