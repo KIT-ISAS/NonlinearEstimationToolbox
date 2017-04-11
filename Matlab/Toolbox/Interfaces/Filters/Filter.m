@@ -148,6 +148,25 @@ classdef Filter < handle & matlab.mixin.Copyable
             dim = obj.dimState;
         end
         
+        function setState(obj, state)
+            % Set the system state.
+            %
+            % This function is mainly used to set an initial system state, as
+            % it is intended that the Filter is responsible for modifying the
+            % system state by exploiting system and measurement models.
+            %
+            % Parameters:
+            %   >> state (Subclass of Distribution)
+            %      The new system state.
+            
+            if ~Checks.isClass(state, 'Distribution')
+                obj.error('InvalidSystemState', ...
+                          'state must be a subclass of Distribution.');
+            end
+            
+            obj.performSetState(state);
+        end
+        
         function runtime = predict(obj, sysModel)
             % Perform a time update (prediction step).
             %
@@ -293,17 +312,6 @@ classdef Filter < handle & matlab.mixin.Copyable
     end
     
     methods (Abstract)
-        % Set the system state.
-        %
-        % This function is mainly used to set an initial system state, as
-        % it is intended that the Filter is responsible for modifying the
-        % system state by exploiting system and measurement models.
-        %
-        % Parameters:
-        %   >> state (Subclass of Distribution)
-        %      The new system state.
-        setState(obj, state);
-        
         % Get the current system state.
         %
         % Returns:
@@ -324,6 +332,8 @@ classdef Filter < handle & matlab.mixin.Copyable
     end
     
     methods (Abstract, Access = 'protected')
+        performSetState(obj, state);
+        
         performPrediction(obj, sysModel);
         
         performUpdate(obj, measModel, measurements);

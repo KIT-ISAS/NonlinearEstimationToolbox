@@ -118,17 +118,6 @@ classdef EnKF < BasePF
             ensembleSize = obj.ensembleSize;
         end
         
-        function setState(obj, state)
-            if ~Checks.isClass(state, 'Distribution')
-                obj.error('UnsupportedSystemState', ...
-                          'state must be a subclass of Distribution.');
-            end
-            
-            obj.ensemble = state.drawRndSamples(obj.ensembleSize);
-            
-            obj.dimState = state.getDimension();
-        end
-        
         function state = getState(obj)
             state = DiracMixture(obj.ensemble);
         end
@@ -152,6 +141,12 @@ classdef EnKF < BasePF
     end
     
     methods (Access = 'protected')
+        function performSetState(obj, state)
+            obj.ensemble = state.drawRndSamples(obj.ensembleSize);
+            
+            obj.dimState = state.getDimension();
+        end
+        
         function performPrediction(obj, sysModel)
             if Checks.isClass(sysModel, 'SystemModel')
                 obj.ensemble = obj.predictParticlesArbitraryNoise(sysModel, obj.ensemble, obj.ensembleSize);

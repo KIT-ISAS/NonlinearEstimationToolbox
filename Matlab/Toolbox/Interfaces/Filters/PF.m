@@ -74,6 +74,27 @@ classdef PF < BasePF
             obj.setMinAllowedNormalizedESS(0.5);
         end
         
+        function state = getState(obj)
+            state = DiracMixture(obj.particles, obj.weights);
+        end
+        
+        function [pointEstimate, uncertainty] = getPointEstimate(obj)
+            % Get a point estimate of the current system state.
+            %
+            % Returns:
+            %   << pointEstimate (Column vector)
+            %      Mean of the current particle set.
+            %
+            %   << uncertainty (Positive definite matrix)
+            %      Covariance of the current particle set.
+            
+            if nargout == 1
+                pointEstimate = Utils.getMeanAndCov(obj.particles, obj.weights);
+            else
+                [pointEstimate, uncertainty] = Utils.getMeanAndCov(obj.particles, obj.weights);
+            end
+        end
+        
         function setNumParticles(obj, numParticles)
             % Set the number of particles used by the filter.
             %
@@ -137,13 +158,10 @@ classdef PF < BasePF
             
             minAllowedNormalizedESS = obj.minAllowedNormalizedESS;
         end
-        
-        function setState(obj, state)
-            if ~Checks.isClass(state, 'Distribution');
-                obj.error('UnsupportedSystemState', ...
-                          'state must be a subclass of Distribution.');
-            end
-            
+    end
+    
+    methods (Access = 'protected')
+        function performSetState(obj, state)
             if Checks.isClass(state, 'DiracMixture')
                 % Directly use the Dirac mixture components as system state
                 [obj.particles, obj.weights] = state.getComponents();
@@ -161,29 +179,6 @@ classdef PF < BasePF
             obj.dimState = state.getDimension();
         end
         
-        function state = getState(obj)
-            state = DiracMixture(obj.particles, obj.weights);
-        end
-        
-        function [pointEstimate, uncertainty] = getPointEstimate(obj)
-            % Get a point estimate of the current system state.
-            %
-            % Returns:
-            %   << pointEstimate (Column vector)
-            %      Mean of the current particle set.
-            %
-            %   << uncertainty (Positive definite matrix)
-            %      Covariance of the current particle set.
-            
-            if nargout == 1
-                pointEstimate = Utils.getMeanAndCov(obj.particles, obj.weights);
-            else
-                [pointEstimate, uncertainty] = Utils.getMeanAndCov(obj.particles, obj.weights);
-            end
-        end
-    end
-    
-    methods (Access = 'protected')    
         function normalizedESS = getNormalizedESS(obj)
             % Compute the normalized ESS of the current particle set.
             %

@@ -87,17 +87,6 @@ classdef GaussianFilter < Filter
             obj.setUseAnalyticSystemModel(false);
         end
         
-        function setState(obj, state)
-            if ~Checks.isClass(state, 'Distribution')
-                obj.error('UnsupportedSystemState', ...
-                          'state must be a subclass of Distribution.');
-            end
-            
-            obj.dimState = state.getDimension();
-            
-            [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCovariance();
-        end
-        
         function state = getState(obj)
             state = Gaussian(obj.stateMean, obj.stateCov);
         end
@@ -216,6 +205,12 @@ classdef GaussianFilter < Filter
     end
     
     methods (Access = 'protected')
+        function performSetState(obj, state)
+            obj.dimState = state.getDimension();
+            
+            [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCovariance();
+        end
+        
         function performPrediction(obj, sysModel)
             if obj.useAnalyticSysModel && ...
                Checks.isClass(sysModel, 'AnalyticSystemModel')
