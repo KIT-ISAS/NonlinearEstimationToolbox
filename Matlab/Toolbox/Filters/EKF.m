@@ -90,7 +90,7 @@ classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
     methods (Access = 'protected')
         function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
@@ -101,7 +101,7 @@ classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
         
         function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
-            [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
@@ -114,8 +114,8 @@ classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
         
         function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
             [dimMeas, numMeas]           = size(measurements);
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
-            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
+            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
             dimNoise    = size(noiseMean, 1);
             dimAddNoise = size(addNoiseMean, 1);
             

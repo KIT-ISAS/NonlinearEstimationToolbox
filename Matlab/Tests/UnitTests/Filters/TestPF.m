@@ -151,7 +151,7 @@ classdef TestPF < matlab.unittest.TestCase
             
             [pointEstimate, uncertainty] = f.getPointEstimate();
             
-            [mean, cov] = d.getMeanAndCovariance();
+            [mean, cov] = d.getMeanAndCov();
             
             obj.verifyEqual(pointEstimate, mean);
             obj.verifyEqual(uncertainty, cov);

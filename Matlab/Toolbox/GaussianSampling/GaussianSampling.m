@@ -67,8 +67,8 @@ classdef GaussianSampling < handle & matlab.mixin.Copyable
                       'gaussian must be a Gaussian distribution.');
             end
             
-            [mean, ~, covSqrt] = gaussian.getMeanAndCovariance();
-            dim = gaussian.getDimension();
+            [mean, ~, covSqrt] = gaussian.getMeanAndCov();
+            dim = gaussian.getDim();
             
             % Get standard normal approximation
             [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamples(dim);

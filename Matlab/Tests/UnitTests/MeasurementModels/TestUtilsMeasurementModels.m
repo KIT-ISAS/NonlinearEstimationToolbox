@@ -120,7 +120,7 @@ classdef TestUtilsMeasurementModels < handle
                 
                 [stateMean, stateCov] = filter.getPointEstimate();
                 
-                [initStateMean, initStateCov] = initState.getMeanAndCovariance();
+                [initStateMean, initStateCov] = initState.getMeanAndCov();
                 
                 % State estimate should not change
                 test.verifyEqual(stateMean, initStateMean);

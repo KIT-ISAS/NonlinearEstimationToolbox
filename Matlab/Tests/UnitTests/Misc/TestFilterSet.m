@@ -295,7 +295,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             state = states{1};
             obj.verifyInstanceOf(state, 'Gaussian');
             
-            [mean, cov] = state.getMeanAndCovariance();
+            [mean, cov] = state.getMeanAndCov();
             obj.verifyEqual(mean, ones(2, 1));
             obj.verifyEqual(cov, 2 * eye(2));
             
@@ -324,16 +324,16 @@ classdef TestFilterSet < matlab.unittest.TestCase
             state = states{1};
             obj.verifyInstanceOf(state, 'Gaussian');
             
-            [mean1, cov1] = state.getMeanAndCovariance();
+            [mean1, cov1] = state.getMeanAndCov();
             obj.verifyEqual(mean1, ones(4, 1));
             obj.verifyEqual(cov1, 2 * eye(4));
             
             state2 = states{2};
             obj.verifyInstanceOf(state2, 'DiracMixture');
-            obj.verifyEqual(state2.getDimension(), 4);
+            obj.verifyEqual(state2.getDim(), 4);
             obj.verifyEqual(state2.getNumComponents(), f2.getNumParticles());
             
-            [mean2, cov2] = state2.getMeanAndCovariance();
+            [mean2, cov2] = state2.getMeanAndCov();
             
             [means, covs] = set.getPointEstimates();
             obj.verifySize(means, [4 2]);

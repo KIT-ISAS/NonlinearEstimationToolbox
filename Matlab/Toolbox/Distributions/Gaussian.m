@@ -3,11 +3,11 @@ classdef Gaussian < Distribution
     % This class represents a multivariate Gaussian distribution.
     % 
     % Gaussian Methods:
-    %   Gaussian             - Class constructor.
-    %   getDimension         - Get the dimension of the distribution.
-    %   getMeanAndCovariance - Get mean and covariance of the distribution.
-    %   drawRndSamples       - Draw random samples from the distribution.
-    %   logPdf               - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   Gaussian       - Class constructor.
+    %   getDim         - Get the dimension of the distribution.
+    %   getMeanAndCov  - Get mean and covariance of the distribution.
+    %   drawRndSamples - Draw random samples from the distribution.
+    %   logPdf         - Evaluate the logarithmic probability density function (pdf) of the distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -60,11 +60,11 @@ classdef Gaussian < Distribution
             obj.invCovSqrt  = [];
         end
         
-        function dimension = getDimension(obj)
-            dimension = obj.dimension;
+        function dim = getDim(obj)
+            dim = obj.dimension;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCovariance(obj)
+        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
             mean       = obj.mean;
             covariance = obj.covariance;
             

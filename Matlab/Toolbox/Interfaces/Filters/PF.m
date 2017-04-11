@@ -176,7 +176,7 @@ classdef PF < BasePF
                 obj.weights = repmat(1 / obj.numParticles, 1, obj.numParticles);
             end
             
-            obj.dimState = state.getDimension();
+            obj.dimState = state.getDim();
         end
         
         function normalizedESS = getNormalizedESS(obj)

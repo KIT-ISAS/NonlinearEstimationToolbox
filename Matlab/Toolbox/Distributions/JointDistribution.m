@@ -5,12 +5,12 @@ classdef JointDistribution < Distribution
     % It is assumed that all distributions are mutually independent.
     %
     % JointDistribution Methods:
-    %   JointDistribution    - Class constructor.
-    %   getDimension         - Get the dimension of the distribution.
-    %   getMeanAndCovariance - Get mean and covariance of the distribution.
-    %   drawRndSamples       - Draw random samples from the distribution.
-    %   logPdf               - Evaluate the logarithmic probability density function (pdf) of the distribution.
-    %   getDistributions     - Get the distributions forming the joint distribution.
+    %   JointDistribution - Class constructor.
+    %   getDim            - Get the dimension of the distribution.
+    %   getMeanAndCov     - Get mean and covariance of the distribution.
+    %   drawRndSamples    - Draw random samples from the distribution.
+    %   logPdf            - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   getDistributions  - Get the distributions forming the joint distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -59,7 +59,7 @@ classdef JointDistribution < Distribution
             
             obj.numDists = numel(obj.dists);
             
-            obj.dimDists = cellfun(@getDimension, obj.dists);
+            obj.dimDists = cellfun(@getDim, obj.dists);
             
             obj.jointDim = sum(obj.dimDists);
             
@@ -68,11 +68,11 @@ classdef JointDistribution < Distribution
             obj.jointCovSqrt    = [];
         end
         
-        function dim = getDimension(obj)
+        function dim = getDim(obj)
             dim = obj.jointDim;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCovariance(obj)
+        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.jointMean)
                 obj.jointMean       = zeros(obj.jointDim, 1);
                 obj.jointCovariance = zeros(obj.jointDim, obj.jointDim);
@@ -83,7 +83,7 @@ classdef JointDistribution < Distribution
                     b = b + obj.dimDists(i);
                     
                     [obj.jointMean(a:b), ...
-                     obj.jointCovariance(a:b, a:b)] = obj.dists{i}.getMeanAndCovariance();
+                     obj.jointCovariance(a:b, a:b)] = obj.dists{i}.getMeanAndCov();
                     
                     a = b + 1;
                 end
@@ -101,7 +101,7 @@ classdef JointDistribution < Distribution
                     for i = 1:obj.numDists
                         b = b + obj.dimDists(i);
                         
-                        [~, ~, obj.jointCovSqrt(a:b, a:b)] = obj.dists{i}.getMeanAndCovariance();
+                        [~, ~, obj.jointCovSqrt(a:b, a:b)] = obj.dists{i}.getMeanAndCov();
                         
                         a = b + 1;
                     end

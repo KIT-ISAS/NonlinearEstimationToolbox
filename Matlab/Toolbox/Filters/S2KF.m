@@ -196,7 +196,7 @@ classdef S2KF < LRKF
         
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
-            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
             
             % Generate state and noise samples
             % Keep in mind that we know that all samples are equally weighted
@@ -220,7 +220,7 @@ classdef S2KF < LRKF
         
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             obj.checkAdditiveSysNoise(dimNoise);

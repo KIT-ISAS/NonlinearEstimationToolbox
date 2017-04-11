@@ -100,7 +100,7 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
                 end
                 
                 measModel.setNoise(obj.measNoise3D);
-                [noiseMean, noiseCov] = obj.measNoise3D.getMeanAndCovariance();
+                [noiseMean, noiseCov] = obj.measNoise3D.getMeanAndCov();
                 
                 if multiMeas
                     trueMeasMean   = mat * obj.initMean + noiseMean;
@@ -133,7 +133,7 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
                 mat = eye(2);
                 
                 measModel.setNoise(obj.measNoise2D);
-                [noiseMean, noiseCov] = obj.measNoise2D.getMeanAndCovariance();
+                [noiseMean, noiseCov] = obj.measNoise2D.getMeanAndCov();
                 
                 if multiMeas
                     trueMeasMean   = mat * obj.initMean + noiseMean;

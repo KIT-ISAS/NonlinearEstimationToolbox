@@ -42,7 +42,7 @@ classdef TestUtilsAdditiveNoiseMeasurementModel < TestUtilsMeasurementModels
                 mat = measModel.measMatrix;
             end
             
-            [noiseMean, noiseCov] = obj.measNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = obj.measNoise.getMeanAndCov();
             
             if multiMeas
                 measurements = obj.twoMeas;

@@ -43,8 +43,8 @@ classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
                 mat = measModel.measMatrix;
             end
             
-            [addNoiseMean, addNoiseCov] = obj.addMeasNoise.getMeanAndCovariance();
-            [noiseMean, noiseCov]       = obj.measNoise.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov] = obj.addMeasNoise.getMeanAndCov();
+            [noiseMean, noiseCov]       = obj.measNoise.getMeanAndCov();
             
             if multiMeas
                 measurements = obj.twoMeas;

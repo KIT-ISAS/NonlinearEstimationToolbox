@@ -115,7 +115,7 @@ classdef TestUtilsStep
             sysModel.setNoise(TestUtilsStep.sysNoise);
             
             mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCov();
             
             truePredMean = mat * TestUtilsStep.initMean + noiseMean;
             truePredCov  = mat * TestUtilsStep.initCov * mat' + noiseCov;
@@ -126,7 +126,7 @@ classdef TestUtilsStep
             sysModel.setNoise(TestUtilsStep.sysNoise);
             
             mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.sysNoise.getMeanAndCov();
             
             truePredMean = mat * TestUtilsStep.initMean + noiseMean;
             truePredCov  = mat * TestUtilsStep.initCov * mat' + noiseCov;
@@ -138,8 +138,8 @@ classdef TestUtilsStep
             sysModel.setNoise(TestUtilsStep.sysNoise2);
             
             mat                         = sysModel.sysMatrix;
-            [addNoiseMean, addNoiseCov] = TestUtilsStep.sysNoise.getMeanAndCovariance();
-            [noiseMean, noiseCov]       = TestUtilsStep.sysNoise2.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov] = TestUtilsStep.sysNoise.getMeanAndCov();
+            [noiseMean, noiseCov]       = TestUtilsStep.sysNoise2.getMeanAndCov();
             
             truePredMean = mat * TestUtilsStep.initMean       + addNoiseMean + noiseMean;
             truePredCov  = mat * TestUtilsStep.initCov * mat' + addNoiseCov  + noiseCov;
@@ -151,7 +151,7 @@ classdef TestUtilsStep
             measModel.setNoise(TestUtilsStep.measNoise);
             
             mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCov();
             
             measurements = TestUtilsStep.singleMeas;
             
@@ -173,7 +173,7 @@ classdef TestUtilsStep
             measModel.setNoise(TestUtilsStep.measNoise);
             
             mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCov();
             
             measurements = TestUtilsStep.twoMeas;
             

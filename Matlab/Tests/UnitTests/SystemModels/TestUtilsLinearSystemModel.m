@@ -47,7 +47,7 @@ classdef TestUtilsLinearSystemModel
             sysModel = LinearSystemModel();
             sysModel.setNoise(TestUtilsLinearSystemModel.sysNoise);
             
-            [noiseMean, noiseCov] = TestUtilsLinearSystemModel.sysNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsLinearSystemModel.sysNoise.getMeanAndCov();
             
             if sysMat
                 sysModel.setSystemMatrix(TestUtilsLinearSystemModel.sysMatrix);

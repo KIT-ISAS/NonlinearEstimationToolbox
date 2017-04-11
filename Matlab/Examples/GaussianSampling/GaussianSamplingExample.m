@@ -107,7 +107,7 @@ function plotSamplings(samplings, gaussian)
             [samples, weights, numSamples] = samplings{i}.sampling.getSamples(gaussian);
             
             % For drawing confidence interval
-            [mean, covariance] = gaussian.getMeanAndCovariance();
+            [mean, covariance] = gaussian.getMeanAndCov();
         end
         
         % Set sampling plot title

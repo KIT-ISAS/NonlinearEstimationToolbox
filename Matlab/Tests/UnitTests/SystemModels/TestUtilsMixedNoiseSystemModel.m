@@ -34,8 +34,8 @@ classdef TestUtilsMixedNoiseSystemModel
             sysModel.setNoise(TestUtilsMixedNoiseSystemModel.sysNoise);
             
             mat                         = sysModel.sysMatrix;
-            [addNoiseMean, addNoiseCov] = TestUtilsMixedNoiseSystemModel.addSysNoise.getMeanAndCovariance();
-            [noiseMean, noiseCov]       = TestUtilsMixedNoiseSystemModel.sysNoise.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov] = TestUtilsMixedNoiseSystemModel.addSysNoise.getMeanAndCov();
+            [noiseMean, noiseCov]       = TestUtilsMixedNoiseSystemModel.sysNoise.getMeanAndCov();
             
             trueMean = mat * TestUtilsMixedNoiseSystemModel.initMean       + addNoiseMean + noiseMean;
             trueCov  = mat * TestUtilsMixedNoiseSystemModel.initCov * mat' + addNoiseCov  + noiseCov;

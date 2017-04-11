@@ -118,7 +118,7 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     methods (Access = 'protected')
         function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
             [dimMeas, numMeas]           = size(measurements);
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             dimNoise     = size(noiseMean, 1);
             noiseMean    = repmat(noiseMean, numMeas, 1);
             noiseCovSqrt = Utils.blockDiag(noiseCovSqrt, numMeas);
@@ -131,7 +131,7 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
         
         function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas]    = size(measurements);
-            [noiseMean, noiseCov] = measModel.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
@@ -144,8 +144,8 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
         
         function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
             [dimMeas, numMeas]           = size(measurements);
-            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCovariance();
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             dimAddNoise  = size(addNoiseMean, 1);
             dimNoise     = size(noiseMean, 1);
             noiseMean    = repmat(noiseMean, numMeas, 1);

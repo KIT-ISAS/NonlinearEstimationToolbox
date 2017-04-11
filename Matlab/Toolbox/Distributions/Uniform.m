@@ -3,12 +3,12 @@ classdef Uniform < Distribution
     % This class represents a multivariate uniform distribution.
     %
     % Uniform Methods:
-    %   Uniform              - Class constructor.
-    %   getDimension         - Get the dimension of the distribution.
-    %   getMeanAndCovariance - Get mean and covariance of the distribution.
-    %   drawRndSamples       - Draw random samples from the distribution.
-    %   logPdf               - Evaluate the logarithmic probability density function (pdf) of the distribution.
-    %   getInterval          - Get the support of the uniform distribution.
+    %   Uniform        - Class constructor.
+    %   getDim         - Get the dimension of the distribution.
+    %   getMeanAndCov  - Get mean and covariance of the distribution.
+    %   drawRndSamples - Draw random samples from the distribution.
+    %   logPdf         - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   getInterval    - Get the support of the uniform distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -60,11 +60,11 @@ classdef Uniform < Distribution
             obj.covSqrt     = [];
         end
         
-        function dimension = getDimension(obj)
-            dimension = obj.dim;
+        function dim = getDim(obj)
+            dim = obj.dim;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCovariance(obj)
+        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
                 obj.mean       = 0.5 * (obj.a + obj.b);
                 obj.covariance = diag((obj.b - obj.a).^2 / 12);

@@ -159,14 +159,14 @@ classdef TestUniform < matlab.unittest.TestCase
         function verifyUniform(obj, u, a, b, dim, mean, cov, covSqrt)
             tol = sqrt(eps);
             
-            d = u.getDimension();
+            d = u.getDim();
             obj.verifyEqual(d, dim);
             
             [a_, b_] = u.getInterval();
             obj.verifyEqual(a_, a);
             obj.verifyEqual(b_, b);
             
-            [m, c, cSqrt] = u.getMeanAndCovariance();
+            [m, c, cSqrt] = u.getMeanAndCov();
             obj.verifyEqual(m, mean, 'RelTol', tol);
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'RelTol', tol);

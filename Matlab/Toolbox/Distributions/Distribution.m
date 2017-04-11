@@ -3,10 +3,10 @@ classdef Distribution < handle
     % Abstract base class for probability distributions.
     %
     % Distribution Methods:
-    %   getDimension         - Get the dimension of the distribution.
-    %   getMeanAndCovariance - Get mean and covariance of the distribution.
-    %   drawRndSamples       - Draw random samples from the distribution.
-    %   logPdf               - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   getDim         - Get the dimension of the distribution.
+    %   getMeanAndCov  - Get mean and covariance of the distribution.
+    %   drawRndSamples - Draw random samples from the distribution.
+    %   logPdf         - Evaluate the logarithmic probability density function (pdf) of the distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -39,7 +39,7 @@ classdef Distribution < handle
         % Returns:
         %   << dim (Positive scalar)
         %      The dimension of the distribution.
-        dim = getDimension(obj);
+        dim = getDim(obj);
         
         % Get mean and covariance of the distribution.
         %
@@ -52,7 +52,7 @@ classdef Distribution < handle
         %
         %   << covSqrt (Square matrix)
         %      Square root of the distribution's covariance.
-        [mean, covariance, covSqrt] = getMeanAndCovariance(obj);
+        [mean, covariance, covSqrt] = getMeanAndCov(obj);
         
         % Draw random samples from the distribution.
         %
@@ -79,7 +79,7 @@ classdef Distribution < handle
     
     methods (Access = 'protected')
         function checkValues(obj, values)
-            dim = obj.getDimension();
+            dim = obj.getDim();
             
             if ~Checks.isFixedRowMat(values, dim)
                 error('Distribution:InvalidValues', ...

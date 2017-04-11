@@ -133,7 +133,7 @@ classdef GPF < BasePF & GaussianFilter
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
             % Get additive noise moments
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             
             dimNoise = size(noiseMean, 1);
             

@@ -220,10 +220,10 @@ classdef TestGaussian < matlab.unittest.TestCase
     
     methods (Access = 'private')
         function verifyGaussian(obj, g, dim, mean, cov, covSqrt)
-            d = g.getDimension();
+            d = g.getDim();
             obj.verifyEqual(d, dim);
             
-            [m, c, cSqrt] = g.getMeanAndCovariance();
+            [m, c, cSqrt] = g.getMeanAndCov();
             obj.verifyEqual(m, mean);
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov);

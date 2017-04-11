@@ -208,7 +208,7 @@ classdef FilterSet < handle
             
             obj.forAllFilters(@setState, state);
             
-            obj.dimState = state.getDimension();
+            obj.dimState = state.getDim();
         end
         
         function states = getStates(obj)

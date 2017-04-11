@@ -194,7 +194,7 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
         
         function [predictedStateMean, ...
                   predictedStateCov] = analyticPredictedMoments(obj, stateMean, stateCov)
-            [noiseMean, noiseCov, noiseCovSqrt] = obj.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov, noiseCovSqrt] = obj.noise.getMeanAndCov();
             dimState = size(stateMean, 1);
             dimNoise = size(noiseMean, 1);
             

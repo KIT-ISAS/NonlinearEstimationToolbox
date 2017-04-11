@@ -3,13 +3,13 @@ classdef DiracMixture < Distribution
     % This class represents a multivariate Dirac mixture (sample) distribution.
     %
     % DiracMixture Methods:
-    %   DiracMixture         - Class constructor.
-    %   getDimension         - Get the dimension of the distribution.
-    %   getMeanAndCovariance - Get mean and covariance of the distribution.
-    %   drawRndSamples       - Draw random samples from the distribution.
-    %   logPdf               - Evaluate the logarithmic probability density function (pdf) of the distribution.
-    %   getNumComponents     - Get the number of Dirac mixture components (samples).
-    %   getComponents        - Get the Dirac mixture components (sample positions and weights).
+    %   DiracMixture     - Class constructor.
+    %   getDim           - Get the dimension of the distribution.
+    %   getMeanAndCov    - Get mean and covariance of the distribution.
+    %   drawRndSamples   - Draw random samples from the distribution.
+    %   logPdf           - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   getNumComponents - Get the number of Dirac mixture components (samples).
+    %   getComponents    - Get the Dirac mixture components (sample positions and weights).
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -60,11 +60,11 @@ classdef DiracMixture < Distribution
             obj.covSqrt    = [];
         end
         
-        function dimension = getDimension(obj)
-            dimension = obj.dimension;
+        function dim = getDim(obj)
+            dim = obj.dimension;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCovariance(obj)
+        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
                 [obj.mean, obj.covariance] = Utils.getMeanAndCov(obj.samples, obj.weights);
             end

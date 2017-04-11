@@ -153,7 +153,7 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             
             obj.verifyClass(state, 'Gaussian');
             
-            [stateMean, stateCov] = state.getMeanAndCovariance();
+            [stateMean, stateCov] = state.getMeanAndCov();
             
             obj.verifyEqual(stateMean, mean, 'Abstol', 1e-8);
             obj.verifyEqual(stateCov, stateCov');

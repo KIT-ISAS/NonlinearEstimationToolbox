@@ -56,12 +56,12 @@ function FilterSetExample()
         fprintf('* The "%s" estimates the system state as a %s distribution.\n', name, class(state));
         
         if Checks.isClass(state, 'Gaussian')
-            [mean, cov] = state.getMeanAndCovariance();
+            [mean, cov] = state.getMeanAndCov();
             fprintf('  Mean and covariance:\n');
             disp([mean cov]);
         elseif Checks.isClass(state, 'DiracMixture')
             fprintf('  Number of mixture components (samples): %d\n', state.getNumComponents());
-            [mean, cov] = state.getMeanAndCovariance();
+            [mean, cov] = state.getMeanAndCov();
             fprintf('  Mean and covariance:\n');
             disp([mean cov]);
         else

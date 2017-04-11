@@ -167,7 +167,7 @@ classdef TestJointDistribution < matlab.unittest.TestCase
     
     methods (Access = 'private')
         function verifyJoint(obj, j, dim, dists, numDists, dimDists, mean, cov, covSqrt)
-            d = j.getDimension();
+            d = j.getDim();
             obj.verifyEqual(d, dim);
             
             [ds, n, d] = j.getDistributions();
@@ -175,7 +175,7 @@ classdef TestJointDistribution < matlab.unittest.TestCase
             obj.verifyEqual(n, numDists);
             obj.verifyEqual(d, dimDists);
             
-            [m, c, cSqrt] = j.getMeanAndCovariance();
+            [m, c, cSqrt] = j.getMeanAndCov();
             obj.verifyEqual(m, mean);
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov);

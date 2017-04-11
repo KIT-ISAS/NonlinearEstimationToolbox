@@ -33,7 +33,7 @@ classdef TestUtilsSystemModel
             sysModel.setNoise(TestUtilsSystemModel.sysNoise);
             
             mat                   = sysModel.sysMatrix;
-            [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCov();
             
             trueMean = mat * TestUtilsSystemModel.initMean + noiseMean;
             trueCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;

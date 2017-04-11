@@ -148,7 +148,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
         function verifyDM(obj, dm, dim, numComps, samples, weights, mean, cov, covSqrt)
             absTol = 1e-12;
             
-            d = dm.getDimension();
+            d = dm.getDim();
             obj.verifyEqual(d, dim);
             
             n = dm.getNumComponents();
@@ -158,7 +158,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             obj.verifyEqual(s, samples);
             obj.verifyEqual(w, weights);
             
-            [m, c, cSqrt] = dm.getMeanAndCovariance();
+            [m, c, cSqrt] = dm.getMeanAndCov();
             obj.verifyEqual(m, mean, 'AbsTol', absTol);
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'AbsTol', absTol);

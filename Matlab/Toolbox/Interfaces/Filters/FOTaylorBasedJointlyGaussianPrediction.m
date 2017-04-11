@@ -77,7 +77,7 @@ classdef FOTaylorBasedJointlyGaussianPrediction < GaussianFilter
     methods (Access = 'protected')
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
-            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             % Linearize system model around current state mean and noise mean
@@ -100,7 +100,7 @@ classdef FOTaylorBasedJointlyGaussianPrediction < GaussianFilter
         
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
             obj.checkAdditiveSysNoise(dimNoise);

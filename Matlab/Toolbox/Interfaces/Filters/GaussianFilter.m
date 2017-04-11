@@ -206,9 +206,9 @@ classdef GaussianFilter < Filter
     
     methods (Access = 'protected')
         function performSetState(obj, state)
-            obj.dimState = state.getDimension();
+            obj.dimState = state.getDim();
             
-            [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCovariance();
+            [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCov();
         end
         
         function performPrediction(obj, sysModel)
@@ -250,7 +250,7 @@ classdef GaussianFilter < Filter
         
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
-            [addNoiseMean, addNoiseCov]  = sysModel.additiveNoise.getMeanAndCovariance();
+            [addNoiseMean, addNoiseCov]  = sysModel.additiveNoise.getMeanAndCov();
             dimAddNoise = size(addNoiseMean, 1);
             
             obj.checkAdditiveSysNoise(dimAddNoise);

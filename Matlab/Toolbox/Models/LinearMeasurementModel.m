@@ -108,7 +108,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = analyticMeasurementMoments(obj, stateMean, stateCov, numMeas)
-            [noiseMean, noiseCov] = obj.noise.getMeanAndCovariance();
+            [noiseMean, noiseCov] = obj.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             dimState = size(stateMean, 1);
             

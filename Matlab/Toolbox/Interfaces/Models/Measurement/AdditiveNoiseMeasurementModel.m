@@ -51,7 +51,7 @@ classdef AdditiveNoiseMeasurementModel < Likelihood
         
         function logValues = logLikelihood(obj, stateSamples, measurements)
             [dimMeas, numMeas] = size(measurements);
-            dimNoise   = obj.noise.getDimension();
+            dimNoise   = obj.noise.getDim();
             numSamples = size(stateSamples, 2); 
             
             if dimMeas ~= dimNoise

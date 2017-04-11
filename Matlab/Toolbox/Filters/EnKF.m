@@ -144,7 +144,7 @@ classdef EnKF < BasePF
         function performSetState(obj, state)
             obj.ensemble = state.drawRndSamples(obj.ensembleSize);
             
-            obj.dimState = state.getDimension();
+            obj.dimState = state.getDim();
         end
         
         function performPrediction(obj, sysModel)
@@ -203,7 +203,7 @@ classdef EnKF < BasePF
         
         function updateAdditiveNoise(obj, measModel, measurements)
             [dimMeas, numMeas] = size(measurements);
-            dimNoise = measModel.noise.getDimension();
+            dimNoise = measModel.noise.getDim();
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
@@ -232,7 +232,7 @@ classdef EnKF < BasePF
         
         function updateMixedNoise(obj, measModel, measurements)
             [dimMeas, numMeas] = size(measurements);
-            dimAddNoise = measModel.additiveNoise.getDimension();
+            dimAddNoise = measModel.additiveNoise.getDim();
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             

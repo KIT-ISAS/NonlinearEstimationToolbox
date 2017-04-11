@@ -321,7 +321,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
         function verifyGM(obj, gm, dim, numComps, means, covs, weights, mean, cov, covSqrt)
             absTol = 1e-12;
             
-            d = gm.getDimension();
+            d = gm.getDim();
             obj.verifyEqual(d, dim);
             
             n = gm.getNumComponents();
@@ -332,7 +332,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             obj.verifyEqual(c, covs);
             obj.verifyEqual(w, weights);
             
-            [m, c, cSqrt] = gm.getMeanAndCovariance();
+            [m, c, cSqrt] = gm.getMeanAndCov();
             obj.verifyEqual(m, mean, 'AbsTol', absTol);
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'AbsTol', absTol);
