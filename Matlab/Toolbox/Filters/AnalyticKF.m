@@ -16,8 +16,6 @@ classdef AnalyticKF < KF
     %   update                         - Perform a measurement update (filter step) using the given measurement(s).
     %   step                           - Perform a combined time and measurement update.
     %   getPointEstimate               - Get a point estimate of the current system state.
-    %   setUseAnalyticSystemModel      - Enable or disable the use of analytic moment calculation during a prediction.
-    %   getUseAnalyticSystemModel      - Get the current use of analytic moment calculation during a prediction.
     %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
     %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
     %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
@@ -91,13 +89,13 @@ classdef AnalyticKF < KF
     
     methods (Access = 'protected')
         function performPrediction(obj, sysModel)
-            if Checks.isClass(sysModel, 'AnalyticSystemModel')
+            if Checks.isClass(sysModel, 'LinearSystemModel')
                 [predictedStateMean, ...
-                 predictedStateCov] = obj.predictedMomentsAnalytic(sysModel);
+                 predictedStateCov] = obj.predictedMomentsLinear(sysModel);
                 
                 obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
             else
-                obj.errorSysModel('AnalyticSystemModel');
+                obj.errorSysModel('LinearSystemModel');
             end
         end
         

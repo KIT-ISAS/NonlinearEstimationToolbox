@@ -1,17 +1,17 @@
 
-classdef LinearSystemModel < SystemModel & AnalyticSystemModel
+classdef LinearSystemModel < SystemModel
     % Linear system model corrupted by linear transformed additive noise.
     %
     % LinearSystemModel Methods:
-    %   LinearSystemModel        - Class constructor.
-    %   setNoise                 - Set the system noise.
-    %   systemEquation           - The system equation.
-    %   derivative               - Compute the first-order and second-order derivatives of the implemented system equation.
-    %   simulate                 - Simulate the temporal evolution for a given system state.
-    %   analyticPredictedMoments - Analytic calculation of the first two moments of the predicted state distribution.
-    %   setSystemMatrix          - Set the system matrix.
-    %   setSystemInput           - Set the system input vector.
-    %   setSystemNoiseMatrix     - Set the system noise matrix.
+    %   LinearSystemModel    - Class constructor.
+    %   setNoise             - Set the system noise.
+    %   systemEquation       - The system equation.
+    %   derivative           - Compute the first-order and second-order derivatives of the implemented system equation.
+    %   simulate             - Simulate the temporal evolution for a given system state.
+    %   analyticMoments      - Analytic calculation of the first two moments of the predicted state distribution.
+    %   setSystemMatrix      - Set the system matrix.
+    %   setSystemInput       - Set the system input vector.
+    %   setSystemNoiseMatrix - Set the system noise matrix.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -193,7 +193,26 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = analyticPredictedMoments(obj, stateMean, stateCov)
+                  predictedStateCov] = analyticMoments(obj, stateMean, stateCov, stateCovSqrt)
+            % Analytic calculation of the first two moments of the predicted state distribution.
+            %
+            % Parameters:
+            %   >> stateMean (Column vector)
+            %      The current state mean.
+            %
+            %   >> stateCov (Positive definite matrix)
+            %      The current state covariance.
+            %
+            %   >> stateCovSqrt (Square matrix)
+            %      Square root of the current state covariance.
+            %
+            % Returns:
+            %   << predictedStateMean (Column vector)
+            %      The predicted state mean.
+            %
+            %   << predictedStateCov (Positive definite matrix)
+            %      The predicted state covariance.
+            
             [noiseMean, noiseCov, noiseCovSqrt] = obj.noise.getMeanAndCov();
             dimState = size(stateMean, 1);
             dimNoise = size(noiseMean, 1);
@@ -204,7 +223,6 @@ classdef LinearSystemModel < SystemModel & AnalyticSystemModel
             else
                 obj.checkSysMatrix(dimState);
                 
-                stateCovSqrt = chol(stateCov, 'Lower');
                 G = obj.sysMatrix * stateCovSqrt;
                 
                 predictedStateMean = obj.sysMatrix * stateMean;
