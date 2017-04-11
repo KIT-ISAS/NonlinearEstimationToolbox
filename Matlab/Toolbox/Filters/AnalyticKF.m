@@ -3,28 +3,26 @@ classdef AnalyticKF < KF
     % Analytic Kalman Filter.
     %
     % AnalyticKF Methods:
-    %   AnalyticKF                     - Class constructor.
-    %   copy                           - Copy a Filter instance.
-    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
-    %   getName                        - Get the filter name / description.
-    %   setColor                       - Set the filter color / plotting properties.
-    %   getColor                       - Get the current filter color / plotting properties.
-    %   setState                       - Set the system state.
-    %   getState                       - Get the current system state.
-    %   getStateDim                    - Get the dimension of the current system state.
-    %   predict                        - Perform a time update (prediction step).
-    %   update                         - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                           - Perform a combined time and measurement update.
-    %   getPointEstimate               - Get a point estimate of the current system state.
-    %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
-    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
-    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
-    %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold     - Get the current measurement validation threshold.
-    %   getLastUpdateData              - Get information from the last performed measurement update.
+    %   AnalyticKF                 - Class constructor.
+    %   copy                       - Copy a Filter instance.
+    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
+    %   getName                    - Get the filter name / description.
+    %   setColor                   - Set the filter color / plotting properties.
+    %   getColor                   - Get the current filter color / plotting properties.
+    %   setState                   - Set the system state.
+    %   getState                   - Get the current system state.
+    %   getStateDim                - Get the dimension of the current system state.
+    %   predict                    - Perform a time update (prediction step).
+    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                       - Perform a combined time and measurement update.
+    %   getPointEstimate           - Get a point estimate of the current system state.
+    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
+    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
+    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
+    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
+    %   getMeasValidationThreshold - Get the current measurement validation threshold.
+    %   getLastUpdateData          - Get information from the last performed measurement update.
     
     % Literature:
     %   Michael Roth, Gustaf Hendeby, and Fredrik Gustafsson,
@@ -110,14 +108,14 @@ classdef AnalyticKF < KF
         function [updatedMean, ...
                   updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                         priorMean, priorCov, priorCovSqrt)
-            if Checks.isClass(measModel, 'AnalyticMeasurementModel')
-                momentFunc = obj.getMomentFuncAnalytic(measModel, measurements);
+            if Checks.isClass(measModel, 'LinearMeasurementModel')
+                momentFunc = obj.getMomentFuncLinear(measModel, measurements);
                 
                 [updatedMean, ...
                  updatedCov] = obj.kalmanUpdate(measurements, momentFunc, ...
                                                 priorMean, priorCov, priorCovSqrt);
             else
-                obj.errorMeasModel('AnalyticMeasurementModel');
+                obj.errorMeasModel('LinearMeasurementModel');
             end
         end
         

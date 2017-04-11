@@ -1,16 +1,16 @@
 
-classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasurementModel
+classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
     % Linear measurement model corrupted by additive noise.
     %
     % LinearMeasurementModel Methods:
-    %   LinearMeasurementModel     - Class constructor.
-    %   setNoise                   - Set the measurement noise.
-    %   measurementEquation        - The measurement equation.
-    %   logLikelihood              - Evaluate the logarithmic likelihood function of the implemented measurement equation.
-    %   derivative                 - Compute the first-order and second-order derivatives of the implemented measurement equation.
-    %   simulate                   - Simulate one ore more measurements for a given system state.
-    %   analyticMeasurementMoments - Analytic calculation of the first two moments of the measurement distribution.
-    %   setMeasurementMatrix       - Set the measurement matrix.
+    %   LinearMeasurementModel - Class constructor.
+    %   setNoise               - Set the measurement noise.
+    %   measurementEquation    - The measurement equation.
+    %   logLikelihood          - Evaluate the logarithmic likelihood function of the implemented measurement equation.
+    %   derivative             - Compute the first-order and second-order derivatives of the implemented measurement equation.
+    %   simulate               - Simulate one ore more measurements for a given system state.
+    %   analyticMoments        - Analytic calculation of the first two moments of the measurement distribution.
+    %   setMeasurementMatrix   - Set the measurement matrix.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -107,7 +107,32 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = analyticMeasurementMoments(obj, stateMean, stateCov, numMeas)
+                  stateMeasCrossCov] = analyticMoments(obj, stateMean, stateCov, stateCovSqrt, numMeas)
+            % Analytic calculation of the first two moments of the measurement distribution.
+            %
+            % Parameters:
+            %   >> stateMean (Column vector)
+            %      The current state mean.
+            %
+            %   >> stateCov (Positive definite matrix)
+            %      The current state covariance.
+            %
+            %   >> stateCovSqrt (Square matrix)
+            %      Square root of the current state covariance.
+            %
+            %   >> numMeas (Positive scalar)
+            %      Number of measurements passed to the Filter.update() function.
+            %
+            % Returns:
+            %   << measMean (Column vector)
+            %      The measurement mean vector.
+            %
+            %   << measCov (Positive definite matrix)
+            %      The measurement covariance matrix.
+            %
+            %   << stateMeasCrossCov (Matrix)
+            %      The state measurement cross-covariance matrix.
+            
             [noiseMean, noiseCov] = obj.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             dimState = size(stateMean, 1);
@@ -130,7 +155,6 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel & AnalyticMeasur
                 measMean = obj.measMatrix * stateMean + noiseMean;
                 
                 % Measurement covariance
-                stateCovSqrt = chol(stateCov, 'Lower');
                 G = obj.measMatrix * stateCovSqrt;
                 
                 measCov = G * G';

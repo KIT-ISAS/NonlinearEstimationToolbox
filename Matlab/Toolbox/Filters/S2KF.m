@@ -3,32 +3,30 @@ classdef S2KF < LRKF
     % The Smart Sampling Kalman Filter (S²KF)
     %
     % S2KF Methods:
-    %   S2KF                           - Class constructor.
-    %   copy                           - Copy a Filter instance.
-    %   copyWithName                   - Copy a Filter instance and give the copy a new name / description.
-    %   getName                        - Get the filter name / description.
-    %   setColor                       - Set the filter color / plotting properties.
-    %   getColor                       - Get the current filter color / plotting properties.
-    %   setState                       - Set the system state.
-    %   getState                       - Get the current system state.
-    %   getStateDim                    - Get the dimension of the current system state.
-    %   predict                        - Perform a time update (prediction step).
-    %   update                         - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                           - Perform a combined time and measurement update.
-    %   getPointEstimate               - Get a point estimate of the current system state.
-    %   setStateDecompDim              - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim              - Get the dimension of the unobservable part of the system state.
-    %   setUseAnalyticMeasurementModel - Enable or disable the use of analytic moment calculation during a filter step.
-    %   getUseAnalyticMeasurementModel - Get the current use of analytic moment calculation during a filter step.
-    %   setMaxNumIterations            - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations            - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold     - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold     - Get the current measurement validation threshold.
-    %   getLastUpdateData              - Get information from the last performed measurement update.
-    %   setNumSamples                  - Set an absolute number of samples used by the S2KF for prediction and upate.
-    %   setNumSamplesByFactor          - Set a linear factor to determine the number of samples used by the S2KF for prediction and upate.
-    %   setOnlineMode                  - Select between online and offline sampling.
-    %   setSymmetricMode               - Select between point-symmetric and asymmetric sampling.
+    %   S2KF                       - Class constructor.
+    %   copy                       - Copy a Filter instance.
+    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
+    %   getName                    - Get the filter name / description.
+    %   setColor                   - Set the filter color / plotting properties.
+    %   getColor                   - Get the current filter color / plotting properties.
+    %   setState                   - Set the system state.
+    %   getState                   - Get the current system state.
+    %   getStateDim                - Get the dimension of the current system state.
+    %   predict                    - Perform a time update (prediction step).
+    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
+    %   step                       - Perform a combined time and measurement update.
+    %   getPointEstimate           - Get a point estimate of the current system state.
+    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
+    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
+    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
+    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
+    %   getMeasValidationThreshold - Get the current measurement validation threshold.
+    %   getLastUpdateData          - Get information from the last performed measurement update.
+    %   setNumSamples              - Set an absolute number of samples used by the S2KF for prediction and upate.
+    %   setNumSamplesByFactor      - Set a linear factor to determine the number of samples used by the S2KF for prediction and upate.
+    %   setOnlineMode              - Select between online and offline sampling.
+    %   setSymmetricMode           - Select between point-symmetric and asymmetric sampling.
     
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
