@@ -50,20 +50,6 @@ classdef AdditiveNoiseMeasurementModel < Likelihood
         end
         
         function logValues = logLikelihood(obj, stateSamples, measurements)
-            % Evaluate the logarithmic likelihood function of the implemented measurement equation.
-            %
-            % Parameters:
-            %   >> stateSamples (Matrix)
-            %      L column-wise arranged state samples.
-            %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an
-            %      individual measurement.
-            %
-            % Returns:
-            %   << logValues (Row vector)
-            %      L column-wise arranged logarithmic likelihood function values.
-            
             [dimMeas, numMeas] = size(measurements);
             dimNoise   = obj.noise.getDimension();
             numSamples = size(stateSamples, 2); 
