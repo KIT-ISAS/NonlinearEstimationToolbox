@@ -1,4 +1,16 @@
 
+Changes in Nonlinear Estimation Toolbox 1.5.1
+=============================================
+
+* Fixed unnecessary computation of Hessians in MeasurementModel and MixedNoiseMeasurementModel if only Jacobians are requested.
+* The PGF now overwrites the moment computations for the state prediction in order to exploit the fact
+  that all samples used by the LCD-based Gaussian sampling technique are equally weighted.
+* Moved predictedMomentsMixedNoise() implementation to GaussianFilter in order to avoid unnecessary code duplication.
+* New and improved unit tests.
+* Updated Eigen linear algebra library to version 3.3.3.
+* Various code cleanups and documentation improvements.
+
+
 Changes in Nonlinear Estimation Toolbox 1.5
 =============================================
 
