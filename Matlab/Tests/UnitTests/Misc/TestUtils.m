@@ -164,16 +164,20 @@ classdef TestUtils < matlab.unittest.TestCase
             measCov           = H * stateCov * H' + R;
             stateMeasCrossCov = stateCov * H';
             
-            K        = stateMeasCrossCov / measCov;
-            trueMean = stateMean + K * (measurement - measMean);
-            trueCov  = (eye(2) - K * H) * stateCov;
+            innovation          = measurement - measMean;
+            K                   = stateMeasCrossCov / measCov;
+            trueMean            = stateMean + K * innovation;
+            trueCov             = (eye(2) - K * H) * stateCov;
+            trueSqMeasMahalDist = innovation' * measCov^(-1) * innovation;
             
-            [mean, cov] = Utils.kalmanUpdate(stateMean, stateCov, measurement, ...
-                                             measMean, measCov, stateMeasCrossCov);
+            [mean, cov, ...
+             sqMeasMahalDist] = Utils.kalmanUpdate(stateMean, stateCov, measurement, ...
+                                                   measMean, measCov, stateMeasCrossCov);
             
             obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
             obj.verifyEqual(cov, cov');
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+            obj.verifyEqual(sqMeasMahalDist, trueSqMeasMahalDist, 'AbsTol', 1e-12);
         end
         
         function testKalmanUpdateInvalidMeasCov(obj)
