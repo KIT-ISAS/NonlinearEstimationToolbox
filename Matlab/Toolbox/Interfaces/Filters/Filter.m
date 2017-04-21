@@ -352,6 +352,13 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
         end
         
+        function checkMeasurementVector(obj, measurement)
+            if ~Checks.isColumnVector(measurement)
+                obj.error('InvalidMeasurement', ...
+                          'Measurement must be a column vector.');
+            end
+        end
+        
         function checkPredictedStateSamples(obj, samples, numSamples)
             if ~Checks.isMat(samples, obj.dimState, numSamples)
                 obj.error('InvalidPredictedStateSamples', ...
