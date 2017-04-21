@@ -188,7 +188,8 @@ classdef Utils
         end
         
         function [updatedStateMean, ...
-                  updatedStateCov] = kalmanUpdate(stateMean, stateCov, measurement, ...
+                  updatedStateCov, ...
+                  sqMeasMahalDist] = kalmanUpdate(stateMean, stateCov, measurement, ...
                                                   measMean, measCov, stateMeasCrossCov)
             % Perform a Kalman update.
             %
@@ -217,22 +218,33 @@ classdef Utils
             %
             %   << updatedStateCov (Positive definite matrix)
             %      Posterior state covariance matrix.
+            %
+            %   << sqMeasMahalDist (Scalar)
+            %      Squared Mahalanobis distance of the measurement.
             
-            [measCovSqrt, isNonPos] = chol(measCov);
+            [measCovSqrt, isNonPos] = chol(measCov, 'Lower');
             
             if isNonPos
                 error('Utils:InvalidMeasurementCovariance', ...
                       'Measurement covariance matrix is not positive definite.');
             end
             
-            % Compute Kalman gain
-            A = stateMeasCrossCov / measCovSqrt;
+            A = stateMeasCrossCov / measCovSqrt';
+            
+            innovation = measurement - measMean;
+            
+            t = measCovSqrt \ innovation;
             
             % Compute updated state mean
-            updatedStateMean = stateMean + A * (measCovSqrt' \ (measurement - measMean));
+            updatedStateMean = stateMean + A * t;
             
             % Compute updated state covariance
             updatedStateCov = stateCov - A * A';
+            
+            % Compute squared Mahalanobis distance of the measurement
+            if nargout == 3
+                sqMeasMahalDist = t' * t;
+            end
         end
         
         function [updatedStateMean, ...
