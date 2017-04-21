@@ -355,12 +355,8 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 numSteps = numSteps + 1;
                 
                 if gamma ~= 1
-                    % Check intermediate Gaussian is valid
-                    [isPosDef, updatedCovSqrt] = Checks.isCov(updatedCov);
-                    
-                    if ~isPosDef
-                        obj.ignoreMeas('Intermediate state covariance is not positive definite.');
-                    end
+                    % Check if intermediate state covariance matrix is valid
+                    updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
                 end
             end
             
