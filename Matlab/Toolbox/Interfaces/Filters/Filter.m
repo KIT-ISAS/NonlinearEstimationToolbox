@@ -451,6 +451,22 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
         end
         
+        function covSqrt = checkCovPrediction(obj, cov, type)
+            [covSqrt, isNonPos] = chol(cov, 'Lower');
+            
+            if isNonPos
+                obj.ignorePrediction('%s covariance matrix is not positive definite.', type);
+            end
+        end
+        
+        function covSqrt = checkCovUpdate(obj, cov, type)
+            [covSqrt, isNonPos] = chol(cov, 'Lower');
+            
+            if isNonPos
+                obj.ignoreMeas('%s covariance matrix is not positive definite.', type);
+            end
+        end
+        
         function warning(obj, id, msg, varargin)
             msg = sprintf(msg, varargin{:});
             
