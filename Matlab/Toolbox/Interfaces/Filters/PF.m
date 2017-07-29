@@ -65,7 +65,6 @@ classdef PF < BasePF
             % Call superclass constructor
             obj = obj@BasePF(name);
             
-            obj.dimState  = 0;
             obj.particles = [];
             obj.weights   = [];
             
@@ -175,8 +174,6 @@ classdef PF < BasePF
                 % Particles are equally weighted
                 obj.weights = repmat(1 / obj.numParticles, 1, obj.numParticles);
             end
-            
-            obj.dimState = state.getDim();
         end
         
         function normalizedESS = getNormalizedESS(obj)

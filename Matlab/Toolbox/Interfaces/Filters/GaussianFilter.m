@@ -163,8 +163,6 @@ classdef GaussianFilter < Filter
     
     methods (Access = 'protected')
         function performSetState(obj, state)
-            obj.dimState = state.getDim();
-            
             [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCov();
         end
         

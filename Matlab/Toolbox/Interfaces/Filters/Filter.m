@@ -165,6 +165,9 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
             
             obj.performSetState(state);
+            
+            % Save state dimension
+            obj.dimState = state.getDim();
         end
         
         function runtime = predict(obj, sysModel)
@@ -551,17 +554,15 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
     end
     
-    properties (Access = 'protected')
-        % Dimension of the current system state.
-        dimState;
-    end
-    
-    properties (Access = 'private')
+    properties (SetAccess = 'private', GetAccess = 'protected')
         % The filter name / description.
         name;
         
         % The filter color / plotting properties.
         color;
+        
+        % Dimension of the system state.
+        dimState;
     end
     
     properties (Constant, Access = 'private')

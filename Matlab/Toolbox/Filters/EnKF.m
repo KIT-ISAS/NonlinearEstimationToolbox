@@ -79,7 +79,6 @@ classdef EnKF < BasePF
             % Call superclass constructor
             obj = obj@BasePF(name);
             
-            obj.dimState = 0;
             obj.ensemble = [];
             
             obj.setEnsembleSize(1000);
@@ -143,8 +142,6 @@ classdef EnKF < BasePF
     methods (Access = 'protected')
         function performSetState(obj, state)
             obj.ensemble = state.drawRndSamples(obj.ensembleSize);
-            
-            obj.dimState = state.getDim();
         end
         
         function performPrediction(obj, sysModel)
