@@ -102,14 +102,14 @@ classdef Filter < handle & matlab.mixin.Copyable
             cpObj.name = cpName;
         end
         
-        function filterName = getName(obj)
+        function name = getName(obj)
             % Get the filter name / description.
             %
             % Returns:
-            %   << filterName (Char)
+            %   << name (Char)
             %      The filter name / description.
             
-            filterName = obj.name;
+            name = obj.name;
         end
         
         function setColor(obj, color)
