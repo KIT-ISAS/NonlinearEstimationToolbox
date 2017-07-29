@@ -193,17 +193,17 @@ classdef TestUtilsStep
             trueCov  = truePredCov - K * trueCrossCov';
         end
         
-        function checkStep(sysModel, measModel, measurements, trueMean, trueCov, test, filter, tol)
-            filter.setState(Gaussian(TestUtilsStep.initMean, ...
-                                     TestUtilsStep.initCov));
+        function checkStep(sysModel, measModel, measurements, trueMean, trueCov, test, f, tol)
+            f.setState(Gaussian(TestUtilsStep.initMean, ...
+                                TestUtilsStep.initCov));
             
-            filter.step(sysModel, measModel, measurements);
+            f.step(sysModel, measModel, measurements);
             
-            [mean, cov] = filter.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
+            test.verifyEqual(stateCov, stateCov');
+            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
         end
     end
     

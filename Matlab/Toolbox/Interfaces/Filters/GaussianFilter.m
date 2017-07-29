@@ -86,18 +86,9 @@ classdef GaussianFilter < Filter
             state = Gaussian(obj.stateMean, obj.stateCov);
         end
         
-        function [pointEstimate, uncertainty] = getPointEstimate(obj)
-            % Get a point estimate of the current system state.
-            %
-            % Returns:
-            %   << pointEstimate (Column vector)
-            %      The current state mean.
-            %
-            %   << uncertainty (Positive definite matrix)
-            %      The current state covariance.
-            
-            pointEstimate = obj.stateMean;
-            uncertainty   = obj.stateCov;
+        function [stateMean, stateCov] = getStateMeanAndCov(obj)
+            stateMean = obj.stateMean;
+            stateCov  = obj.stateCov;
         end
         
         function setStateDecompDim(obj, dim)

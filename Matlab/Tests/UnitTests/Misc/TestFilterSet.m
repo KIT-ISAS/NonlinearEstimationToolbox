@@ -36,9 +36,9 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getNames(), cell(1, 0));
             obj.verifyEqual(set.getStates(), cell(1, 0));
             
-            [means, covs] = set.getPointEstimates();
-            obj.verifyEmpty(means);
-            obj.verifyEmpty(covs);
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            obj.verifyEmpty(stateMeans);
+            obj.verifyEmpty(stateCovs);
         end
         
         
@@ -52,9 +52,9 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getStateDim(), 0);
             obj.verifyEqual(set.getNames(), { 'KF' });
             
-            [means, covs] = set.getPointEstimates();
-            obj.verifyEmpty(means);
-            obj.verifyEmpty(covs);
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            obj.verifyEmpty(stateMeans);
+            obj.verifyEmpty(stateCovs);
         end
         
         function testAddMultiple(obj)
@@ -72,9 +72,9 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getStateDim(), 0);
             obj.verifyEqual(set.getNames(), { 'A', 'B' });
             
-            [means, covs] = set.getPointEstimates();
-            obj.verifyEmpty(means);
-            obj.verifyEmpty(covs);
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            obj.verifyEmpty(stateMeans);
+            obj.verifyEmpty(stateCovs);
         end
         
         function testAddSameName(obj)
@@ -299,9 +299,9 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(mean, ones(2, 1));
             obj.verifyEqual(cov, 2 * eye(2));
             
-            [means, covs] = set.getPointEstimates();
-            obj.verifyEqual(means, ones(2, 1));
-            obj.verifyEqual(covs, 2 * eye(2));
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            obj.verifyEqual(stateMeans, ones(2, 1));
+            obj.verifyEqual(stateCovs, 2 * eye(2));
         end
         
         function testSetGetStatesMultiple(obj)
@@ -335,12 +335,12 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [mean2, cov2] = state2.getMeanAndCov();
             
-            [means, covs] = set.getPointEstimates();
-            obj.verifySize(means, [4 2]);
-            obj.verifySize(covs, [4 4 2]);
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            obj.verifySize(stateMeans, [4 2]);
+            obj.verifySize(stateCovs, [4 4 2]);
             
-            obj.verifyEqual(means, [mean1 mean2], 'AbsTol', 1e-12);
-            obj.verifyEqual(covs, cat(3, cov1, cov2), 'AbsTol', 1e-12);
+            obj.verifyEqual(stateMeans, [mean1 mean2], 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovs, cat(3, cov1, cov2), 'AbsTol', 1e-12);
         end
         
         
@@ -359,15 +359,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, gtMean);
-            obj.verifyEqual(covs, gtCov);
+            obj.verifyEqual(stateMeans, gtMean);
+            obj.verifyEqual(stateCovs, gtCov);
         end
         
         function testPredictMultiple(obj)
@@ -392,20 +392,20 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt1 = AnalyticKF('GT1');
             gt1.setState(initState1);
             gt1.predict(sysModel);
-            [gtMean1, gtCov1] = gt1.getPointEstimate();
+            [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
             gt2 = AnalyticKF('GT2');
             gt2.setState(initState2);
             gt2.predict(sysModel);
-            [gtMean2, gtCov2] = gt2.getPointEstimate();
+            [gtMean2, gtCov2] = gt2.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [gtMean1 gtMean2]);
-            obj.verifyEqual(covs, cat(3, gtCov1, gtCov2));
+            obj.verifyEqual(stateMeans, [gtMean1 gtMean2]);
+            obj.verifyEqual(stateCovs, cat(3, gtCov1, gtCov2));
         end
         
         
@@ -427,15 +427,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [2 * ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [2 * ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testPredictSingleId(obj)
@@ -456,15 +456,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [2 * ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [2 * ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testPredictSingleOutOfRangeIndex(obj)
@@ -554,15 +554,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, gtMean);
-            obj.verifyEqual(covs, gtCov);
+            obj.verifyEqual(stateMeans, gtMean);
+            obj.verifyEqual(stateCovs, gtCov);
         end
         
         function testUpdateMultiple(obj)
@@ -588,20 +588,20 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt1 = AnalyticKF('GT1');
             gt1.setState(initState1);
             gt1.update(measModel, meas);
-            [gtMean1, gtCov1] = gt1.getPointEstimate();
+            [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
             gt2 = AnalyticKF('GT2');
             gt2.setState(initState2);
             gt2.update(measModel, meas);
-            [gtMean2, gtCov2] = gt2.getPointEstimate();
+            [gtMean2, gtCov2] = gt2.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [gtMean1 gtMean2]);
-            obj.verifyEqual(covs, cat(3, gtCov1, gtCov2));
+            obj.verifyEqual(stateMeans, [gtMean1 gtMean2]);
+            obj.verifyEqual(stateCovs, cat(3, gtCov1, gtCov2));
         end
         
         
@@ -624,15 +624,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testUpdateSingleId(obj)
@@ -654,15 +654,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testUpdateSingleOutOfRangeIndex(obj)
@@ -759,16 +759,16 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, gtMean);
-            obj.verifyEqual(covs, gtCov);
+            obj.verifyEqual(stateMeans, gtMean);
+            obj.verifyEqual(stateCovs, gtCov);
         end
         
         function testStepMultiple(obj)
@@ -797,22 +797,22 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt1 = AnalyticKF('GT1');
             gt1.setState(initState1);
             gt1.predict(sysModel);
             gt1.update(measModel, meas);
-            [gtMean1, gtCov1] = gt1.getPointEstimate();
+            [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
             gt2 = AnalyticKF('GT2');
             gt2.setState(initState2);
             gt2.predict(sysModel);
             gt2.update(measModel, meas);
-            [gtMean2, gtCov2] = gt2.getPointEstimate();
+            [gtMean2, gtCov2] = gt2.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [gtMean1 gtMean2]);
-            obj.verifyEqual(covs, cat(3, gtCov1, gtCov2));
+            obj.verifyEqual(stateMeans, [gtMean1 gtMean2]);
+            obj.verifyEqual(stateCovs, cat(3, gtCov1, gtCov2));
         end
         
         
@@ -838,16 +838,16 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testStepSingleId(obj)
@@ -872,16 +872,16 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [means, covs] = set.getPointEstimates();
+            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
             gt = AnalyticKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
-            [gtMean, gtCov] = gt.getPointEstimate();
+            [gtMean, gtCov] = gt.getStateMeanAndCov();
             
-            obj.verifyEqual(means, [ones(4, 1) gtMean]);
-            obj.verifyEqual(covs, cat(3, 2 * eye(4), gtCov));
+            obj.verifyEqual(stateMeans, [ones(4, 1) gtMean]);
+            obj.verifyEqual(stateCovs, cat(3, 2 * eye(4), gtCov));
         end
         
         function testStepSingleOutOfRangeIndex(obj)

@@ -3,23 +3,23 @@ classdef FilterSet < handle
     % A set of filters.
     %
     % FilterSet Methods:
-    %   FilterSet         - Class constructor.
-    %   add               - Add a filter to the set.
-    %   remove            - Remove a filter from the set
-    %   get               - Get a filter from the set.
-    %   getIndex          - Get the index of a filter from the set.
-    %   getNumFilters     - Get the number of filters in the set.
-    %   getNames          - Get the names of all filters.
-    %   setStates         - Set the system states of all filters.
-    %   getStates         - Get the system states of all filters.
-    %   getStateDim       - Get the dimension of the system state.
-    %   predict           - Predict all filters in the set using the given system model.
-    %   predictSingle     - Predict the filter with the given id and system model.
-    %   update            - Update all filters in the set using the given measurement model and measurements.
-    %   updateSingle      - Update the filter with the given id, measurement model, and measurements.
-    %   step              - Predict and update all filters in the set using the given system model, measurement model, and measurements.
-    %   stepSingle        - Predict and update the filter with the given id, system model, measurement model, and measurements.
-    %   getPointEstimates - Get the point estimates of all filters in the set.
+    %   FilterSet            - Class constructor.
+    %   add                  - Add a filter to the set.
+    %   remove               - Remove a filter from the set
+    %   get                  - Get a filter from the set.
+    %   getIndex             - Get the index of a filter from the set.
+    %   getNumFilters        - Get the number of filters in the set.
+    %   getNames             - Get the names of all filters.
+    %   setStates            - Set the system states of all filters.
+    %   getStates            - Get the system states of all filters.
+    %   getStateDim          - Get the dimension of the system state.
+    %   getStateMeansAndCovs - Get state means and state covariance matrices of all filters.
+    %   predict              - Predict all filters in the set using the given system model.
+    %   predictSingle        - Predict the filter with the given id and system model.
+    %   update               - Update all filters in the set using the given measurement model and measurements.
+    %   updateSingle         - Update the filter with the given id, measurement model, and measurements.
+    %   step                 - Predict and update all filters in the set using the given system model, measurement model, and measurements.
+    %   stepSingle           - Predict and update the filter with the given id, system model, measurement model, and measurements.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -235,6 +235,32 @@ classdef FilterSet < handle
             dim = obj.dimState;
         end
         
+        function [stateMeans, stateCovs] = getStateMeansAndCovs(obj)
+            % Get state means and state covariance matrices of all filters.
+            %
+            % Returns:
+            %   << stateMeans (Matrix)
+            %      Column-wise arranged state means of all filters.
+            %
+            %   << stateCovs (3D matrix of positive definite matrices)
+            %      State covariance matrices of all filters arranged along the 3rd dimension.
+            
+            if nargout == 1
+                stateMeans = nan(obj.dimState, obj.numFilters);
+                
+                for i = 1:obj.numFilters
+                    stateMeans(:, i) = obj.filters{i}.getStateMeanAndCov();
+                end
+            else
+                stateMeans = nan(obj.dimState, obj.numFilters);
+                stateCovs  = nan(obj.dimState, obj.dimState, obj.numFilters);
+                
+                for i = 1:obj.numFilters
+                    [stateMeans(:, i), stateCovs(:, :, i)] = obj.filters{i}.getStateMeanAndCov();
+                end
+            end
+        end
+        
         function runtimes = predict(obj, sysModel)
             % Predict all filters in the set using the given system model.
             %
@@ -443,33 +469,6 @@ classdef FilterSet < handle
                 runtime = obj.executeFilterRuntime(id, @step, sysModel, measModel, measurements);
             else
                 obj.executeFilter(id, @step, sysModel, measModel, measurements);
-            end
-        end
-        
-        function [pointEstimates, uncertainties] = getPointEstimates(obj)
-            % Get the point estimates of all filters in the set.
-            %
-            % Returns:
-            %   << pointEstimates (Matrix)
-            %      Column-wise arranged point estimates of all filters.
-            %
-            %   << uncertainties (3D matrix of positive definite matrices)
-            %      Uncertainties of the current point estimates  of all filters
-            %      (e.g., covariance matrices) arranged along the 3rd dimension.
-            
-            if nargout == 1
-                pointEstimates = nan(obj.dimState, obj.numFilters);
-                
-                for i = 1:obj.numFilters
-                    pointEstimates(:, i) = obj.filters{i}.getPointEstimate();
-                end
-            else
-                pointEstimates = nan(obj.dimState, obj.numFilters);
-                uncertainties  = nan(obj.dimState, obj.dimState, obj.numFilters);
-                
-                for i = 1:obj.numFilters
-                    [pointEstimates(:, i), uncertainties(:, :, i)] = obj.filters{i}.getPointEstimate();
-                end
             end
         end
     end

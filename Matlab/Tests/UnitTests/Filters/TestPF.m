@@ -139,7 +139,7 @@ classdef TestPF < matlab.unittest.TestCase
         end
         
         
-        function testGetPointEstimate(obj)
+        function testGetStateMeanAndCov(obj)
             f = PFStub();
             
             s = cat(2, zeros(3, 1), ones(3, 1), [-2 5 0.7]');
@@ -149,12 +149,12 @@ classdef TestPF < matlab.unittest.TestCase
             
             f.setState(d);
             
-            [pointEstimate, uncertainty] = f.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
             [mean, cov] = d.getMeanAndCov();
             
-            obj.verifyEqual(pointEstimate, mean);
-            obj.verifyEqual(uncertainty, cov);
+            obj.verifyEqual(stateMean, mean);
+            obj.verifyEqual(stateCov, cov);
         end
     end
     

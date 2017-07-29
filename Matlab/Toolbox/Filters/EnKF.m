@@ -120,20 +120,11 @@ classdef EnKF < BasePF
             state = DiracMixture(obj.ensemble);
         end
         
-        function [pointEstimate, uncertainty] = getPointEstimate(obj)
-            % Get a point estimate of the current system state.
-            %
-            % Returns:
-            %   << pointEstimate (Column vector)
-            %      Mean of the current ensemble.
-            %
-            %   << uncertainty (Positive definite matrix)
-            %      Covariance of the current ensemble.
-            
+        function [stateMean, stateCov] = getStateMeanAndCov(obj)
             if nargout == 1
-                pointEstimate = Utils.getMeanAndCov(obj.ensemble);
+                stateMean = Utils.getMeanAndCov(obj.ensemble);
             else
-                [pointEstimate, uncertainty] = Utils.getMeanAndCov(obj.ensemble);
+                [stateMean, stateCov] = Utils.getMeanAndCov(obj.ensemble);
             end
         end
     end

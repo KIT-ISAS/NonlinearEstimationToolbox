@@ -45,11 +45,11 @@ classdef TestUtilsMixedNoiseSystemModel
             
             f.predict(sysModel);
             
-            [mean, cov] = f.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
+            test.verifyEqual(stateCov, stateCov');
+            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
         end
     end
     

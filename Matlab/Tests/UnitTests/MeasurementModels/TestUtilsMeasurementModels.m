@@ -58,19 +58,19 @@ classdef TestUtilsMeasurementModels < handle
     end
     
     methods (Access = 'protected')
-        function checkUpdateConfig(obj, stateDecomp, multiMeas, test, filter, tol)
+        function checkUpdateConfig(obj, stateDecomp, multiMeas, test, f, tol)
             [initState, measModel, measurements,  ...
              trueStateMean, trueStateCov] = obj.updateConfig(stateDecomp, multiMeas);
             
-            filter.setState(initState);
+            f.setState(initState);
             
             if stateDecomp
-                filter.setStateDecompDim(1);
+                f.setStateDecompDim(1);
             end
             
-            filter.update(measModel, measurements);
+            f.update(measModel, measurements);
             
-            [stateMean, stateCov] = filter.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
             test.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
             test.verifyEqual(stateCov, stateCov');
@@ -118,7 +118,7 @@ classdef TestUtilsMeasurementModels < handle
                 test.verifyWarning(@() filter.update(measModel, measurements), ...
                                    'Filter:IgnoringMeasurement');
                 
-                [stateMean, stateCov] = filter.getPointEstimate();
+                [stateMean, stateCov] = filter.getStateMeanAndCov();
                 
                 [initStateMean, initStateCov] = initState.getMeanAndCov();
                 
@@ -129,7 +129,7 @@ classdef TestUtilsMeasurementModels < handle
             else
                 filter.update(measModel, measurements);
                 
-                [stateMean, stateCov] = filter.getPointEstimate();
+                [stateMean, stateCov] = filter.getStateMeanAndCov();
                 
                 test.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
                 test.verifyEqual(stateCov, stateCov');

@@ -3,19 +3,19 @@ classdef Filter < handle & matlab.mixin.Copyable
     % Abstract base class for a filter.
     %
     % Filter Methods:
-    %   Filter           - Class constructor.
-    %   copy             - Copy a Filter instance.
-    %   copyWithName     - Copy a Filter instance and give the copy a new name / description.
-    %   getName          - Get the filter name / description.
-    %   setColor         - Set the filter color / plotting properties.
-    %   getColor         - Get the current filter color / plotting properties.
-    %   setState         - Set the system state.
-    %   getState         - Get the current system state.
-    %   getStateDim      - Get the dimension of the system state.
-    %   predict          - Perform a time update (prediction step).
-    %   update           - Perform a measurement update (filter step) using the given measurement(s).
-    %   step             - Perform a combined time and measurement update.
-    %   getPointEstimate - Get a point estimate of the current system state.
+    %   Filter             - Class constructor.
+    %   copy               - Copy a Filter instance.
+    %   copyWithName       - Copy a Filter instance and give the copy a new name / description.
+    %   getName            - Get the filter name / description.
+    %   setColor           - Set the filter color / plotting properties.
+    %   getColor           - Get the current filter color / plotting properties.
+    %   setState           - Set the system state.
+    %   getState           - Get the current system state.
+    %   getStateDim        - Get the dimension of the system state.
+    %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
+    %   predict            - Perform a time update (prediction step).
+    %   update             - Perform a measurement update (filter step) using the given measurement(s).
+    %   step               - Perform a combined time and measurement update.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -322,16 +322,15 @@ classdef Filter < handle & matlab.mixin.Copyable
         %      The current system state.
         state = getState(obj);
         
-        % Get a point estimate of the current system state.
+        % Get mean and covariance matrix of the system state.
         %
         % Returns:
-        %   << pointEstimate (Column vector)
-        %      Point estimate of the current system state.
+        %   << mean (Column vector)
+        %      Mean vector of the system state.
         %
-        %   << uncertainty (Positive definite matrix)
-        %      Uncertainty of the current system state point estimate (e.g.,
-        %      a covariance matrix).
-        [pointEstimate, uncertainty] = getPointEstimate(obj);
+        %   << covariance (Positive definite matrix)
+        %      Covariance matrix of the system state.
+        [mean, covariance] = getStateMeanAndCov(obj);
     end
     
     methods (Abstract, Access = 'protected')

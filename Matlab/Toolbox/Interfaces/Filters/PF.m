@@ -76,20 +76,11 @@ classdef PF < BasePF
             state = DiracMixture(obj.particles, obj.weights);
         end
         
-        function [pointEstimate, uncertainty] = getPointEstimate(obj)
-            % Get a point estimate of the current system state.
-            %
-            % Returns:
-            %   << pointEstimate (Column vector)
-            %      Mean of the current particle set.
-            %
-            %   << uncertainty (Positive definite matrix)
-            %      Covariance of the current particle set.
-            
+        function [stateMean, stateCov] = getStateMeanAndCov(obj)
             if nargout == 1
-                pointEstimate = Utils.getMeanAndCov(obj.particles, obj.weights);
+                stateMean = Utils.getMeanAndCov(obj.particles, obj.weights);
             else
-                [pointEstimate, uncertainty] = Utils.getMeanAndCov(obj.particles, obj.weights);
+                [stateMean, stateCov] = Utils.getMeanAndCov(obj.particles, obj.weights);
             end
         end
         

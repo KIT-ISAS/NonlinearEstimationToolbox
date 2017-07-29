@@ -39,7 +39,7 @@ classdef TestUtilsLinearSystemModel
     end
     
     methods (Static, Access = 'private')
-        function checkPredictionConfig(config, test, filter, tol)
+        function checkPredictionConfig(config, test, f, tol)
             sysMat   = config(1);
             input    = config(2);
             noiseMat = config(3);
@@ -75,16 +75,16 @@ classdef TestUtilsLinearSystemModel
                 trueCov  = trueCov + noiseCov;
             end
             
-            filter.setState(Gaussian(TestUtilsLinearSystemModel.initMean, ...
-                                     TestUtilsLinearSystemModel.initCov));
+            f.setState(Gaussian(TestUtilsLinearSystemModel.initMean, ...
+                                TestUtilsLinearSystemModel.initCov));
             
-            filter.predict(sysModel);
+            f.predict(sysModel);
             
-            [mean, cov] = filter.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
-            test.verifyEqual(mean, trueMean, 'RelTol', tol);
-            test.verifyEqual(cov, cov');
-            test.verifyEqual(cov, trueCov, 'RelTol', tol);
+            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
+            test.verifyEqual(stateCov, stateCov');
+            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
         end
     end
     

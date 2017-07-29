@@ -126,7 +126,7 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
         end
         
         
-        function testGetPointEstimate(obj)
+        function testGetStateMeanAndCov(obj)
             f = GaussianFilterStub();
             
             a = [-1, 3]';
@@ -138,11 +138,11 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             
             f.setState(d);
             
-            [pointEstimate, uncertainty] = f.getPointEstimate();
+            [stateMean, stateCov] = f.getStateMeanAndCov();
             
-            obj.verifyEqual(pointEstimate, mean);
-            obj.verifyEqual(uncertainty, uncertainty');
-            obj.verifyEqual(uncertainty, cov);
+            obj.verifyEqual(stateMean, mean);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, cov);
         end
     end
     
