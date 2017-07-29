@@ -33,6 +33,8 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             
             obj.verifyEqual(f.getName(), 'GaussianFilterStub');
             obj.verifyEqual(f.getStateDecompDim(), 0);
+            obj.verifyEmpty(f.getPredictionPostProcessing());
+            obj.verifyEmpty(f.getUpdatePostProcessing());
         end
         
         
@@ -144,6 +146,28 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             obj.verifyEqual(stateCov, stateCov');
             obj.verifyEqual(stateCov, cov);
         end
+        
+        
+        function testSetPredictionPostProcessing(obj)
+            f = GaussianFilterStub();
+            
+            func = @TestGaussianFilter.postProcessing;
+            
+            f.setPredictionPostProcessing(func);
+            
+            obj.verifyEqual(f.getPredictionPostProcessing(), func);
+        end
+        
+        
+        function testSetUpdatePostProcessing(obj)
+            f = GaussianFilterStub();
+            
+            func = @TestGaussianFilter.postProcessing;
+            
+            f.setUpdatePostProcessing(func);
+            
+            obj.verifyEqual(f.getUpdatePostProcessing(), func);
+        end
     end
     
     methods (Access = 'private')
@@ -159,6 +183,13 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             obj.verifyEqual(stateCov, cov, 'Abstol', 1e-8);
             
             obj.verifyEqual(f.getStateDim(), dim);
+        end
+    end
+    
+    methods (Static, Access = 'private')
+        function [postMean, postCov] = postProcessing(mean, cov, ~)
+            postMean = mean;
+            postCov  = cov;
         end
     end
 end
