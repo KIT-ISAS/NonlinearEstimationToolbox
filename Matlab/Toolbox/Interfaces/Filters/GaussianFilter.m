@@ -253,7 +253,7 @@ classdef GaussianFilter < Filter
             % At least one variable of the system state must be "observable"
             if observableStateDim <= 0
                 obj.error('InvalidUnobservableStateDimension', ...
-                          'At least one variable of the system state must be in the "observable".');
+                          'At least one variable of the system state must be "observable".');
             end
         end
         
