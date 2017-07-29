@@ -5,17 +5,17 @@ classdef Filter < handle & matlab.mixin.Copyable
     % Filter Methods:
     %   Filter             - Class constructor.
     %   copy               - Copy a Filter instance.
-    %   copyWithName       - Copy a Filter instance and give the copy a new name / description.
-    %   getName            - Get the filter name / description.
-    %   setColor           - Set the filter color / plotting properties.
-    %   getColor           - Get the current filter color / plotting properties.
+    %   copyWithName       - Copy a Filter instance and give the copy a new name/description.
+    %   getName            - Get the filter name/description.
+    %   setColor           - Set the filter color/plotting properties.
+    %   getColor           - Get the filter color/plotting properties.
     %   setState           - Set the system state.
     %   getState           - Get the current system state.
     %   getStateDim        - Get the dimension of the system state.
     %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
-    %   predict            - Perform a time update (prediction step).
-    %   update             - Perform a measurement update (filter step) using the given measurement(s).
-    %   step               - Perform a combined time and measurement update.
+    %   predict            - Perform a state prediction.
+    %   update             - Perform a measurement update.
+    %   step               - Perform a combined state prediction and measurement update.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -74,7 +74,7 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function cpObj = copyWithName(obj, cpName)
-            % Copy a Filter instance and give the copy a new name / description.
+            % Copy a Filter instance and give the copy a new name/description.
             %
             % The standard copy() method also copies the name of the filter instance
             % to be copied. However, a filter cannot change its name after construction.
@@ -86,7 +86,7 @@ classdef Filter < handle & matlab.mixin.Copyable
             %
             % Parameters:
             %   >> cpName (Char)
-            %      A new filter name / description for the filter copy.
+            %      A new filter name/description for the filter copy.
             %
             % Returns:
             %   << cpObj (Sublcass of Filter)
@@ -103,17 +103,17 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function name = getName(obj)
-            % Get the filter name / description.
+            % Get the filter name/description.
             %
             % Returns:
             %   << name (Char)
-            %      The filter name / description.
+            %      The filter name/description.
             
             name = obj.name;
         end
         
         function setColor(obj, color)
-            % Set the filter color / plotting properties.
+            % Set the filter color/plotting properties.
             %
             % Assign a color (e.g., 'r') or a color with additional line
             % plotting settings (e.g., { '--', 'LineWidth', 2, 'Color',
@@ -129,11 +129,11 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function color = getColor(obj)
-            % Get the current filter color / plotting properties.
+            % Get the filter color/plotting properties.
             %
             % Returns:
             %   << color (Arbitrary data)
-            %      The current filter color / plotting properties.
+            %      The filter color/plotting properties.
             
             color = obj.color;
         end
@@ -171,16 +171,15 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function runtime = predict(obj, sysModel)
-            % Perform a time update (prediction step).
+            % Perform a state prediction.
             %
             % Parameters:
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
             % Returns:
             %   << runtime (Scalar)
-            %      Time needed to perform the prediction step.
+            %      Time needed to perform the state prediction.
             
             if nargout == 1
                 s = tic;
@@ -200,11 +199,11 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function runtime = update(obj, measModel, measurements)
-            % Perform a measurement update (filter step) using the given measurement(s).
+            % Perform a measurement update.
             %
             % Parameters:
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between measurements and the system state.
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
             %   >> measurements (Matrix)
             %      Column-wise arranged measurement vectors, where each column represents an individual
@@ -251,21 +250,18 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function runtime = step(obj, sysModel, measModel, measurements)
-            % Perform a combined time and measurement update.
+            % Perform a combined state prediction and measurement update.
             %
             % By default, this is equal to execute predict() followed by an update().
-            %
-            % However, each filter can overwrite this behavior with a custom implementation
-            % of a combined time and measurement update in order to improve estimation quality
-            % (e.g., done by the Auxiliary SIR-PF).
+            % Nevertheless, each filter can overwrite this behavior with a custom implementation
+            % of a combined state prediction and measurement update if desired.
             %
             % Parameters:
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between measurements and the system state.
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
             %   >> measurements (Matrix)
             %      Column-wise arranged measurement vectors, where each column represents an individual
@@ -290,7 +286,7 @@ classdef Filter < handle & matlab.mixin.Copyable
             %
             % Returns:
             %   << runtime (Scalar)
-            %      Time needed to perform the combined time and measurement update.
+            %      Time needed to perform the combined state prediction and measurement update.
             
             obj.checkMeasurements(measurements);
             
@@ -554,10 +550,10 @@ classdef Filter < handle & matlab.mixin.Copyable
     end
     
     properties (SetAccess = 'private', GetAccess = 'protected')
-        % The filter name / description.
+        % The filter name/description.
         name;
         
-        % The filter color / plotting properties.
+        % The filter color/plotting properties.
         color;
         
         % Dimension of the system state.
