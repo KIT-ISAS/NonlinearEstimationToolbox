@@ -43,7 +43,7 @@ classdef GaussianSamplingRnd < GaussianSampling
             %   << obj (GaussianSamplingRnd)
             %      A new GaussianSamplingRnd instance.
             
-            obj.numSamples = 100;
+            obj.numSamples = 1000;
         end
         
         function setNumSamples(obj, numSamples)
