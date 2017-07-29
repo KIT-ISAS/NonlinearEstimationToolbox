@@ -289,16 +289,6 @@ classdef GaussianFilter < Filter
             obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
         end
         
-        function observableStateDim = getObservableStateDim(obj)
-            observableStateDim = obj.dimState - obj.stateDecompDim;
-            
-            % At least one variable of the system state must be "observable"
-            if observableStateDim <= 0
-                obj.error('InvalidUnobservableStateDimension', ...
-                          'At least one variable of the system state must be "observable".');
-            end
-        end
-        
         function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
             % Check if predicted state covariance is valid
             predictedStateCovSqrt = obj.checkCovPrediction(predictedStateCov, 'Predicted state');
@@ -404,6 +394,18 @@ classdef GaussianFilter < Filter
         [updatedMean, ...
          updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
                                                priorMean, priorCov, priorCovSqrt);
+    end
+    
+    methods (Access = 'private')
+        function observableStateDim = getObservableStateDim(obj)
+            observableStateDim = obj.dimState - obj.stateDecompDim;
+            
+            % At least one variable of the system state must be "observable"
+            if observableStateDim <= 0
+                obj.error('InvalidUnobservableStateDimension', ...
+                          'At least one variable of the system state must be "observable".');
+            end
+        end
     end
     
     properties (GetAccess = 'protected', SetAccess = 'private')
