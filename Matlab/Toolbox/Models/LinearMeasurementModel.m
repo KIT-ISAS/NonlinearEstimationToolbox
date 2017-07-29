@@ -52,9 +52,15 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
             %      A new LinearMeasurementModel instance.
             
             if nargin < 1
-                obj.setMeasurementMatrix([]);
+                obj.measMatrix = [];
             else
-                obj.setMeasurementMatrix(measMatrix);
+                if ~Checks.isMat(measMatrix) && ...
+                   ~isempty(measMatrix)
+                    error('LinearMeasurementModel:InvalidMeasurementMatrix', ...
+                          'measMatrix must be a matrix or an empty matrix.');
+                end
+                
+                obj.measMatrix = measMatrix;
             end
         end
         
@@ -72,7 +78,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
             if ~Checks.isMat(measMatrix) && ...
                ~isempty(measMatrix)
                 error('LinearMeasurementModel:InvalidMeasurementMatrix', ...
-                      'measMatrix must be a matrix.');
+                      'measMatrix must be a matrix or an empty matrix.');
             end
             
             obj.measMatrix = measMatrix;

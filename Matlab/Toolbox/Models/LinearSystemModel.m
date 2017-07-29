@@ -58,18 +58,30 @@ classdef LinearSystemModel < SystemModel
             %      A new LinearSystemModel instance.
             
             if nargin < 1
-                obj.setSystemMatrix([]);
+                obj.sysMatrix = [];
             else
-                obj.setSystemMatrix(sysMatrix);
+                if ~Checks.isSquareMat(sysMatrix) && ...
+                   ~isempty(sysMatrix)
+                    error('LinearSystemModel:InvalidSystemMatrix', ...
+                          'sysMatrix must be a square matrix or an empty matrix.');
+                end
+                
+                obj.sysMatrix = sysMatrix;
             end
             
             if nargin < 2
-                obj.setSystemNoiseMatrix([]);
+                obj.sysNoiseMatrix = [];
             else
-                obj.setSystemNoiseMatrix(sysNoiseMatrix);
+                if ~Checks.isMat(sysNoiseMatrix) && ...
+                   ~isempty(sysNoiseMatrix)
+                    error('LinearSystemModel:InvalidSystemNoiseMatrix', ...
+                          'sysNoiseMatrix must be a matrix or an empty matrix.');
+                end
+                
+                obj.sysNoiseMatrix = sysNoiseMatrix;
             end
             
-            obj.setSystemInput([]);
+            obj.sysInput = [];
         end
         
         function setSystemMatrix(obj, sysMatrix)
