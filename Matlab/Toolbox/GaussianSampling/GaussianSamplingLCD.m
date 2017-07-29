@@ -60,13 +60,15 @@ classdef GaussianSamplingLCD < GaussianSampling
             %      A new GaussianSamplingLCD instance.
             
             % By default, the symmetric sampling mode is used.
-            obj.setSymmetricMode(true);
+            obj.useSymmetric = true;
+            obj.sampleCache  = SampleCacheGLCDSym();
             
             % By default, the offline sample computation is used.
-            obj.setOnlineMode(false);
+            obj.onlineMode = false;
             
             % By default, use a factor of 10 to determine the number of samples.
-            obj.setNumSamplesByFactor(10);
+            obj.numSamplesAbsolute = [];
+            obj.numSamplesFactor   = 10;
         end
         
         function setNumSamples(obj, numSamples)

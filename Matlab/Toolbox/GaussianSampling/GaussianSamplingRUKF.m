@@ -50,7 +50,7 @@ classdef GaussianSamplingRUKF < GaussianSampling
             %      A new GaussianSamplingRUKF instance.
             
             % By default, 5 iterations are used.
-            obj.setNumIterations(5);
+            obj.numIterations = 5;
         end
         
         function setNumIterations(obj, numIterations)

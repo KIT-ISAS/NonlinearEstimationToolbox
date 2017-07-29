@@ -47,8 +47,8 @@ classdef GaussianSamplingUKF < GaussianSampling
             %   << obj (GaussianSamplingUKF)
             %      A new GaussianSamplingUKF instance.
             
-            % Default scaling
-            obj.setSampleScaling(0.5);
+            % Default sample scaling
+            obj.scaling = 0.5;
         end
         
         function setSampleScaling(obj, scaling)
