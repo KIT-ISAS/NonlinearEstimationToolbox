@@ -1,6 +1,6 @@
 
 classdef GaussianSamplingGHQ < GaussianSampling
-    % Implements the Gaussian-Hermit quadrature technique.
+    % Implements the Gauss-Hermite quadrature technique.
     %
     % GaussianSamplingGHQ Methods:
     %   GaussianSamplingGHQ    - Class constructor.

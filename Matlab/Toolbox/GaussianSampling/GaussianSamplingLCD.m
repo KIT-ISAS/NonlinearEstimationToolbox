@@ -1,6 +1,6 @@
 
 classdef GaussianSamplingLCD < GaussianSampling
-    % Implements the LCD based Gaussian sampling technique.
+    % Implements the LCD-based Gaussian sampling technique.
     %
     % GaussianSamplingLCD Methods:
     %   GaussianSamplingLCD   - Class constructor.
