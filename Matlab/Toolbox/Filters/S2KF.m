@@ -87,17 +87,20 @@ classdef S2KF < LRKF
             samplingPred = GaussianSamplingLCD();
             samplingUp   = GaussianSamplingLCD();
             
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-            
             % By default, determine the number of samples for prediction
             % and update by using a factor of 10.
-            obj.setNumSamplesByFactor(10);
+            samplingPred.setNumSamplesByFactor(10);
+            samplingUp.setNumSamplesByFactor(10);
             
             % By default, disable online mode.
-            obj.setOnlineMode(false);
+            samplingPred.setOnlineMode(false);
+            samplingUp.setOnlineMode(false);
             
             % By default, the symmetric sampling mode is used.
-            obj.setSymmetricMode(true);
+            samplingPred.setSymmetricMode(true);
+            samplingUp.setSymmetricMode(true);
+            
+            obj = obj@LRKF(name, samplingPred, samplingUp);
         end
         
         function setNumSamples(obj, numSamplesPrediction, numSamplesUpdate)

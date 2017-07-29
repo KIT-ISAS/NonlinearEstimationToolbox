@@ -77,7 +77,7 @@ classdef GPF < BasePF & GaussianFilter
             obj = obj@BasePF(name);
             obj = obj@GaussianFilter(name);
             
-            obj.setNumParticles(1000);
+            obj.numParticles = 1000;
         end
         
         function setNumParticles(obj, numParticles)

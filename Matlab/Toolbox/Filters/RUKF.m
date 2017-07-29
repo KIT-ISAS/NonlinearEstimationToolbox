@@ -82,10 +82,11 @@ classdef RUKF < LRKF
             samplingPred = GaussianSamplingRUKF();
             samplingUp   = GaussianSamplingRUKF();
             
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-            
             % By default, 5 iterations are used for prediction and update.
-            obj.setNumIterations(5);
+            samplingPred.setNumIterations(5);
+            samplingUp.setNumIterations(5);
+            
+            obj = obj@LRKF(name, samplingPred, samplingUp);
         end
         
         function setNumIterations(obj, numIterationsPrediction, numIterationsUpdate)

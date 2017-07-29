@@ -79,9 +79,8 @@ classdef EnKF < BasePF
             % Call superclass constructor
             obj = obj@BasePF(name);
             
-            obj.ensemble = [];
-            
-            obj.setEnsembleSize(1000);
+            obj.ensemble     = [];
+            obj.ensembleSize = 1000;
         end
         
         function setEnsembleSize(obj, ensembleSize)
