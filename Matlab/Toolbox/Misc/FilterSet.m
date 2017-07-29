@@ -6,13 +6,13 @@ classdef FilterSet < handle
     %   FilterSet         - Class constructor.
     %   add               - Add a filter to the set.
     %   remove            - Remove a filter from the set
-    %   get               - Get a particular filter from the set.
-    %   getIndex          - The current index of a filter in the set.
-    %   getNumFilters     - Get the current number of filters in the set.
-    %   getNames          - Get the names of all filters in the set.
-    %   setStates         - Set the system state for all filters in the set.
-    %   getStates         - Get the current system state of all filters in the set.
-    %   getStateDim       - Get the dimension of the current system state.
+    %   get               - Get a filter from the set.
+    %   getIndex          - Get the index of a filter from the set.
+    %   getNumFilters     - Get the number of filters in the set.
+    %   getNames          - Get the names of all filters.
+    %   setStates         - Set the system states of all filters.
+    %   getStates         - Get the system states of all filters.
+    %   getStateDim       - Get the dimension of the system state.
     %   predict           - Predict all filters in the set using the given system model.
     %   predictSingle     - Predict the filter with the given id and system model.
     %   update            - Update all filters in the set using the given measurement model and measurements.
@@ -115,7 +115,7 @@ classdef FilterSet < handle
         end
         
         function filter = get(obj, id)
-            % Get a particular filter from the set.
+            % Get a filter from the set.
             %
             % Parameters:
             %   >> id (Char or positive scalar)
@@ -154,9 +154,9 @@ classdef FilterSet < handle
         end
         
         function index = getIndex(obj, filterName)
-            % The current index of a filter in the set.
+            % Get the index of a filter from the set.
             %
-            % Note: The index of a filter may have changed when a filter was added or removed.
+            % Note: the index of a filter may have changed when a filter was added or removed.
             %
             % Parameters:
             %   >> name (Char)
@@ -180,7 +180,7 @@ classdef FilterSet < handle
         end
         
         function numFilters = getNumFilters(obj)
-            % Get the current number of filters in the set.
+            % Get the number of filters in the set.
             % 
             % Returns:
             %   << numFilters (Scalar)
@@ -190,7 +190,7 @@ classdef FilterSet < handle
         end
         
         function names = getNames(obj)
-            % Get the names of all filters in the set.
+            % Get the names of all filters.
             %
             % Returns:
             %   << names (Cell array of chars)
@@ -200,11 +200,11 @@ classdef FilterSet < handle
         end
         
         function setStates(obj, state)
-            % Set the system state for all filters in the set.
+            % Set the system states of all filters.
             %
             % Parameters:
             %   >> state (Subclass of Distribution)
-            %      The new system state.
+            %      The new system state for all filters.
             
             obj.forAllFilters(@setState, state);
             
@@ -212,11 +212,11 @@ classdef FilterSet < handle
         end
         
         function states = getStates(obj)
-            % Get the current system state of all filters in the set.
+            % Get the system states of all filters.
             %
             % Returns:
             %   << states (Cell array of Distributions)
-            %      Each cell array element contains the current state of a filter.
+            %      Each cell array element contains the system state of a filter.
             
             states = cell(1, obj.numFilters);
             
@@ -226,11 +226,11 @@ classdef FilterSet < handle
         end
         
         function dim = getStateDim(obj)
-            % Get the dimension of the current system state.
+            % Get the dimension of the system state.
             %
             % Returns:
             %   << dim (Scalar)
-            %      The dimension of the current system state.
+            %      The dimension of the system state.
             
             dim = obj.dimState;
         end
