@@ -1,6 +1,6 @@
 
 classdef Filter < handle & matlab.mixin.Copyable
-    % Abstract base class for a general (nonlinear) filter.
+    % Abstract base class for a filter.
     %
     % Filter Methods:
     %   Filter           - Class constructor.
@@ -11,7 +11,7 @@ classdef Filter < handle & matlab.mixin.Copyable
     %   getColor         - Get the current filter color / plotting properties.
     %   setState         - Set the system state.
     %   getState         - Get the current system state.
-    %   getStateDim      - Get the dimension of the current system state.
+    %   getStateDim      - Get the dimension of the system state.
     %   predict          - Perform a time update (prediction step).
     %   update           - Perform a measurement update (filter step) using the given measurement(s).
     %   step             - Perform a combined time and measurement update.
@@ -139,11 +139,11 @@ classdef Filter < handle & matlab.mixin.Copyable
         end
         
         function dim = getStateDim(obj)
-            % Get the dimension of the current system state.
+            % Get the dimension of the system state.
             %
             % Returns:
             %   << dim (Scalar)
-            %      The dimension of the current system state.
+            %      The dimension of the system state.
             
             dim = obj.dimState;
         end
