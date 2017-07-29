@@ -79,7 +79,7 @@ classdef GaussianFilter < Filter
             
             % By default, it is assumed that the entire system state is
             % required by the measurement model/likelihood function.
-            obj.setStateDecompDim(0);
+            obj.stateDecompDim = 0;
         end
         
         function state = getState(obj)

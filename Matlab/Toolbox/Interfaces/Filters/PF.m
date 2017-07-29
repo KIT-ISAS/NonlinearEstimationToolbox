@@ -65,12 +65,11 @@ classdef PF < BasePF
             % Call superclass constructor
             obj = obj@BasePF(name);
             
-            obj.particles = [];
-            obj.weights   = [];
+            obj.particles    = [];
+            obj.weights      = [];
+            obj.numParticles = 1000;
             
-            obj.setNumParticles(1000);
-            
-            obj.setMinAllowedNormalizedESS(0.5);
+            obj.minAllowedNormalizedESS = 0.5;
         end
         
         function state = getState(obj)

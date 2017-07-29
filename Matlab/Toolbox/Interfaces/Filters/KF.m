@@ -82,11 +82,11 @@ classdef KF < GaussianFilter
             obj = obj@GaussianFilter(name);
             
             % By default, no measurement validation
-            obj.setMeasValidationThreshold(1);
+            obj.measValidationThreshold = 1;
             
             % By default, only one iteration is performed during a
             % measurement update, i.e., the usual non-iterated update.
-            obj.setMaxNumIterations(1);
+            obj.maxNumIterations = 1;
             
             obj.lastNumIterations = 0;
         end
