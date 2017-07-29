@@ -3,8 +3,8 @@ classdef MixedNoiseSystemModel < handle
     % Abstract base class for system models corrupted by a mixture additive and arbitrary noise.
     %
     % MixedNoiseSystemModel Methods:
-    %   setNoise         - Set the non-additive system noise.
-    %   setAdditiveNoise - Set the additive system noise.
+    %   setNoise         - Set the system noise.
+    %   setAdditiveNoise - Set the pure additive system noise.
     %   systemEquation   - The system equation.
     %   derivative       - Compute the first-order and second-order derivatives of the implemented system equation.
     %   simulate         - Simulate the temporal evolution for a given system state.
@@ -36,30 +36,32 @@ classdef MixedNoiseSystemModel < handle
     
     methods
         function setNoise(obj, noise)
-            % Set the non-additive system noise.
+            % Set the system noise.
             %
             % Parameters:
-            %   >> noise (Subclass of Distribution or cell array containing subclasses of Distribution)
-            %      The new non-additive system noise.
+            %   >> noise (Subclass of Distribution)
+            %      The new system noise.
             
             if Checks.isClass(noise, 'Distribution')
                 obj.noise = noise;
             else
-                obj.noise = JointDistribution(noise);
+                error('MixedNoiseSystemModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         
-        function setAdditiveNoise(obj, additiveNoise)
-            % Set the additive system noise.
+        function setAdditiveNoise(obj, noise)
+            % Set the pure additive system noise.
             %
             % Parameters:
-            %   >> additiveNoise (Subclass of Distribution or cell array containing subclasses of Distribution)
-            %      The new additive system noise.
+            %   >> noise (Subclass of Distribution)
+            %      The new pure additive system noise.
             
-            if Checks.isClass(additiveNoise, 'Distribution')
-                obj.additiveNoise = additiveNoise;
+            if Checks.isClass(noise, 'Distribution')
+                obj.additiveNoise = noise;
             else
-                obj.additiveNoise = JointDistribution(additiveNoise);
+                error('MixedNoiseSystemModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         
@@ -141,10 +143,10 @@ classdef MixedNoiseSystemModel < handle
     end
     
     properties (SetAccess = 'private', GetAccess = 'public')
-        % The non-additive system noise.
+        % The system noise.
         noise;
         
-        % The additive system noise.
+        % The pure additive system noise.
         additiveNoise;
     end
 end

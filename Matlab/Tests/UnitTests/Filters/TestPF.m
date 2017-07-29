@@ -89,18 +89,6 @@ classdef TestPF < matlab.unittest.TestCase
             obj.verifyEqual(f.getNumParticles(), 3);
         end
         
-        function testSetStateJointDistribution(obj)
-            f = PFStub();
-            
-            dists = { Gaussian(), Uniform(), Gaussian(ones(2, 1), [2 0.5; 0.5 1.2]) };
-            
-            d = JointDistribution(dists);
-            
-            f.setState(d);
-            
-            obj.checkState(f, 4, 1000);
-        end
-        
         
         function testSetNumParticles(obj)
             f = PFStub();

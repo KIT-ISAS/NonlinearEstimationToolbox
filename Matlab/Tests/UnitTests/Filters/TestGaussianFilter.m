@@ -112,21 +112,6 @@ classdef TestGaussianFilter < matlab.unittest.TestCase
             obj.checkState(f, mean, cov, 3);
         end
         
-        function testSetStateJointDistribution(obj)
-            f = GaussianFilterStub();
-            
-            dists = { Gaussian(), Uniform(), Gaussian(ones(2, 1), [2 0.5; 0.5 1.2]) };
-            
-            d = JointDistribution(dists);
-            
-            mean = [0, 0.5, 1, 1]';
-            cov  = blkdiag(1, 1/12, [2 0.5; 0.5 1.2]);
-            
-            f.setState(d);
-            
-            obj.checkState(f, mean, cov, 4);
-        end
-        
         
         function testGetStateMeanAndCov(obj)
             f = GaussianFilterStub();

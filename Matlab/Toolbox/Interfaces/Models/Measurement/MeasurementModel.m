@@ -38,13 +38,14 @@ classdef MeasurementModel < handle
             % Set the measurement noise.
             %
             % Parameters:
-            %   >> noise (Subclass of Distribution or cell array containing subclasses of Distribution)
+            %   >> noise (Subclass of Distribution)
             %      The new measurement noise.
             
             if Checks.isClass(noise, 'Distribution')
                 obj.noise = noise;
             else
-                obj.noise = JointDistribution(noise);
+                error('MeasurementModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         

@@ -38,13 +38,14 @@ classdef SystemModel < handle
             % Set the system noise.
             %
             % Parameters:
-            %   >> noise (Subclass of Distribution or cell array containing subclasses of Distribution)
+            %   >> noise (Subclass of Distribution)
             %      The new system noise.
             
             if Checks.isClass(noise, 'Distribution')
                 obj.noise = noise;
             else
-                obj.noise = JointDistribution(noise);
+                error('SystemModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         

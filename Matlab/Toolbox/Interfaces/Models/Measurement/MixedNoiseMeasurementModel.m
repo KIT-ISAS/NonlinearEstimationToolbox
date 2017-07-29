@@ -3,8 +3,8 @@ classdef MixedNoiseMeasurementModel < handle
     % Abstract base class for system models corrupted by a mixture additive and arbitrary noise.
     %
     % MixedNoiseMeasurementModel Methods:
-    %   setNoise            - Set the non-additive measurement noise.
-    %   setAdditiveNoise    - Set the additive measurement noise.
+    %   setNoise            - Set the measurement noise.
+    %   setAdditiveNoise    - Set the pure additive measurement noise.
     %   measurementEquation - The measurement equation.
     %   derivative          - Compute the first-order and second-order derivatives of the implemented measurement equation.
     %   simulate            - Simulate one ore more measurements for a given system state.
@@ -36,30 +36,32 @@ classdef MixedNoiseMeasurementModel < handle
     
     methods
         function setNoise(obj, noise)
-            % Set the non-additive measurement noise.
+            % Set the measurement noise.
             %
             % Parameters:
-            %   >> noise (Subclass of Distribution or cell array containing subclasses of Distribution)
-            %      The new non-additive measurement noise.
+            %   >> noise (Subclass of Distribution)
+            %      The new measurement noise.
             
             if Checks.isClass(noise, 'Distribution')
                 obj.noise = noise;
             else
-                obj.noise = JointDistribution(noise);
+                error('MixedNoiseMeasurementModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         
-        function setAdditiveNoise(obj, additiveNoise)
-            % Set the additive measurement noise.
+        function setAdditiveNoise(obj, noise)
+            % Set the pure additive measurement noise.
             %
             % Parameters:
-            %   >> additiveNoise (Subclass of Distribution or cell array containing subclasses of Distribution)
-            %      The new additive measurement noise.
+            %   >> noise (Subclass of Distribution)
+            %      The new pure additive measurement noise.
             
-            if Checks.isClass(additiveNoise, 'Distribution')
-                obj.additiveNoise = additiveNoise;
+            if Checks.isClass(noise, 'Distribution')
+                obj.additiveNoise = noise;
             else
-                obj.additiveNoise = JointDistribution(additiveNoise);
+                error('MixedNoiseMeasurementModel:InvalidNoise', ...
+                      'noise must be a subclass of Distribution.');
             end
         end
         
@@ -157,10 +159,10 @@ classdef MixedNoiseMeasurementModel < handle
     end
     
     properties (SetAccess = 'private', GetAccess = 'public')
-        % The non-additive measurement noise.
+        % The measurement noise.
         noise;
         
-        % The additive measurement noise.
+        % The pure additive measurement noise.
         additiveNoise;
     end
 end
