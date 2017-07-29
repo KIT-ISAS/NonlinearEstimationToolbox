@@ -22,7 +22,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     %   setNumSamplesByFactor     - Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
     %   setMaxNumProgSteps        - Set the maximum number of allowed progression steps.
     %   getMaxNumProgSteps        - Get the current maximum number of allowed progression steps.
-    %   getLastUpdateData         - Get information from the last performed measurement update.
+    %   getNumProgSteps           - Get the number of progression steps required by the last measurement update.
     
     % Literature:
     %   Jannik Steinbring, Antonio Zea, and Uwe D. Hanebeck,
@@ -90,18 +90,18 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             samplingPred = GaussianSamplingLCD();
             samplingUp   = GaussianSamplingLCD();
             
+            % By default, determine the number of samples for prediction
+            % and update by using a factor of 10.
+            samplingPred.setNumSamplesByFactor(10);
+            samplingUp.setNumSamplesByFactor(10);
+            
             % Call superclass constructor
             obj = obj@SampleBasedJointlyGaussianPrediction(name, samplingPred);
             
             obj.samplingUpdate = samplingUp;
             
-            obj.lastNumSteps = 0;
-            
-            % By default, determine the number of samples for prediction
-            % and update by using a factor of 10.
-            obj.setNumSamplesByFactor(10);
-            
-            obj.setMaxNumProgSteps(0);
+            obj.maxNumProgSteps = 0;
+            obj.numProgSteps    = 0;
         end
         
         function setNumSamples(obj, numSamplesPrediction, numSamplesUpdate)
@@ -198,14 +198,14 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             maxNumProgSteps = obj.maxNumProgSteps;
         end
         
-        function lastNumSteps = getLastUpdateData(obj)
-            % Get information from the last performed measurement update.
+        function numProgSteps = getNumProgSteps(obj)
+            % Get the number of progression steps required by the last measurement update.
             %
             % Returns:
-            %   << lastNumSteps (Non-negative scalar)
-            %      Number of required progression steps during the last measurement update.
+            %   << numProgSteps (Non-negative scalar)
+            %      The number of progression steps required by the last measurement update.
             
-            lastNumSteps = obj.lastNumSteps;
+            numProgSteps = obj.numProgSteps;
         end
     end
     
@@ -284,11 +284,11 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                   updatedCov] = updateLikelihood(obj, measModel, measurements, ...
                                                  priorMean, priorCovSqrt)
             % Initialize progression
-            dimState       = size(priorMean, 1);
-            updatedMean    = priorMean;
-            updatedCovSqrt = priorCovSqrt;
-            numSteps       = 0;
-            gamma          = 0;
+            dimState         = size(priorMean, 1);
+            updatedMean      = priorMean;
+            updatedCovSqrt   = priorCovSqrt;
+            gamma            = 0;
+            obj.numProgSteps = 0;
             
             % Get standard normal approximation
             [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(dimState);
@@ -297,7 +297,10 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             logForcedRatio = -log(numSamples); % = log(1 / numSamples)
             
             % Start progression
-            while gamma < 1 && (obj.maxNumProgSteps == 0 || numSteps < obj.maxNumProgSteps)
+            while gamma < 1 && (obj.maxNumProgSteps == 0 || obj.numProgSteps < obj.maxNumProgSteps)
+                % Increment step counter
+                obj.numProgSteps = obj.numProgSteps + 1;
+                
                 % Sample intermediate Gaussian approximation
                 samples = updatedCovSqrt * stdNormalSamples;
                 samples = bsxfun(@plus, samples, updatedMean);
@@ -328,6 +331,9 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 % Clamp deltaGamma if necessary
                 if gamma + deltaGamma > 1
                     deltaGamma = 1 - gamma;
+                    gamma = 1;
+                else
+                    gamma = gamma + deltaGamma;
                 end
                 
                 % For numerical stability
@@ -348,19 +354,11 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 % Compute new intermediate mean and covariance
                 [updatedMean, updatedCov] = Utils.getMeanAndCov(samples, weights);
                 
-                % Increment gamma
-                gamma = gamma + deltaGamma;
-                
-                % Increment step counter
-                numSteps = numSteps + 1;
-                
                 if gamma ~= 1
                     % Check if intermediate state covariance matrix is valid
                     updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
                 end
             end
-            
-            obj.lastNumSteps = numSteps;
         end
     end
     
@@ -369,19 +367,19 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
             cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction();
             
             cpObj.samplingUpdate  = obj.samplingUpdate.copy();
-            cpObj.lastNumSteps    = obj.lastNumSteps;
             cpObj.maxNumProgSteps = obj.maxNumProgSteps;
+            cpObj.numProgSteps    = obj.numProgSteps;
         end
     end
     
     properties (Access = 'private')
-        % Gaussian LCD sampling used for update.
+        % Gaussian LCD sampling used for the update.
         samplingUpdate;
-        
-        % Number of required progression steps during the last measurement update.
-        lastNumSteps;   
         
         % The maximum number of allowed progression steps.
         maxNumProgSteps;
+        
+        % The number of progression steps required by the last measurement update.
+        numProgSteps;
     end
 end

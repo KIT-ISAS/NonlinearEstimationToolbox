@@ -74,7 +74,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateLinearMeasModelStateDecomp(obj)
@@ -86,7 +86,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdateStateDecomp(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateLinearMeasModelMultiMeas(obj)
@@ -98,7 +98,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdateMultiMeas(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateLinearMeasModelStateDecompMultiMeas(obj)
@@ -110,7 +110,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         
@@ -123,7 +123,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateAddNoiseMeasModelStateDecomp(obj)
@@ -135,7 +135,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdateStateDecomp(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateAddNoiseMeasModelMultiMeas(obj)
@@ -147,7 +147,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdateMultiMeas(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
         function testUpdateAddNoiseMeasModelStateDecompMultiMeas(obj)
@@ -159,7 +159,7 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
             
-            obj.verifyGreaterThanOrEqual(f.getLastUpdateData(), 1);
+            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
     end
     
