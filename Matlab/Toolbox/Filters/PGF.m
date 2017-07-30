@@ -22,8 +22,10 @@ classdef PGF < GaussianFilter
     %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
     %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
     %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
-    %   setNumSamples               - Set an absolute number of samples used by the PGF for prediction and upate.
-    %   setNumSamplesByFactor       - Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
+    %   setNumSamples               - Set absolute numbers of samples used for state prediction and measurement update.
+    %   setNumSamplesByFactor       - Set linear factors to determine the number of samples used for state prediction and measurement update.
+    %   getNumSamplesPrediction     - Get the configured number of samples used for the state prediction.
+    %   getNumSamplesUpdate         - Get the configured number of samples used for the measurement update.
     %   setMaxNumProgSteps          - Set the maximum number of allowed progression steps.
     %   getMaxNumProgSteps          - Get the maximum number of allowed progression steps.
     %   getNumProgSteps             - Get the number of progression steps required by the last measurement update.
@@ -97,8 +99,8 @@ classdef PGF < GaussianFilter
             obj.samplingPrediction = GaussianSamplingLCD();
             obj.samplingUpdate     = GaussianSamplingLCD();
             
-            % By default, determine the number of samples for prediction
-            % and update by using a factor of 10.
+            % By default, determine the number of samples for state prediction
+            % and measurement update by using a linear factor of 10.
             obj.samplingPrediction.setNumSamplesByFactor(10);
             obj.samplingUpdate.setNumSamplesByFactor(10);
             
@@ -107,57 +109,111 @@ classdef PGF < GaussianFilter
         end
         
         function setNumSamples(obj, numSamplesPrediction, numSamplesUpdate)
-            % Set an absolute number of samples used by the PGF for prediction and upate.
+            % Set absolute numbers of samples used for state prediction and measurement update.
             %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined by a linear factor (see setNumSamplesByFactor()).
+            % This also overwrites a possible previous setting, where the number of
+            % samples are determined by a linear factor (see setNumSamplesByFactor()).
             %
-            % By default, a linear factor 10 is used for prediction and update.
+            % By default, a linear factor 10 is used for both state prediction
+            % and measurement update.
             %
             % Parameters:
-            %    >> numSamplesPrediction (Positive scalar)
-            %       The new absolute number of samples used for the prediction.
+            %    >> numSamplesPrediction (Positive scalar or empty matrix)
+            %       The new absolute number of samples used for the state prediction.
+            %       Pass an empty matrix to keep the current setting for the state prediction.
             %
-            %    >> numSamplesUpdate (Positive scalar)
-            %       The new absolute number of samples used for the update.
-            %       Default: the same number of samples specified for the prediction.
+            %    >> numSamplesUpdate (Positive scalar or empty matrix)
+            %       The new absolute number of samples used for the measurement update.
+            %       Pass an empty matrix to keep the current setting for the measurement
+            %       update. If nothing is passed, the absolute number of samples specified
+            %       for the state prediction is also used for the measurement update.
             
-            obj.samplingPrediction.setNumSamples(numSamplesPrediction);
+            if ~isempty(numSamplesPrediction)
+                obj.samplingPrediction.setNumSamples(numSamplesPrediction);
+            end
             
             if nargin == 3
-                obj.samplingUpdate.setNumSamples(numSamplesUpdate);
-            else
+                if ~isempty(numSamplesUpdate)
+                    obj.samplingUpdate.setNumSamples(numSamplesUpdate);
+                end
+            elseif ~isempty(numSamplesPrediction)
                 obj.samplingUpdate.setNumSamples(numSamplesPrediction);
             end
         end
         
         function setNumSamplesByFactor(obj, factorPrediction, factorUpdate)
-            % Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
+            % Set linear factors to determine the number of samples used for state prediction and measurement update.
             %
             % The actual number of samples will be computed according to
             %
-            %    Number of samples = factor * dimension
+            %    Number of samples = factor * dimension + 1 - mod(factor * dimension, 2)
             %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined in an absolute way (see setNumSamples()).
+            % i.e., always an odd number of samples is used.
             %
-            % By default, a linear factor 10 is used for prediction and update.
+            % This also overwrites a possible previous setting, where the number of
+            % samples are determined in an absolute way (see setNumSamples()).
+            %
+            % By default, a linear factor 10 is used for both state prediction
+            % and measurement update.
             %
             % Parameters:
-            %    >> factorPrediction (Positive scalar)
-            %       The new linear factor to determine the number of samples for the prediction.
+            %    >> factorPrediction (Positive scalar or empty matrix)
+            %       The new linear factor to determine the number of samples used for
+            %       the state prediction. Pass an empty matrix to keep the current
+            %       setting for the state prediction.
             %
-            %    >> factorUpdate (Positive scalar)
-            %       The new linear factor to determine the number of samples for the update.
-            %       Default: the same factor specified for the prediction.
+            %    >> factorUpdate (Positive scalar or empty matrix)
+            %       The new linear factor to determine the number of samples used for
+            %       the measurement update. Pass an empty matrix to keep the current
+            %       setting for the measurement update. If nothing is passed, the
+            %       linear factor specified for the state prediction is also used for
+            %       the measurement update.
             
-            obj.samplingPrediction.setNumSamplesByFactor(factorPrediction);
+            if ~isempty(factorPrediction)
+                obj.samplingPrediction.setNumSamplesByFactor(factorPrediction);
+            end
             
             if nargin == 3
-                obj.samplingUpdate.setNumSamplesByFactor(factorUpdate);
-            else
+                if ~isempty(factorUpdate)
+                    obj.samplingUpdate.setNumSamplesByFactor(factorUpdate);
+                end
+            elseif ~isempty(factorPrediction)
                 obj.samplingUpdate.setNumSamplesByFactor(factorPrediction);
             end
+        end
+        
+        function [numSamplesAbs, ...
+                  numSamplesFactor] = getNumSamplesPrediction(obj)
+            % Get the configured number of samples used for the state prediction.
+            %
+            % Returns:
+            %   << numSamplesAbs (Positive scalar or empty matrix)
+            %      Equals the absolute number of samples if set.
+            %      Otherwise, an empty matrix.
+            %
+            %   << numSamplesFactor (Positive scalar or empty matrix)
+            %      Equals the sample factor if set.
+            %      Otherwise, an empty matrix.
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = obj.samplingPrediction.getNumSamples();
+        end
+        
+        function [numSamplesAbs, ...
+                  numSamplesFactor] = getNumSamplesUpdate(obj)
+            % Get the configured number of samples used for the measurement update.
+            %
+            % Returns:
+            %   << numSamplesAbs (Positive scalar or empty matrix)
+            %      Equals the absolute number of samples if set.
+            %      Otherwise, an empty matrix.
+            %
+            %   << numSamplesFactor (Positive scalar or empty matrix)
+            %      Equals the sample factor if set.
+            %      Otherwise, an empty matrix.
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = obj.samplingUpdate.getNumSamples();
         end
         
         function setMaxNumProgSteps(obj, maxNumProgSteps)
