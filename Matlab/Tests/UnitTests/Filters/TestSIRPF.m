@@ -220,6 +220,7 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
             
             obj.verifySize(samples, [dim, numSamples]);
             obj.verifySize(weights, [1, numSamples]);
+            obj.verifyEqual(weights, repmat(1/numSamples, 1, numSamples), 'AbsTol', 1e-14);
             
             obj.verifyEqual(f.getStateDim(), dim);
         end
