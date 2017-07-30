@@ -31,7 +31,7 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
         function testConstructorDefault(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'SIR-PF');
+            obj.verifyEqual(f.getName(), 'SIRPF');
             obj.verifyEqual(f.getNumParticles(), 1000);
             obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.5);
         end

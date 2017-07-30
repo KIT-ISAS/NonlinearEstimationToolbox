@@ -31,7 +31,7 @@ classdef TestASIRPF < TestSIRPF
         function testConstructorDefault(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'Auxiliary SIR-PF');
+            obj.verifyEqual(f.getName(), 'Auxiliary SIRPF');
         end
         
         function testStepAddNoiseSysModel(obj)
