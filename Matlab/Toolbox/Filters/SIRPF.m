@@ -63,14 +63,14 @@ classdef SIRPF < ParticleFilter
             %      or the user should specify an appropriate name (e.g., 
             %      'PF (10k Particles)').
             %
-            %      Default name: 'SIR-PF'.
+            %      Default name: 'SIRPF'.
             %
             % Returns:
             %   << obj (SIRPF)
             %      A new SIRPF instance.
             
             if nargin < 1
-                name = 'SIR-PF';
+                name = 'SIRPF';
             end
             
             % Call superclass constructor
