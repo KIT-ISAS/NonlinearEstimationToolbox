@@ -75,14 +75,9 @@ classdef GaussianMixture < Distribution
         
         function [mean, covariance, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
-                [meanMeans, covMeans] = Utils.getMeanAndCov(obj.means, obj.weights);
-                
-                obj.mean = meanMeans;
-                
-                weightedCovs = bsxfun(@times, obj.covariances, ...
-                                      reshape(obj.weights, [1 1 obj.numComponents]));
-                
-                obj.covariance = covMeans + sum(weightedCovs, 3);
+                [obj.mean, obj.covariance] = Utils.getGMMeanAndCov(obj.means, ...
+                                                                   obj.covariances, ...
+                                                                   obj.weights);
             end
             
             mean       = obj.mean;
