@@ -9,8 +9,9 @@ classdef GaussianSamplingLCD < GaussianSampling
     %   getSamples            - Get a set of samples approximating a Gaussian distribution.
     %   setNumSamples         - Set an absolute number of samples.
     %   setNumSamplesByFactor - Set a linear factor to determine the number of samples.
-    %   setOnlineMode         - Select between online and offline sampling.
-    %   setSymmetricMode      - Select between symmetric and asymmetric sampling.
+    %   getNumSamples         - Get the configured number of samples.
+    %   setSymmetricMode      - Select between point-symmetric and asymmetric sampling.
+    %   getSymmetricMode      - Get the selected sampling mode.
     
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
@@ -66,9 +67,6 @@ classdef GaussianSamplingLCD < GaussianSampling
             obj.useSymmetric = true;
             obj.sampleCache  = SampleCacheGLCDSym();
             
-            % By default, the offline sample computation is used.
-            obj.onlineMode = false;
-            
             % By default, use a factor of 10 to determine the number of samples.
             obj.numSamplesAbsolute = [];
             obj.numSamplesFactor   = 10;
@@ -77,8 +75,8 @@ classdef GaussianSamplingLCD < GaussianSampling
         function setNumSamples(obj, numSamples)
             % Set an absolute number of samples.
             %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined by a linear factor (see setNumSamplesByFactor()).
+            % This also overwrites a possible previous setting, where the number of
+            % samples are determined by a linear factor (see setNumSamplesByFactor()).
             %
             % By default, a linear factor 10 is used.
             %
@@ -100,10 +98,12 @@ classdef GaussianSamplingLCD < GaussianSampling
             %
             % The actual number of samples will be computed according to
             %
-            %    Number of samples = factor * dimension
+            %    Number of samples = factor * dimension + 1 - mod(factor * dimension, 2)
             %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined in an absolute way (see setNumSamples()).
+            % i.e., always an odd number of samples is used.
+            %
+            % This also overwrites a possible previous setting, where the number of
+            % samples are determined in an absolute way (see setNumSamples()).
             %
             % By default, a linear factor 10 is used.
             %
@@ -120,33 +120,31 @@ classdef GaussianSamplingLCD < GaussianSampling
             obj.numSamplesFactor   = ceil(factor);
         end
         
-        function setOnlineMode(obj, onlineMode)
-            % Select between online and offline sampling.
+        function [numSamplesAbs, ...
+                  numSamplesFactor] = getNumSamples(obj)
+            % Get the configured number of samples.
             %
-            % By default, the offline sample computation, i.e., the sample
-            % cache, is used.
+            % Returns:
+            %   << numSamplesAbs (Positive scalar or empty matrix)
+            %      Equals the absolute number of samples if set.
+            %      Otherwise, an empty matrix.
             %
-            % Parameters:
-            %   >> onlineMode (Logical scalar)
-            %      If true, the samples will be computed online.
-            %      Otherwise, samples from the sample cache will be used.
+            %   << numSamplesFactor (Positive scalar or empty matrix)
+            %      Equals the sample factor if set.
+            %      Otherwise, an empty matrix.
             
-            if ~Checks.isFlag(onlineMode)
-                error('GaussianSamplingLCD:InvalidInput', ...
-                      'onlineMode must be a logical scalar.');
-            end
-            
-            obj.onlineMode = onlineMode;
+            numSamplesAbs    = obj.numSamplesAbsolute;
+            numSamplesFactor = obj.numSamplesFactor;
         end
         
         function setSymmetricMode(obj, useSymmetric)
-            % Select between symmetric and asymmetric sampling.
+            % Select between point-symmetric and asymmetric sampling.
             %
-            % By default, the symmetric sampling mode is used.
+            % By default, the recommended point-symmetric sampling scheme is used.
             %
             % Parameters:
             %   >> useSymmetric (Logcial scalar)
-            %      If true, the symmetric Gaussian LCD sampling scheme is used.
+            %      If true, the point-symmetric sampling scheme is used.
             %      Otherwise, the asymmetric one is used.
             
             if ~Checks.isFlag(useSymmetric)
@@ -163,6 +161,17 @@ classdef GaussianSamplingLCD < GaussianSampling
             end
         end
         
+        function useSymmetric = getSymmetricMode(obj)
+            % Get the selected sampling mode.
+            %
+            % Returns:
+            %   << useSymmetric (Logical scalar)
+            %      If true, the point-symmetric sampling scheme is used.
+            %      Otherwise, the asymmetric one is used.
+            
+            useSymmetric = obj.useSymmetric;
+        end
+        
         function [samples, weights, numSamples] = getStdNormalSamples(obj, dimension)
             if ~Checks.isPosScalar(dimension)
                 error('GaussianSamplingLCD:InvalidDimension', ...
@@ -171,11 +180,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             
             numSamples = obj.computeNumSamples(dimension);
             
-            if obj.onlineMode
-                [samples, weights] = obj.computeOnline(dimension, numSamples);
-            else
-                [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
-            end
+            [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
         end
     end
     
@@ -184,39 +189,9 @@ classdef GaussianSamplingLCD < GaussianSampling
             if isempty(obj.numSamplesAbsolute)
                 numSamples = obj.numSamplesFactor * dim;
                 
-                if mod(numSamples, 2) == 0
-                    numSamples = numSamples + 1;
-                end
+                numSamples = numSamples + 1 - mod(numSamples, 2);
             else
                 numSamples = obj.numSamplesAbsolute;
-            end
-        end
-        
-        function [samples, weights] = computeOnline(obj, dim, numSamples)
-            if obj.useSymmetric
-                if numSamples < 2 * dim
-                    error('GaussianSamplingLCD:InvalidNumberOfSamples', ...
-                          'The number of samples must be at least twice the dimension.');
-                end
-            else
-                if numSamples <= dim
-                    error('GaussianSamplingLCD:InvalidNumberOfSamples', ...
-                          'The number of samples must be greater than the dimension.');
-                end
-            end
-            
-            compute = true;
-            
-            while compute
-                try
-                    [samples, weight] = GLCD(dim, numSamples, obj.useSymmetric);
-                    weights = repmat(weight, 1, numSamples);
-                    
-                    compute = false;
-                catch
-                    warning('GaussianSamplingLCD:ComputingSamplesFailed', ...
-                            'Computing Gaussian LCD samples failed. Trying again.');
-                end
             end
         end
     end
@@ -229,12 +204,11 @@ classdef GaussianSamplingLCD < GaussianSampling
             cpObj.numSamplesAbsolute = obj.numSamplesAbsolute;
             cpObj.numSamplesFactor   = obj.numSamplesFactor;
             cpObj.useSymmetric       = obj.useSymmetric;
-            cpObj.onlineMode         = obj.onlineMode;
         end
     end
     
     properties (Access = 'private')
-        % Symmetric / Asymmetric GLCD sample cache.
+        % Symmetric/Asymmetric Gaussian LCD sample cache.
         sampleCache;
         
         % Absolute number of samples.
@@ -243,12 +217,8 @@ classdef GaussianSamplingLCD < GaussianSampling
         % Linear factor to determine the number of samples.
         numSamplesFactor;
         
-        % If true, the symmetric Gaussian LCD sampling scheme is used.
+        % If true, the point-symmetric LCD-based Gaussian sampling scheme is used.
         % Otherwise, the asymmetric one is used.
         useSymmetric;
-        
-        % If true, the online sample computation is used.
-        % Otherwise, samples are used from the sample cache (offline computation).
-        onlineMode;
     end
 end
