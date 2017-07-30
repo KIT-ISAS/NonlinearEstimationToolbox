@@ -8,7 +8,7 @@ classdef GaussianSamplingGHQ < GaussianSampling
     %   getStdNormalSamples    - Get a set of samples approximating a standard normal distribution.
     %   getSamples             - Get a set of samples approximating a Gaussian distribution.
     %   setNumQuadraturePoints - Set the number of quadrature points.
-    %   getNumQuadraturePoints - Get the current number of quadrature points.
+    %   getNumQuadraturePoints - Get the number of quadrature points.
     
     % Literature:
     %   Kazufumi Ito and Kaiqi Xiong,
@@ -48,6 +48,9 @@ classdef GaussianSamplingGHQ < GaussianSampling
             %   << obj (GaussianSamplingGHQ)
             %      A new GaussianSamplingGHQ instance.
             
+            % Call superclass constructor
+            obj = obj@GaussianSampling();
+            
             obj.sampleCache = SampleCacheGHQ();
         end
         
@@ -64,11 +67,11 @@ classdef GaussianSamplingGHQ < GaussianSampling
         end
         
         function numPoints = getNumQuadraturePoints(obj)
-            % Get the current number of quadrature points.
+            % Get the number of quadrature points.
             %
             % Returns:
             %   << numPoints (Scalar in { 2, 3, 4 })
-            %      The current number of quadrature points.
+            %      The number of quadrature points.
             
             numPoints = obj.sampleCache.getNumQuadraturePoints();
         end

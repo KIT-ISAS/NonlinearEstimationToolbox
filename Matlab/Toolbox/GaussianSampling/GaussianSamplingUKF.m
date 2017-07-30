@@ -7,7 +7,8 @@ classdef GaussianSamplingUKF < GaussianSampling
     %   copy                - Copy a GaussianSampling instance.
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
-    %   getSampleScaling    - Get the current sample scaling factor.
+    %   setSampleScaling    - Set the sample scaling factor.
+    %   getSampleScaling    - Get the sample scaling factor.
     
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
@@ -47,6 +48,9 @@ classdef GaussianSamplingUKF < GaussianSampling
             %   << obj (GaussianSamplingUKF)
             %      A new GaussianSamplingUKF instance.
             
+            % Call superclass constructor
+            obj = obj@GaussianSampling();
+            
             % Default sample scaling
             obj.scaling = 0.5;
         end
@@ -78,11 +82,11 @@ classdef GaussianSamplingUKF < GaussianSampling
         end
         
         function scaling = getSampleScaling(obj)
-            % Get the current sample scaling factor.
+            % Get the sample scaling factor.
             % 
             % Returns:
             %   << scaling (Scalar)
-            %      The current sample scaling factor.
+            %      The sample scaling factor.
             
             scaling = obj.scaling;
         end

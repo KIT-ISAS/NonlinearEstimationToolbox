@@ -8,7 +8,7 @@ classdef GaussianSamplingRUKF < GaussianSampling
     %   getStdNormalSamples  - Get a set of samples approximating a standard normal distribution.
     %   getSamples           - Get a set of samples approximating a Gaussian distribution.
     %   setNumIterations     - Set the number of iterations.
-    %   getNumIterations     - Get the current number of iterations.
+    %   getNumIterations     - Get the number of iterations.
     
     % Literature:
     %   Jindrich Dunik, Ondrej Straka, and Miroslav Simandl,
@@ -49,6 +49,9 @@ classdef GaussianSamplingRUKF < GaussianSampling
             %   << obj (GaussianSamplingRUKF)
             %      A new GaussianSamplingRUKF instance.
             
+            % Call superclass constructor
+            obj = obj@GaussianSampling();
+            
             % By default, 5 iterations are used.
             obj.numIterations = 5;
         end
@@ -71,11 +74,11 @@ classdef GaussianSamplingRUKF < GaussianSampling
         end
         
         function numIterations = getNumIterations(obj)
-            % Get the current number of iterations.
+            % Get the number of iterations.
             %
             % Returns:
             %   << numIterations (Positive scalar)
-            %      The current number of iterations.
+            %      The number of iterations.
             
             numIterations = obj.numIterations;
         end

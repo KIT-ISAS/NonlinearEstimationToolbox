@@ -59,6 +59,9 @@ classdef GaussianSamplingLCD < GaussianSampling
             %   << obj (GaussianSamplingLCD)
             %      A new GaussianSamplingLCD instance.
             
+            % Call superclass constructor
+            obj = obj@GaussianSampling();
+            
             % By default, the symmetric sampling mode is used.
             obj.useSymmetric = true;
             obj.sampleCache  = SampleCacheGLCDSym();

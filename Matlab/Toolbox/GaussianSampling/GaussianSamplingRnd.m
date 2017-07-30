@@ -8,7 +8,7 @@ classdef GaussianSamplingRnd < GaussianSampling
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
     %   setNumSamples       - Set the number of samples used to approximate a Gaussian.
-    %   getNumSamples       - Get the current number of samples used to approximate a Gaussian.
+    %   getNumSamples       - Get the number of samples used to approximate a Gaussian.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -43,6 +43,9 @@ classdef GaussianSamplingRnd < GaussianSampling
             %   << obj (GaussianSamplingRnd)
             %      A new GaussianSamplingRnd instance.
             
+            % Call superclass constructor
+            obj = obj@GaussianSampling();
+            
             obj.numSamples = 1000;
         end
         
@@ -62,11 +65,11 @@ classdef GaussianSamplingRnd < GaussianSampling
         end
         
         function numSamples = getNumSamples(obj)
-            % Get the current number of samples used to approximate a Gaussian.
+            % Get the number of samples used to approximate a Gaussian.
             % 
             % Returns:
             %   >> numSamples (Positive scalar)
-            %      The current number of samples.
+            %      The number of samples.
             
             numSamples = obj.numSamples;
         end        
