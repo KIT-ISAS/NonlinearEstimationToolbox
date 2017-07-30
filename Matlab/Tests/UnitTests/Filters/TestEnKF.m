@@ -32,6 +32,91 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             f = obj.initFilter();
             
             obj.verifyEqual(f.getName(), 'EnKF');
+            obj.verifyEqual(f.getEnsembleSize(), 1000);
+        end
+        
+        
+        function testSetStateGaussian(obj)
+            f = obj.initFilter();
+            
+            d = Gaussian(zeros(2, 1), diag([1.5, 2]));
+            
+            f.setState(d);
+            
+            obj.checkState(f, 2, 1000);
+        end
+        
+        function testSetStateGaussianMixture(obj)
+            f = obj.initFilter();
+            
+            d = GaussianMixture(ones(2, 2), cat(3, diag([1.5, 2]), 3 * eye(2)), [1 5]);
+            
+            f.setState(d);
+            
+            obj.checkState(f, 2, 1000);
+        end
+        
+        function testSetStateUniform(obj)
+            f = obj.initFilter();
+            
+            d = Uniform([-2 3 0], [5 10 1]);
+            
+            f.setState(d);
+            
+            obj.checkState(f, 3, 1000);
+        end
+        
+        function testSetStateDiracMixture(obj)
+            f = obj.initFilter();
+            
+            s = cat(2, zeros(3, 1), ones(3, 1), [-2 5 0.7]');
+            w = [1 2 3];
+            
+            d = DiracMixture(s, w);
+            
+            f.setState(d);
+            
+            obj.checkState(f, 3, 1000);
+        end
+        
+        
+        function testSetEnsembleSize(obj)
+            f = obj.initFilter();
+            
+            f.setEnsembleSize(2000);
+            
+            obj.verifyEqual(f.getEnsembleSize(), 2000);
+        end
+        
+        function testSetEnsembleSizeWithResampling(obj)
+            f = obj.initFilter();
+            
+            d = Gaussian(zeros(2, 1), diag([1.5, 2]));
+            f.setState(d);
+            
+            f.setEnsembleSize(2000);
+            
+            obj.verifyEqual(f.getEnsembleSize(), 2000);
+            
+            obj.checkState(f, 2, 2000);
+        end
+        
+        
+        function testGetStateMeanAndCov(obj)
+            f = obj.initFilter();
+            
+            f.setEnsembleSize(1e7);
+            
+            d = Gaussian(zeros(2, 1), diag([1.5, 2]));
+            
+            f.setState(d);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            [mean, cov] = d.getMeanAndCov();
+            
+            obj.verifyEqual(stateMean, mean, 'AbsTol', 1e-1);
+            obj.verifyEqual(stateCov, cov, 'AbsTol', 1e-1);
         end
         
         
@@ -81,7 +166,7 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
         end
-
+        
         
         function testUpdateAddNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -119,6 +204,22 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
     methods (Access = 'protected')
         function f = initFilter(~)
             f = EnKF();
+        end
+    end
+   
+    methods (Access = 'private')
+        function checkState(obj, f, dim, numSamples)
+            dm = f.getState();
+            
+            obj.verifyClass(dm, 'DiracMixture');
+            
+            [samples, weights] = dm.getComponents();
+            
+            obj.verifySize(samples, [dim, numSamples]);
+            obj.verifySize(weights, [1, numSamples]);
+            obj.verifyEqual(weights, repmat(1/numSamples, 1, numSamples), 'AbsTol', 1e-14);
+            
+            obj.verifyEqual(f.getStateDim(), dim);
         end
     end
 end
