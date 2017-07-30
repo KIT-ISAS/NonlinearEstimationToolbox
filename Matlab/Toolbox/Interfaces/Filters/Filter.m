@@ -42,7 +42,7 @@ classdef Filter < handle & matlab.mixin.Copyable
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = Filter(name)
             % Class constructor.
             %
@@ -306,7 +306,9 @@ classdef Filter < handle & matlab.mixin.Copyable
             obj.performPrediction(sysModel);
             obj.performUpdate(measModel, measurement);
         end
-        
+    end
+    
+    methods (Sealed, Access = 'protected')
         function checkMeasurementVector(obj, measurement)
             if ~Checks.isColVec(measurement)
                 obj.error('InvalidMeasurement', ...
