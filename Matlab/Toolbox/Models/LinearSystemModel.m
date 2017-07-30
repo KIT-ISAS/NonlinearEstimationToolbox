@@ -210,13 +210,13 @@ classdef LinearSystemModel < SystemModel
             %
             % Parameters:
             %   >> stateMean (Column vector)
-            %      The current state mean.
+            %      The state mean.
             %
             %   >> stateCov (Positive definite matrix)
-            %      The current state covariance.
+            %      The state covariance.
             %
             %   >> stateCovSqrt (Square matrix)
-            %      Square root of the current state covariance.
+            %      Square root of the state covariance.
             %
             % Returns:
             %   << predictedStateMean (Column vector)
