@@ -572,6 +572,46 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifySize(rndSamples, [3, numSamples]);
         end
         
+        function testGetGaussianKLDScalar(obj)
+            meanA    =   1;
+            meanB    =  10;
+            covA     = 100;
+            covSqrtA = sqrt(covA);
+            covB     = 200;
+            covSqrtB = sqrt(covB);
+            
+            trueValue = 0.2990735902799726547;
+            
+            value = Utils.getGaussianKLD(meanA, meanB, covA, covSqrtA, covSqrtB);
+            
+            obj.verifyEqual(value, trueValue, 'AbsTol', 1e-8);
+        end
+        
+        function testGetGaussianKLDMultivariate(obj)
+            meanA    = [1 1]';
+            meanB    = [2 2]';
+            covA     = gallery('moler', 2);
+            covSqrtA = chol(covA, 'Lower');
+            covB     = 0.5 * eye(2);
+            covSqrtB = chol(covB, 'Lower');
+            
+            trueValue = 3.30685281944005469058;
+            
+            value = Utils.getGaussianKLD(meanA, meanB, covA, covSqrtA, covSqrtB);
+            
+            obj.verifyEqual(value, trueValue, 'AbsTol', 1e-8);
+        end
+        
+        function testGetGaussianKLDIdentical(obj)
+            meanA    = [1 1]';
+            covA     = gallery('moler', 2);
+            covSqrtA = chol(covA, 'Lower');
+            
+            value = Utils.getGaussianKLD(meanA, meanA, covA, covSqrtA, covSqrtA);
+            
+            obj.verifyEqual(value, 0);
+        end
+        
         function testRndOrthogonalMatrix(obj)
             rndMat = Utils.rndOrthogonalMatrix(4);
             
