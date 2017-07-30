@@ -154,6 +154,82 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov, 'AbsTol', 1e-12);
         end
         
+        function testGetGMMeanAndCovSingleComponent(obj)
+            means   = [1 -2]';
+            covs    = [2 0.5; 0.5 1.2];
+            
+            trueMean = [1 -2]';
+            trueCov  = [2 0.5; 0.5 1.2];
+            
+            [mean, cov] = Utils.getGMMeanAndCov(means, covs);
+            
+            obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testGetGMMeanAndCovSingleComponentWithWeights(obj)
+            means   = [1 -2]';
+            covs    = [2 0.5; 0.5 1.2];
+            weights = 1;
+            
+            trueMean = [1 -2]';
+            trueCov  = [2 0.5; 0.5 1.2];
+            
+            [mean, cov] = Utils.getGMMeanAndCov(means, covs, weights);
+            
+            obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testGetGMMeanAndCov(obj)
+            m1 = [1 0.4]';
+            m2 = [-2 3.4]';
+            c1 = diag([0.1 3]);
+            c2 = [2 0.5; 0.5 1.2];
+            w1 = 0.5;
+            w2 = 0.5;
+            
+            means = [m1 m2];
+            covs  = cat(3, c1, c2);
+            
+            trueMean = w1 * m1 + w2 * m2;
+            trueCov  = w1 * c1 + w2 * c2 + ...
+                       w1 * (m1 - trueMean) * (m1 - trueMean)' + ...
+                       w2 * (m2 - trueMean) * (m2 - trueMean)';
+            
+            [mean, cov] = Utils.getGMMeanAndCov(means, covs);
+            
+            obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
+        function testGetGMMeanAndCovWithWeights(obj)
+            m1 = [1 0.4]';
+            m2 = [-2 3.4]';
+            c1 = diag([0.1 3]);
+            c2 = [2 0.5; 0.5 1.2];
+            w1 = 0.25;
+            w2 = 0.75;
+            
+            means   = [m1 m2];
+            covs    = cat(3, c1, c2);
+            weights = [w1 w2];
+            
+            trueMean = w1 * m1 + w2 * m2;
+            trueCov  = w1 * c1 + w2 * c2 + ...
+                       w1 * (m1 - trueMean) * (m1 - trueMean)' + ...
+                       w2 * (m2 - trueMean) * (m2 - trueMean)';
+            
+            [mean, cov] = Utils.getGMMeanAndCov(means, covs, weights);
+            
+            obj.verifyEqual(mean, trueMean, 'AbsTol', 1e-12);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
+        end
+        
         function testKalmanUpdate(obj)
             stateMean         = [1, -1]';
             stateCov          = [1.7 -0.5; -0.5 1.3];
