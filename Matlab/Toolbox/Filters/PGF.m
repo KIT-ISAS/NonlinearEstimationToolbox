@@ -1,28 +1,32 @@
 
-classdef PGF < SampleBasedJointlyGaussianPrediction
-    % The Progressive Gaussian Filter (PGF).
+classdef PGF < GaussianFilter
+    % The progressive Gaussian filter (PGF).
     %
     % PGF Methods:
-    %   PGF                       - Class constructor.
-    %   copy                      - Copy a Filter instance.
-    %   copyWithName              - Copy a Filter instance and give the copy a new name / description.
-    %   getName                   - Get the filter name / description.
-    %   setColor                  - Set the filter color / plotting properties.
-    %   getColor                  - Get the current filter color / plotting properties.
-    %   setState                  - Set the system state.
-    %   getState                  - Get the current system state.
-    %   getStateDim               - Get the dimension of the current system state.
-    %   predict                   - Perform a time update (prediction step).
-    %   update                    - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                      - Perform a combined time and measurement update.
-    %   getPointEstimate          - Get a point estimate of the current system state.
-    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
-    %   setNumSamples             - Set an absolute number of samples used by the PGF for prediction and upate.
-    %   setNumSamplesByFactor     - Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
-    %   setMaxNumProgSteps        - Set the maximum number of allowed progression steps.
-    %   getMaxNumProgSteps        - Get the current maximum number of allowed progression steps.
-    %   getNumProgSteps           - Get the number of progression steps required by the last measurement update.
+    %   PGF                         - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setNumSamples               - Set an absolute number of samples used by the PGF for prediction and upate.
+    %   setNumSamplesByFactor       - Set a linear factor to determine the number of samples used by the PGF for prediction and upate.
+    %   setMaxNumProgSteps          - Set the maximum number of allowed progression steps.
+    %   getMaxNumProgSteps          - Get the maximum number of allowed progression steps.
+    %   getNumProgSteps             - Get the number of progression steps required by the last measurement update.
     
     % Literature:
     %   Jannik Steinbring, Antonio Zea, and Uwe D. Hanebeck,
@@ -87,18 +91,16 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 name = 'PGF';
             end
             
-            samplingPred = GaussianSamplingLCD();
-            samplingUp   = GaussianSamplingLCD();
+            % Call superclass constructor
+            obj = obj@GaussianFilter(name);
+            
+            obj.samplingPrediction = GaussianSamplingLCD();
+            obj.samplingUpdate     = GaussianSamplingLCD();
             
             % By default, determine the number of samples for prediction
             % and update by using a factor of 10.
-            samplingPred.setNumSamplesByFactor(10);
-            samplingUp.setNumSamplesByFactor(10);
-            
-            % Call superclass constructor
-            obj = obj@SampleBasedJointlyGaussianPrediction(name, samplingPred);
-            
-            obj.samplingUpdate = samplingUp;
+            obj.samplingPrediction.setNumSamplesByFactor(10);
+            obj.samplingUpdate.setNumSamplesByFactor(10);
             
             obj.maxNumProgSteps = 0;
             obj.numProgSteps    = 0;
@@ -189,11 +191,11 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
         end
         
         function maxNumProgSteps = getMaxNumProgSteps(obj)
-            % Get the current maximum number of allowed progression steps.
+            % Get the maximum number of allowed progression steps.
             %
             % Returns:
             %   << maxNumProgSteps (Scalar)
-            %      The current maximum number of allowed progression steps.
+            %      The maximum number of allowed progression steps.
             
             maxNumProgSteps = obj.maxNumProgSteps;
         end
@@ -210,11 +212,6 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
-        % We overwrite the moment computations for the state prediction
-        % in order to exploit the fact that all samples used by the LCD-based
-        % Gaussian sampling are equally weighted. This reduces runtime and has
-        % numerical benefits.
-        
         function [predictedStateMean, ...
                   predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
             [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
@@ -364,16 +361,20 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
     
     methods (Access = 'protected')
         function cpObj = copyElement(obj)
-            cpObj = obj.copyElement@SampleBasedJointlyGaussianPrediction();
+            cpObj = obj.copyElement@GaussianFilter();
             
-            cpObj.samplingUpdate  = obj.samplingUpdate.copy();
-            cpObj.maxNumProgSteps = obj.maxNumProgSteps;
-            cpObj.numProgSteps    = obj.numProgSteps;
+            cpObj.samplingPrediction = obj.samplingPrediction.copy();
+            cpObj.samplingUpdate     = obj.samplingUpdate.copy();
+            cpObj.maxNumProgSteps    = obj.maxNumProgSteps;
+            cpObj.numProgSteps       = obj.numProgSteps;
         end
     end
     
     properties (Access = 'private')
-        % Gaussian LCD sampling used for the update.
+        % Gaussian LCD-based sampling technique used for prediction.
+        samplingPrediction;
+        
+        % Gaussian LCD-based sampling technique used for the update.
         samplingUpdate;
         
         % The maximum number of allowed progression steps.
