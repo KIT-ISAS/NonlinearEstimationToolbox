@@ -60,7 +60,7 @@ classdef GaussianFilter < Filter
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = GaussianFilter(name)
             % Class constructor.
             %
@@ -228,7 +228,7 @@ classdef GaussianFilter < Filter
         end
     end
     
-    methods (Access = 'protected')
+    methods (Sealed, Access = 'protected')
         function performSetState(obj, state)
             [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCov();
         end
