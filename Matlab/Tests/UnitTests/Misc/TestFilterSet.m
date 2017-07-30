@@ -44,7 +44,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testAdd(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             set.add(f);
             
@@ -59,8 +59,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testAddMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
-            f2  = AnalyticKF('A');
+            f   = EKF('B');
+            f2  = EKF('A');
             
             set.add(f);
             obj.verifyEqual(set.getNumFilters(), 1);
@@ -79,8 +79,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testAddSameName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF');
+            f   = EKF('KF');
+            f2  = EKF('KF');
             
             set.add(f);
             
@@ -97,7 +97,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testRemove(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             set.add(f);
             
@@ -111,7 +111,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testRemoveMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -124,7 +124,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getNames(), { 'B' });
             
             t = set.get(1);
-            obj.verifyInstanceOf(t, 'AnalyticKF');
+            obj.verifyInstanceOf(t, 'EKF');
             
             set.remove('B');
             
@@ -136,7 +136,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testRemoveNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -147,7 +147,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testRemoveInvalidName(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -160,20 +160,20 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGet(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             set.add(f);
             
             t = set.get('KF');
-            obj.verifyInstanceOf(t, 'AnalyticKF');
+            obj.verifyInstanceOf(t, 'EKF');
             
             t = set.get(1);
-            obj.verifyInstanceOf(t, 'AnalyticKF');
+            obj.verifyInstanceOf(t, 'EKF');
         end
         
         function testGetMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -186,15 +186,15 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyInstanceOf(t, 'SIRPF');
             
             t = set.get('B');
-            obj.verifyInstanceOf(t, 'AnalyticKF');
+            obj.verifyInstanceOf(t, 'EKF');
             
             t = set.get(2);
-            obj.verifyInstanceOf(t, 'AnalyticKF');
+            obj.verifyInstanceOf(t, 'EKF');
         end
         
         function testGetOutOfRangeIndex(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -205,7 +205,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -216,7 +216,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetIdZero(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -227,7 +227,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetInvalidId(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -240,7 +240,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetIndex(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -255,7 +255,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetIndexNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -266,7 +266,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testGetIndexInvalidName(obj)
             set = FilterSet();
-            f   = AnalyticKF('B');
+            f   = EKF('B');
             f2  = SIRPF('A');
             
             set.add(f);
@@ -279,7 +279,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testSetGetStates(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             set.add(f);
             
@@ -306,7 +306,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testSetGetStatesMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             f2  = SIRPF('SIRPF');
             
             set.add(f);
@@ -346,7 +346,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredict(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             sysModel = LinearSystemModel(2 * ones(4));
@@ -361,7 +361,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -372,8 +372,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState1 = Gaussian(ones(4, 1), 2 * eye(4));
             initState2 = Gaussian(3 * ones(4, 1), 4 * eye(4));
@@ -394,12 +394,12 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt1 = AnalyticKF('GT1');
+            gt1 = EKF('GT1');
             gt1.setState(initState1);
             gt1.predict(sysModel);
             [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
-            gt2 = AnalyticKF('GT2');
+            gt2 = EKF('GT2');
             gt2.setState(initState2);
             gt2.predict(sysModel);
             [gtMean2, gtCov2] = gt2.getStateMeanAndCov();
@@ -411,8 +411,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -429,7 +429,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -440,8 +440,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -458,7 +458,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -469,8 +469,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleOutOfRangeIndex(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -486,8 +486,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -503,8 +503,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleIdZero(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -520,8 +520,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testPredictSingleInvalidId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(2 * ones(4, 1), 2 * eye(4));
             
@@ -539,7 +539,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdate(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -556,7 +556,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -567,8 +567,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState1 = Gaussian(ones(4, 1), 2 * eye(4));
             initState2 = Gaussian(3 * ones(4, 1), 4 * eye(4));
@@ -590,12 +590,12 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt1 = AnalyticKF('GT1');
+            gt1 = EKF('GT1');
             gt1.setState(initState1);
             gt1.update(measModel, meas);
             [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
-            gt2 = AnalyticKF('GT2');
+            gt2 = EKF('GT2');
             gt2.setState(initState2);
             gt2.update(measModel, meas);
             [gtMean2, gtCov2] = gt2.getStateMeanAndCov();
@@ -607,8 +607,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -626,7 +626,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -637,8 +637,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -656,7 +656,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.update(measModel, meas);
             [gtMean, gtCov] = gt.getStateMeanAndCov();
@@ -667,8 +667,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleOutOfRangeIndex(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -685,8 +685,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -703,8 +703,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleIdZero(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -721,8 +721,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testUpdateSingleInvalidId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -741,7 +741,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStep(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
+            f   = EKF('KF');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -761,7 +761,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
@@ -773,8 +773,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepMultiple(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState1 = Gaussian(ones(4, 1), 2 * eye(4));
             initState2 = Gaussian(3 * ones(4, 1), 4 * eye(4));
@@ -799,13 +799,13 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt1 = AnalyticKF('GT1');
+            gt1 = EKF('GT1');
             gt1.setState(initState1);
             gt1.predict(sysModel);
             gt1.update(measModel, meas);
             [gtMean1, gtCov1] = gt1.getStateMeanAndCov();
             
-            gt2 = AnalyticKF('GT2');
+            gt2 = EKF('GT2');
             gt2.setState(initState2);
             gt2.predict(sysModel);
             gt2.update(measModel, meas);
@@ -818,8 +818,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -840,7 +840,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
@@ -852,8 +852,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -874,7 +874,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             
             [stateMeans, stateCovs] = set.getStateMeansAndCovs();
             
-            gt = AnalyticKF('GT');
+            gt = EKF('GT');
             gt.setState(initState);
             gt.predict(sysModel);
             gt.update(measModel, meas);
@@ -886,8 +886,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleOutOfRangeIndex(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -907,8 +907,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleNoName(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -928,8 +928,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleIdZero(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
@@ -949,8 +949,8 @@ classdef TestFilterSet < matlab.unittest.TestCase
         
         function testStepSingleInvalidId(obj)
             set = FilterSet();
-            f   = AnalyticKF('KF');
-            f2  = AnalyticKF('KF2');
+            f   = EKF('KF');
+            f2  = EKF('KF2');
             
             initState = Gaussian(ones(4, 1), 2 * eye(4));
             
