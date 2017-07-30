@@ -13,6 +13,7 @@ classdef Utils
     %   drawGaussianRndSamples    - Draw random samples from a multivariate Gaussian distribution.
     %   resampling                - Perform a simple resampling.
     %   systematicResampling      - Perform a systematic resampling.
+    %   getGaussianKLD            - Compute Kullback-Leibler divergence (KLD) between two Gaussian distributions.
     %   rndOrthogonalMatrix       - Creates a random orthogonal matrix of the specified dimension.
     %   getStateSamples           - Get a set of samples approximating a Gaussian distributed system state.
     %   getStateNoiseSamples      - Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
@@ -488,6 +489,47 @@ classdef Utils
             end
             
             rndSamples = samples(:, idx);
+        end
+        
+        function value = getGaussianKLD(meanA, meanB, covA, covSqrtA, covSqrtB)
+            % Compute Kullback-Leibler divergence (KLD) between two Gaussian distributions.
+            %
+            % Note: the KLD is not symmetric.
+            %
+            % Parameters:
+            %   >> meanA (Column vector)
+            %      Mean of Gaussian A.
+            %
+            %   >> meanB (Column vector)
+            %      Mean of Gaussian B.
+            %
+            %   >> covA (Positive definite matrix)
+            %      Covariance matrix of Gaussian A.
+            %
+            %   >> covSqrtA (Square matrix)
+            %      Lower Cholesky decomposition of covariance matrix of Gaussian A.
+            %
+            %   >> covSqrtB (Square matrix)
+            %      Lower Cholesky decomposition of covariance matrix of Gaussian B.
+            %
+            % Returns:
+            %   << value (Scalar)
+            %      Computed Kullback-Leibler divergence.
+            
+            if isequal(meanA, meanB) && isequal(covSqrtA, covSqrtB)
+                % Handle trivial case of equal Gaussians
+                value = 0;
+            else
+                dim         = size(meanA, 1);
+                invCovSqrtB = covSqrtB \ eye(dim);
+                invCovB     = invCovSqrtB' * invCovSqrtB;
+                
+                tracePart       = trace(invCovB * covA);
+                mahalanobisPart = sum((invCovSqrtB * (meanA - meanB)).^2);
+                logDetPart      = sum(log(diag(covSqrtB))) - sum(log(diag(covSqrtA)));
+                
+                value = logDetPart + 0.5 * (tracePart + mahalanobisPart - dim);
+            end
         end
         
         function rndMat = rndOrthogonalMatrix(dim)
