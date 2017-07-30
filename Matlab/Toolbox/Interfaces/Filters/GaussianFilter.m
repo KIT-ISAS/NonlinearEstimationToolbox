@@ -10,7 +10,7 @@ classdef GaussianFilter < Filter
     %   setColor                    - Set the filter color/plotting properties.
     %   getColor                    - Get the filter color/plotting properties.
     %   setState                    - Set the system state.
-    %   getState                    - Get the current system state.
+    %   getState                    - Get the system state.
     %   getStateDim                 - Get the dimension of the system state.
     %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
     %   predict                     - Perform a state prediction.
@@ -409,13 +409,13 @@ classdef GaussianFilter < Filter
     end
     
     properties (GetAccess = 'protected', SetAccess = 'private')
-        % Current system mean vector.
+        % The system mean vector.
         stateMean;
         
-        % Current system covariance matrix.
+        % The system covariance matrix.
         stateCov;
         
-        % Sqrt of the current system covariance matrix.
+        % Square root of the system covariance matrix.
         stateCovSqrt;
     end
     

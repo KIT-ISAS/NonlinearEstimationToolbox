@@ -10,7 +10,7 @@ classdef Filter < handle & matlab.mixin.Copyable
     %   setColor           - Set the filter color/plotting properties.
     %   getColor           - Get the filter color/plotting properties.
     %   setState           - Set the system state.
-    %   getState           - Get the current system state.
+    %   getState           - Get the system state.
     %   getStateDim        - Get the dimension of the system state.
     %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
     %   predict            - Perform a state prediction.
@@ -275,11 +275,11 @@ classdef Filter < handle & matlab.mixin.Copyable
     end
     
     methods (Abstract)
-        % Get the current system state.
+        % Get the system state.
         %
         % Returns:
         %   << state (Subclass of Distribution)
-        %      The current system state.
+        %      The system state.
         state = getState(obj);
         
         % Get mean and covariance matrix of the system state.

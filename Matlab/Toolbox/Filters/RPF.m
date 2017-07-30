@@ -1,27 +1,27 @@
 
 classdef RPF < SIRPF
-    % The Regularized Particle Filter (RPF).
+    % The regularized particle filter (RPF).
     %
     % This implementation uses Gaussian kernels for resampling.
     %
     % RPF Methods:
     %   RPF                        - Class constructor.
     %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
+    %   copyWithName               - Copy a Filter instance and give the copy a new name/description.
+    %   getName                    - Get the filter name/description.
+    %   setColor                   - Set the filter color/plotting properties.
+    %   getColor                   - Get the filter color/plotting properties.
     %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
+    %   getState                   - Get the system state.
+    %   getStateDim                - Get the dimension of the system state.
+    %   getStateMeanAndCov         - Get mean and covariance matrix of the system state.
+    %   predict                    - Perform a state prediction.
+    %   update                     - Perform a measurement update.
+    %   step                       - Perform a combined state prediction and measurement update.
     %   setNumParticles            - Set the number of particles used by the filter.
-    %   getNumParticles            - Get the current number of particles used by the filter.
+    %   getNumParticles            - Get the number of particles used by the filter.
     %   setMinAllowedNormalizedESS - Set the minimum allowed normalized effective sample size (ESS).
-    %   getMinAllowedNormalizedESS - Get the current minimum allowed normalized effective sample size (ESS).
+    %   getMinAllowedNormalizedESS - Get the minimum allowed normalized effective sample size (ESS).
     
     % Literature:
     %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,

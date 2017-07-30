@@ -1,6 +1,6 @@
 
 classdef CGPF < GPF
-    % The Gaussian Particle Filter (GPF) with a combined time and measurement update.
+    % The Gaussian particle filter with a combined time and measurement update.
     %
     % Use the step() method to perform the combined time and measurement update.
     % Note that the separated predictions and updates of the GPF are still possible
@@ -8,23 +8,27 @@ classdef CGPF < GPF
     % prediction is required but no measurement is available).
     %
     % CGPF Methods:
-    %   CGPF                      - Class constructor.
-    %   copy                      - Copy a Filter instance.
-    %   copyWithName              - Copy a Filter instance and give the copy a new name / description.
-    %   getName                   - Get the filter name / description.
-    %   setColor                  - Set the filter color / plotting properties.
-    %   getColor                  - Get the current filter color / plotting properties.
-    %   setState                  - Set the system state.
-    %   getState                  - Get the current system state.
-    %   getStateDim               - Get the dimension of the current system state.
-    %   predict                   - Perform a time update (prediction step).
-    %   update                    - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                      - Perform a combined time and measurement update.
-    %   getPointEstimate          - Get a point estimate of the current system state.
-    %   setStateDecompDim         - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim         - Get the dimension of the unobservable part of the system state.
-    %   setNumParticles           - Set the number of particles used by the filter.
-    %   getNumParticles           - Get the current number of particles used by the filter.
+    %   CGPF                        - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setNumParticles             - Set the number of particles used by the filter.
+    %   getNumParticles             - Get the number of particles used by the filter.
     
     % Literature:
     %   Jayesh H. Kotecha and Petar M. Djuric,

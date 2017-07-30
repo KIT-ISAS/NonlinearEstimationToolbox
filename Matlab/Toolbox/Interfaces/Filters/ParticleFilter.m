@@ -1,29 +1,27 @@
 
-classdef BasePF < Filter
-    % Abstract base class for Particle Filters (PFs).
+classdef ParticleFilter < Filter
+    % Abstract base class for particle filters.
     %
-    % Provides utility methods for Particle Filters.
-    %
-    % BasePF Methods:
-    %   BasePF           - Class constructor.
-    %   copy             - Copy a Filter instance.
-    %   copyWithName     - Copy a Filter instance and give the copy a new name / description.
-    %   getName          - Get the filter name / description.
-    %   setColor         - Set the filter color / plotting properties.
-    %   getColor         - Get the current filter color / plotting properties.
-    %   setState         - Set the system state.
-    %   getState         - Get the current system state.
-    %   getStateDim      - Get the dimension of the current system state.
-    %   predict          - Perform a time update (prediction step).
-    %   update           - Perform a measurement update (filter step) using the given measurement(s).
-    %   step             - Perform a combined time and measurement update.
-    %   getPointEstimate - Get a point estimate of the current system state.
+    % ParticleFilter Methods:
+    %   ParticleFilter     - Class constructor.
+    %   copy               - Copy a Filter instance.
+    %   copyWithName       - Copy a Filter instance and give the copy a new name/description.
+    %   getName            - Get the filter name/description.
+    %   setColor           - Set the filter color/plotting properties.
+    %   getColor           - Get the filter color/plotting properties.
+    %   setState           - Set the system state.
+    %   getState           - Get the system state.
+    %   getStateDim        - Get the dimension of the system state.
+    %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
+    %   predict            - Perform a state prediction.
+    %   update             - Perform a measurement update.
+    %   step               - Perform a combined state prediction and measurement update.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
     %    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
     %
-    %    Copyright (C) 2015  Jannik Steinbring <jannik.steinbring@kit.edu>
+    %    Copyright (C) 2017  Jannik Steinbring <jannik.steinbring@kit.edu>
     %
     %                        Institute for Anthropomatics and Robotics
     %                        Chair for Intelligent Sensor-Actuator-Systems (ISAS)
@@ -45,7 +43,7 @@ classdef BasePF < Filter
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods
-        function obj = BasePF(name)
+        function obj = ParticleFilter(name)
             % Class constructor.
             %
             % Parameters:
@@ -57,8 +55,8 @@ classdef BasePF < Filter
             %      'PF (10k Particles)').
             %
             % Returns:
-            %   << obj (BasePF)
-            %      A new BasePF instance.
+            %   << obj (ParticleFilter)
+            %      A new ParticleFilter instance.
             
             % Call superclass constructor
             obj = obj@Filter(name);

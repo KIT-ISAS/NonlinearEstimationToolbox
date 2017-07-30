@@ -1,23 +1,23 @@
 
-classdef EnKF < BasePF
-    % The Ensemble Kalman Filter (EnKF).
+classdef EnKF < ParticleFilter
+    % The ensemble Kalman filter (EnKF).
     %
     % EnKF Methods:
-    %   EnKF             - Class constructor.
-    %   copy             - Copy a Filter instance.
-    %   copyWithName     - Copy a Filter instance and give the copy a new name / description.
-    %   getName          - Get the filter name / description.
-    %   setColor         - Set the filter color / plotting properties.
-    %   getColor         - Get the current filter color / plotting properties.
-    %   setState         - Set the system state.
-    %   getState         - Get the current system state.
-    %   getStateDim      - Get the dimension of the current system state.
-    %   predict          - Perform a time update (prediction step).
-    %   update           - Perform a measurement update (filter step) using the given measurement(s).
-    %   step             - Perform a combined time and measurement update.
-    %   getPointEstimate - Get a point estimate of the current system state.
-    %   setEnsembleSize  - Set the size of the ensemble (i.e., the number of samples).
-    %   getEnsembleSize  - Get the current ensemble size of the filter.
+    %   EnKF               - Class constructor.
+    %   copy               - Copy a Filter instance.
+    %   copyWithName       - Copy a Filter instance and give the copy a new name/description.
+    %   getName            - Get the filter name/description.
+    %   setColor           - Set the filter color/plotting properties.
+    %   getColor           - Get the filter color/plotting properties.
+    %   setState           - Set the system state.
+    %   getState           - Get the system state.
+    %   getStateDim        - Get the dimension of the system state.
+    %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
+    %   predict            - Perform a state prediction.
+    %   update             - Perform a measurement update.
+    %   step               - Perform a combined state prediction and measurement update.
+    %   setEnsembleSize    - Set the size of the ensemble (i.e., the number of samples).
+    %   getEnsembleSize    - Get the ensemble size of the filter.
     
     % Literature:
     %   S. Gillijns, O. Barrero Mendoza, J. Chandrasekar, B. L. R. De Moor, D. S. Bernstein, and A. Ridley,
@@ -77,7 +77,7 @@ classdef EnKF < BasePF
             end
             
             % Call superclass constructor
-            obj = obj@BasePF(name);
+            obj = obj@ParticleFilter(name);
             
             obj.ensemble     = [];
             obj.ensembleSize = 1000;
@@ -107,11 +107,11 @@ classdef EnKF < BasePF
         end
         
         function ensembleSize = getEnsembleSize(obj)
-            % Get the current ensemble size of the filter.
+            % Get the ensemble size of the filter.
             %
             % Returns:
             %   << ensembleSize (Positive scalar)
-            %      The current ensemble size used by he filter.
+            %      The ensemble size used by he filter.
             
             ensembleSize = obj.ensembleSize;
         end

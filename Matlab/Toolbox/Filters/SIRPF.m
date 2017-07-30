@@ -1,25 +1,25 @@
 
-classdef SIRPF < BasePF
-    % The Sampling Importance Resampling Particle Filter (SIRPF).
+classdef SIRPF < ParticleFilter
+    % The sampling importance resampling particle filter (SIRPF).
     %
     % SIRPF Methods:
     %   SIRPF                      - Class constructor.
     %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
+    %   copyWithName               - Copy a Filter instance and give the copy a new name/description.
+    %   getName                    - Get the filter name/description.
+    %   setColor                   - Set the filter color/plotting properties.
+    %   getColor                   - Get the filter color/plotting properties.
     %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
+    %   getState                   - Get the system state.
+    %   getStateDim                - Get the dimension of the system state.
+    %   getStateMeanAndCov         - Get mean and covariance matrix of the system state.
+    %   predict                    - Perform a state prediction.
+    %   update                     - Perform a measurement update.
+    %   step                       - Perform a combined state prediction and measurement update.
     %   setNumParticles            - Set the number of particles used by the filter.
-    %   getNumParticles            - Get the current number of particles used by the filter.
+    %   getNumParticles            - Get the number of particles used by the filter.
     %   setMinAllowedNormalizedESS - Set the minimum allowed normalized effective sample size (ESS).
-    %   getMinAllowedNormalizedESS - Get the current minimum allowed normalized effective sample size (ESS).
+    %   getMinAllowedNormalizedESS - Get the minimum allowed normalized effective sample size (ESS).
     
     % Literature:
     %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,
@@ -74,7 +74,7 @@ classdef SIRPF < BasePF
             end
             
             % Call superclass constructor
-            obj = obj@BasePF(name);
+            obj = obj@ParticleFilter(name);
             
             obj.particles    = [];
             obj.weights      = [];
@@ -119,11 +119,11 @@ classdef SIRPF < BasePF
         end
         
         function numParticles = getNumParticles(obj)
-            % Get the current number of particles used by the filter.
+            % Get the number of particles used by the filter.
             %
             % Returns:
             %   << numParticles (Positive scalar)
-            %      The currentl number of particles used by the filter.
+            %      The number of particles used by the filter.
             
             numParticles = obj.numParticles;
         end
@@ -150,11 +150,11 @@ classdef SIRPF < BasePF
         end
         
         function minAllowedNormalizedESS = getMinAllowedNormalizedESS(obj)
-            % Get the current minimum allowed normalized effective sample size (ESS).
+            % Get the minimum allowed normalized effective sample size (ESS).
             %
             % Returns:
             %   << minAllowedNormalizedESS (Scalar)
-            %      The current minimum allowed noramlized ESS between 0 and 1.
+            %      The minimum allowed noramlized ESS between 0 and 1.
             
             minAllowedNormalizedESS = obj.minAllowedNormalizedESS;
         end
@@ -274,11 +274,11 @@ classdef SIRPF < BasePF
         end
         
         function normalizedESS = getNormalizedESS(obj)
-            % Compute the normalized ESS of the current particle set.
+            % Compute the normalized ESS of the particles.
             %
             % Returns:
             %   << normalizedESS (Scalar)
-            %      The normalized ESS of the current particle set.
+            %      The normalized ESS of the particles.
             
             normalizedESS = 1 / (obj.numParticles * sum(obj.weights.^2, 2));
         end
