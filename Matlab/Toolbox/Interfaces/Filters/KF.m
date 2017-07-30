@@ -189,25 +189,27 @@ classdef KF < GaussianFilter
     end
     
     methods (Abstract, Access = 'protected')
-        momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements);
+        momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurement);
         
-        momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements);
+        momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurement);
         
-        momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements);
+        momentFunc = getMomentFuncMixedNoise(obj, measModel, measurement);
     end
     
     methods (Access = 'protected')
         function [updatedMean, ...
-                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
                                                         priorMean, priorCov, priorCovSqrt)
+            obj.checkMeasurementVector(measurement);
+            
             if Checks.isClass(measModel, 'LinearMeasurementModel')
-                momentFunc = obj.getMomentFuncLinear(measModel, measurements);
+                momentFunc = obj.getMomentFuncLinear(measModel);
             elseif Checks.isClass(measModel, 'MeasurementModel')
-                momentFunc = obj.getMomentFuncArbitraryNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncArbitraryNoise(measModel, measurement);
             elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
-                momentFunc = obj.getMomentFuncAdditiveNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncAdditiveNoise(measModel, measurement);
             elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
-                momentFunc = obj.getMomentFuncMixedNoise(measModel, measurements);
+                momentFunc = obj.getMomentFuncMixedNoise(measModel, measurement);
             else
                 obj.errorMeasModel('LinearMeasurementModel', ...
                                    'MeasurementModel', ...
@@ -216,15 +218,13 @@ classdef KF < GaussianFilter
             end
             
             [updatedMean, ...
-             updatedCov] = obj.kalmanUpdate(measurements, momentFunc, ...
+             updatedCov] = obj.kalmanUpdate(measurement, momentFunc, ...
                                             priorMean, priorCov, priorCovSqrt);
         end
         
         function [updatedMean, ...
-                  updatedCov] = kalmanUpdate(obj, measurements, momentFunc, ...
+                  updatedCov] = kalmanUpdate(obj, measurement, momentFunc, ...
                                              priorMean, priorCov, priorCovSqrt)
-            stackedMeas = measurements(:);
-            
             iterNum = 1;
             
             [measMean, measCov, ...
@@ -233,7 +233,7 @@ classdef KF < GaussianFilter
             
             while iterNum < obj.maxNumIterations
                 try
-                    [iterMean, iterCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                    [iterMean, iterCov] = Utils.kalmanUpdate(priorMean, priorCov, measurement, ...
                                                              measMean, measCov, stateMeasCrossCov);
                 catch ex
                     obj.ignoreMeas(ex.message);
@@ -254,7 +254,7 @@ classdef KF < GaussianFilter
             end
             
             % Save Kalman update information
-            obj.lastMeasurement       = stackedMeas;
+            obj.lastMeasurement       = measurement;
             obj.lastMeasMean          = measMean;
             obj.lastMeasCov           = measCov;
             obj.lastStateMeasCrossCov = stateMeasCrossCov;
@@ -262,34 +262,30 @@ classdef KF < GaussianFilter
             
             % Perform gating if enabled
             if obj.measValidationThreshold ~= 1
-                obj.measurementGating(stackedMeas, measMean, measCov);
+                obj.measurementGating(measurement, measMean, measCov);
             end
             
             try
                 [updatedMean, ...
-                 updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, stackedMeas, ...
+                 updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, measurement, ...
                                                   measMean, measCov, stateMeasCrossCov);
             catch ex
                 obj.ignoreMeas(ex.message);
             end
         end
         
-        function momentFunc = getMomentFuncLinear(obj, measModel, measurements)
-            [~, numMeas] = size(measurements);
-            
+        function momentFunc = getMomentFuncLinear(obj, measModel)
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncLinear(priorMean, priorCov, priorCovSqrt, ...
-                                              iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                              measModel, numMeas);
+                                              iterNum, iterMean, iterCov, iterCovSqrt, measModel);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncLinear(~, priorMean, priorCov, priorCovSqrt, ...
-                                                        iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                        measModel, numMeas)
+                                                        iterNum, iterMean, iterCov, iterCovSqrt, measModel)
             % Compute measurement moments
             [measMean, measCov, ...
-             stateMeasCrossCov] = measModel.analyticMoments(iterMean, iterCov, iterCovSqrt, numMeas);
+             stateMeasCrossCov] = measModel.analyticMoments(iterMean, iterCov, iterCovSqrt);
             
             if iterNum > 1
                 [measMean, measCov, ...

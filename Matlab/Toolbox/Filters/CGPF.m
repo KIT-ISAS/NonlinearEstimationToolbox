@@ -84,7 +84,7 @@ classdef CGPF < GPF
     end
     
     methods (Access = 'protected')
-        function performStep(obj, sysModel, measModel, measurements)
+        function performStep(obj, sysModel, measModel, measurement)
             particles = obj.getStateParticles();
             
             if Checks.isClass(sysModel, 'SystemModel')
@@ -108,7 +108,7 @@ classdef CGPF < GPF
                 
                 % Standard GPF update
                 [updatedStateMean, ...
-                 updatedStateCov] = obj.updateLikelihood(measModel, measurements, predictedParticles);
+                 updatedStateCov] = obj.updateLikelihood(measModel, measurement, predictedParticles);
                 
                 obj.checkAndSaveUpdate(updatedStateMean, updatedStateCov);
             else

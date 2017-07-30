@@ -83,50 +83,50 @@ classdef EKF2 < KF & SOTaylorBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
-        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]                  = size(measurements);
+        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurement)
             [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
+            dimMeas  = size(measurement, 1);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncArbitraryNoise(priorMean, priorCov, priorCovSqrt, ...
                                                       iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                      measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov, noiseCovSqrt);
+                                                      measModel, dimNoise, dimMeas, noiseMean, noiseCov, noiseCovSqrt);
         end
         
-        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]    = size(measurements);
+        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurement)
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
+            dimMeas  = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
             momentFunc = @(priorMean, priorCov,  priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncAdditiveNoise(priorMean, priorCov,  priorCovSqrt, ...
                                                      iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                     measModel, dimMeas, numMeas, noiseMean, noiseCov);
+                                                     measModel, dimMeas, noiseMean, noiseCov);
         end
         
-        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]                  = size(measurements);
+        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurement)
             [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             [addNoiseMean, addNoiseCov]         = measModel.additiveNoise.getMeanAndCov();
             dimNoise    = size(noiseMean, 1);
             dimAddNoise = size(addNoiseMean, 1);
+            dimMeas     = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncMixedNoise(priorMean, priorCov, priorCovSqrt, ...
                                                   iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                  measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
+                                                  measModel, dimNoise, dimMeas, addNoiseMean, ...
                                                   addNoiseCov, noiseMean, noiseCov, noiseCovSqrt);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                 ~, iterMean, iterCov, ~, ...
-                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCov, noiseCovSqrt)
+                                                                measModel, dimNoise, dimMeas, noiseMean, noiseCov, noiseCovSqrt)
             dimState = size(iterMean, 1);
             
             % Compute measurement model derivatives around current state mean and noise mean
@@ -153,27 +153,20 @@ classdef EKF2 < KF & SOTaylorBasedJointlyGaussianPrediction
                        stateJacobian * (priorMean - iterMean) + ...
                        stateHessMean + noiseHessMean;
             
-            measMean = repmat(measMean, numMeas, 1);
-            
             % Compute measurement covariance
             A = stateJacobian * priorCovSqrt;
             B = noiseJacobian * noiseCovSqrt;
             
-            matBase = A * A' + stateHessCov;
-            matDiag = B * B' + noiseHessCov;
-            
-            measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
+            measCov = A * A' + stateHessCov + B * B' + noiseHessCov;
             
             % Compute state measurement cross-covariance
             stateMeasCrossCov = priorCov * stateJacobian';
-            
-            stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                ~, iterMean, iterCov, ~, ...
-                                                               measModel, dimMeas, numMeas, noiseMean, noiseCov)
+                                                               measModel, dimMeas, noiseMean, noiseCov)
             dimState = size(iterMean, 1);
             
             % Compute measurement model derivatives around current state mean
@@ -191,25 +184,19 @@ classdef EKF2 < KF & SOTaylorBasedJointlyGaussianPrediction
                        stateJacobian * (priorMean - iterMean) + ...
                        stateHessMean + noiseMean;
             
-            measMean = repmat(measMean, numMeas, 1);
-            
             % Compute measurement covariance
             A = stateJacobian * priorCovSqrt;
             
-            matBase = A * A' + stateHessCov;
-            
-            measCov = Utils.baseBlockDiag(matBase, noiseCov, numMeas);
+            measCov = A * A' + stateHessCov + noiseCov;
             
             % Compute state measurement cross-covariance
             stateMeasCrossCov = priorCov * stateJacobian';
-            
-            stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                             ~, iterMean, iterCov, ~, ...
-                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
+                                                            measModel, dimNoise, dimMeas, addNoiseMean, ...
                                                             addNoiseCov, noiseMean, noiseCov, noiseCovSqrt)
             dimState = size(iterMean, 1);
             
@@ -237,21 +224,14 @@ classdef EKF2 < KF & SOTaylorBasedJointlyGaussianPrediction
                        stateJacobian * (priorMean - iterMean) + ...
                        stateHessMean + noiseHessMean + addNoiseMean;
             
-            measMean = repmat(measMean, numMeas, 1);
-            
             % Compute measurement covariance
             A = stateJacobian * priorCovSqrt;
             B = noiseJacobian * noiseCovSqrt;
             
-            matBase = A * A' + stateHessCov;
-            matDiag = B * B' + noiseHessCov + addNoiseCov;
-            
-            measCov = Utils.baseBlockDiag(matBase, matDiag, numMeas);
+            measCov = A * A' + stateHessCov + B * B' + noiseHessCov + addNoiseCov;
             
             % Compute state measurement cross-covariance
             stateMeasCrossCov = priorCov * stateJacobian';
-            
-            stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
     end
 end

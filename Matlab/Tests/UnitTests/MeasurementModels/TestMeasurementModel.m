@@ -28,21 +28,6 @@ classdef TestMeasurementModel < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSimulateDefaultNumMeasurements(obj)
-            measModel = MeasModel();
-            measModel.setNoise(Uniform([0 0 0], [1 1 1]));
-            
-            state = [0.3 -pi]';
-            
-            detMeas = measModel.measMatrix * state;
-            
-            measurements = measModel.simulate(state);
-            
-            obj.verifyEqual(size(measurements), [3 1]);
-            obj.verifyGreaterThanOrEqual(measurements, detMeas);
-            obj.verifyLessThanOrEqual(measurements, detMeas + 1);
-        end
-        
         function testSimulate(obj)
             measModel = MeasModel();
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
@@ -51,13 +36,11 @@ classdef TestMeasurementModel < matlab.unittest.TestCase
             
             detMeas = measModel.measMatrix * state;
             
-            n = 3;
+            measurement = measModel.simulate(state);
             
-            measurements = measModel.simulate(state, n);
-            
-            obj.verifyEqual(size(measurements), [3 n]);
-            obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
-            obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 1);
+            obj.verifyEqual(size(measurement), [3 1]);
+            obj.verifyGreaterThanOrEqual(measurement, detMeas);
+            obj.verifyLessThanOrEqual(measurement, detMeas + 1);
         end
         
         

@@ -34,7 +34,6 @@ classdef TestASIRPF < TestSIRPF
             obj.verifyEqual(f.getName(), 'Auxiliary SIR-PF');
         end
         
-        
         function testStepAddNoiseSysModel(obj)
             f   = obj.initFilter();
             tol = 0.5;
@@ -43,16 +42,6 @@ classdef TestASIRPF < TestSIRPF
             
             TestUtilsStep.checkAdditiveNoiseSystemModel(obj, f, tol);
         end
-        
-        function testStepAddNoiseSysModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkAdditiveNoiseSystemModelMultiMeas(obj, f, tol);
-        end
-        
         
         function testStepSysModel(obj)
             f   = obj.initFilter();
@@ -63,16 +52,6 @@ classdef TestASIRPF < TestSIRPF
             TestUtilsStep.checkSystemModel(obj, f, tol);
         end
         
-        function testStepSysModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkSystemModelMultiMeas(obj, f, tol);
-        end
-        
-        
         function testStepMixedNoiseSysModel(obj)
             f   = obj.initFilter();
             tol = 0.5;
@@ -80,15 +59,6 @@ classdef TestASIRPF < TestSIRPF
             f.setNumParticles(5000000);
             
             TestUtilsStep.checkMixedNoiseSystemModel(obj, f, tol);
-        end
-        
-        function testStepMixedNoiseSysModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkMixedNoiseSystemModelMultiMeas(obj, f, tol);
         end
     end
     

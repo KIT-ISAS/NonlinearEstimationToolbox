@@ -81,17 +81,7 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             testUtils = TestUtilsLinearMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
         end
-        
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setEnsembleSize(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
+
         
         function testUpdateAddNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -101,16 +91,6 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setEnsembleSize(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
         
         
@@ -124,16 +104,6 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             testUtils.checkUpdate(obj, f, tol);
         end
         
-        function testUpdateMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setEnsembleSize(5000000);
-            
-            testUtils = TestUtilsMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
         
         function testUpdateMixedNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -143,16 +113,6 @@ classdef TestEnKF < matlab.unittest.TestCase & TestCopy
             
             testUtils = TestUtilsMixedNoiseMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateMixedNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setEnsembleSize(5000000);
-            
-            testUtils = TestUtilsMixedNoiseMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
     end
     

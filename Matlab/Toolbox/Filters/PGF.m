@@ -269,11 +269,11 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
         end
         
         function [updatedMean, ...
-                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
                                                         priorMean, ~, priorCovSqrt)
             if Checks.isClass(measModel, 'Likelihood')
                 [updatedMean, ...
-                 updatedCov] = obj.updateLikelihood(measModel, measurements, ...
+                 updatedCov] = obj.updateLikelihood(measModel, measurement, ...
                                                     priorMean, priorCovSqrt);
             else
                 obj.errorMeasModel('Likelihood');
@@ -281,7 +281,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
         end
         
         function [updatedMean, ...
-                  updatedCov] = updateLikelihood(obj, measModel, measurements, ...
+                  updatedCov] = updateLikelihood(obj, measModel, measurement, ...
                                                  priorMean, priorCovSqrt)
             % Initialize progression
             dimState         = size(priorMean, 1);
@@ -306,7 +306,7 @@ classdef PGF < SampleBasedJointlyGaussianPrediction
                 samples = bsxfun(@plus, samples, updatedMean);
                 
                 % Evaluate log likelihood
-                logValues = measModel.logLikelihood(samples, measurements);
+                logValues = measModel.logLikelihood(samples, measurement);
                 
                 obj.checkLogLikelihoodEvaluations(logValues, numSamples);
                 

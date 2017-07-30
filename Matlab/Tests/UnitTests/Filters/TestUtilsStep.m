@@ -33,78 +33,37 @@ classdef TestUtilsStep
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
             
             % True update
-            [measModel, measurements, ...
+            [measModel, measurement, ...
              trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
                                     trueMean, trueCov, test, filter, tol);
         end
-        
-        function checkAdditiveNoiseSystemModelMultiMeas(test, filter, tol)
-            % True prediction
-            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
-            
-            % True update
-            [measModel, measurements, ...
-             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
-                                    trueMean, trueCov, test, filter, tol);
-        end
-        
         
         function checkSystemModel(test, filter, tol)
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
             
             % True update
-            [measModel, measurements, ...
+            [measModel, measurement, ...
              trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
                                     trueMean, trueCov, test, filter, tol);
         end
-        
-        function checkSystemModelMultiMeas(test, filter, tol)
-            % True prediction
-            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
-            
-            % True update
-            [measModel, measurements, ...
-             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
-                                    trueMean, trueCov, test, filter, tol);
-        end
-        
         
         function checkMixedNoiseSystemModel(test, filter, tol)
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
             
             % True update
-            [measModel, measurements, ...
+            [measModel, measurement, ...
              trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
             
             % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
-                                    trueMean, trueCov, test, filter, tol);
-        end
-        
-        function checkMixedNoiseSystemModelMultiMeas(test, filter, tol)
-            % True prediction
-            [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
-            
-            % True update
-            [measModel, measurements, ...
-             trueMean, trueCov] = TestUtilsStep.updateMultiMeas(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurements, ...
+            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
                                     trueMean, trueCov, test, filter, tol);
         end
     end
@@ -145,7 +104,7 @@ classdef TestUtilsStep
             truePredCov  = mat * TestUtilsStep.initCov * mat' + addNoiseCov  + noiseCov;
         end
         
-        function [measModel, measurements, ...
+        function [measModel, measurement, ...
                   trueMean, trueCov] = update(truePredMean, truePredCov)
             measModel = AddNoiseMeasModel();
             measModel.setNoise(TestUtilsStep.measNoise);
@@ -153,7 +112,7 @@ classdef TestUtilsStep
             mat                   = measModel.measMatrix;
             [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCov();
             
-            measurements = TestUtilsStep.singleMeas;
+            measurement = TestUtilsStep.meas;
             
             trueMeasMean = mat * truePredMean + noiseMean;
             trueMeasCov  = mat * truePredCov * mat' + noiseCov;
@@ -163,41 +122,15 @@ classdef TestUtilsStep
             
             K = trueCrossCov * invMeasCov;
             
-            trueMean = truePredMean + K * (measurements - trueMeasMean);
+            trueMean = truePredMean + K * (measurement - trueMeasMean);
             trueCov  = truePredCov - K * trueCrossCov';
         end
         
-        function [measModel, measurements, ...
-                  trueMean, trueCov] = updateMultiMeas(truePredMean, truePredCov)
-            measModel = AddNoiseMeasModel();
-            measModel.setNoise(TestUtilsStep.measNoise);
-            
-            mat                   = measModel.measMatrix;
-            [noiseMean, noiseCov] = TestUtilsStep.measNoise.getMeanAndCov();
-            
-            measurements = TestUtilsStep.twoMeas;
-            
-            trueMeasMean = mat * truePredMean + noiseMean;
-            trueMeasMean = repmat(trueMeasMean, 2, 1);
-            trueMeasCov  = mat * truePredCov * mat';
-            trueMeasCov  = [trueMeasCov + noiseCov trueMeasCov
-                            trueMeasCov            trueMeasCov + noiseCov];
-            trueCrossCov = truePredCov * mat';
-            trueCrossCov = [trueCrossCov trueCrossCov];
-            
-            invMeasCov = trueMeasCov \ eye(6);
-            
-            K = trueCrossCov * invMeasCov;
-            
-            trueMean = truePredMean + K * (measurements(:) - trueMeasMean);
-            trueCov  = truePredCov - K * trueCrossCov';
-        end
-        
-        function checkStep(sysModel, measModel, measurements, trueMean, trueCov, test, f, tol)
+        function checkStep(sysModel, measModel, measurement, trueMean, trueCov, test, f, tol)
             f.setState(Gaussian(TestUtilsStep.initMean, ...
                                 TestUtilsStep.initCov));
             
-            f.step(sysModel, measModel, measurements);
+            f.step(sysModel, measModel, measurement);
             
             [stateMean, stateCov] = f.getStateMeanAndCov();
             
@@ -216,11 +149,8 @@ classdef TestUtilsStep
         measNoise  = Gaussian([2 -1 0.5]', 10 * [ 2   -0.5 0
                                             -0.5  1.3 0.5
                                              0    0.5 sqrt(2)]);
-        singleMeas = [ 1
+        meas       = [ 1
                       -2
                        5];
-        twoMeas    = [ 1  1.5
-                      -2 -1.85
-                       2 -4   ];
     end
 end

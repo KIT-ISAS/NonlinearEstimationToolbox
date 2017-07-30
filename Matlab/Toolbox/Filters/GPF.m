@@ -156,7 +156,7 @@ classdef GPF < BasePF & GaussianFilter
         end
         
         function [updatedMean, ...
-                  updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+                  updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
                                                         priorMean, ~, priorCovSqrt)
             if Checks.isClass(measModel, 'Likelihood')
                 % Generate random samples
@@ -165,16 +165,16 @@ classdef GPF < BasePF & GaussianFilter
                                                          obj.numParticles);
                 
                 [updatedMean, ...
-                 updatedCov] = obj.updateLikelihood(measModel, measurements, particles);
+                 updatedCov] = obj.updateLikelihood(measModel, measurement, particles);
             else
                 obj.errorMeasModel('Likelihood');
             end
         end
         
         function [updatedMean, ...
-                  updatedCov] = updateLikelihood(obj, measModel, measurements, particles)
+                  updatedCov] = updateLikelihood(obj, measModel, measurement, particles)
             % Evaluate likelihood
-            values = obj.evaluateLikelihood(measModel, measurements, particles, obj.numParticles);
+            values = obj.evaluateLikelihood(measModel, measurement, particles, obj.numParticles);
             
             % Normalize particle weights
             sumWeights = sum(values);

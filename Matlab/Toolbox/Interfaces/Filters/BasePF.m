@@ -116,9 +116,9 @@ classdef BasePF < Filter
             predictedParticles = predictedParticles + addNoise;
         end
         
-        function values = evaluateLikelihood(obj, measModel, measurements, particles, numParticles)
+        function values = evaluateLikelihood(obj, measModel, measurement, particles, numParticles)
             % Evaluate logarithmic likelihood
-            logValues = measModel.logLikelihood(particles, measurements);
+            logValues = measModel.logLikelihood(particles, measurement);
             
             obj.checkLogLikelihoodEvaluations(logValues, numParticles);
             

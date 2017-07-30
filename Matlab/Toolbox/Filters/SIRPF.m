@@ -105,15 +105,15 @@ classdef SIRPF < PF
             obj.particles = predictParticles(sysModel, obj.particles, obj.numParticles);
         end
         
-        function performUpdate(obj, measModel, measurements)
+        function performUpdate(obj, measModel, measurement)
             if Checks.isClass(measModel, 'Likelihood')
-                obj.updateLikelihood(measModel, measurements);
+                obj.updateLikelihood(measModel, measurement);
             else
                 obj.errorMeasModel('Likelihood');
             end
         end
         
-        function updateLikelihood(obj, measModel, measurements)
+        function updateLikelihood(obj, measModel, measurement)
             % Implements the measurement update described in:
             %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,
             %   Beyond the Kalman Filter: Particle filters for Tracking Applications,
@@ -124,7 +124,7 @@ classdef SIRPF < PF
             obj.resampleByESS();
             
             % Evaluate likelihood
-            values = obj.evaluateLikelihood(measModel, measurements, obj.particles, obj.numParticles);
+            values = obj.evaluateLikelihood(measModel, measurement, obj.particles, obj.numParticles);
             
             % Multiply prior weights with likelihood evaluations
             values = values .* obj.weights;

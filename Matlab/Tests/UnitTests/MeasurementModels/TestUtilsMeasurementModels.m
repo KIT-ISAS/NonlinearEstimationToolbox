@@ -29,25 +29,17 @@ classdef TestUtilsMeasurementModels < handle
     
     methods
         function checkUpdate(obj, test, filter, tol)
-            obj.checkUpdateConfig(false, false, test, filter, tol);
+            obj.checkUpdateConfig(false, test, filter, tol);
         end
         
         function checkUpdateStateDecomp(obj, test, filter, tol)
-            obj.checkUpdateConfig(true, false, test, filter, tol);
-        end
-        
-        function checkUpdateMultiMeas(obj, test, filter, tol)
-            obj.checkUpdateConfig(false, true, test, filter, tol);
-        end
-        
-        function checkUpdateStateDecompMultiMeas(obj, test, filter, tol)
-            obj.checkUpdateConfig(true, true, test, filter, tol);
+            obj.checkUpdateConfig(true, test, filter, tol);
         end
         
         
         function checkUpdateKF(obj, test, createFilter)
-            configs    = logical(dec2bin(0:15) - '0');
-            numConfigs = 16;
+            configs    = logical(dec2bin(0:7) - '0');
+            numConfigs = 8;
             
             for i = 1:numConfigs
                 filter = createFilter();
@@ -58,9 +50,9 @@ classdef TestUtilsMeasurementModels < handle
     end
     
     methods (Access = 'protected')
-        function checkUpdateConfig(obj, stateDecomp, multiMeas, test, f, tol)
-            [initState, measModel, measurements,  ...
-             trueStateMean, trueStateCov] = obj.updateConfig(stateDecomp, multiMeas);
+        function checkUpdateConfig(obj, stateDecomp, test, f, tol)
+            [initState, measModel, measurement,  ...
+             trueStateMean, trueStateCov] = obj.updateConfig(stateDecomp);
             
             f.setState(initState);
             
@@ -68,7 +60,7 @@ classdef TestUtilsMeasurementModels < handle
                 f.setStateDecompDim(1);
             end
             
-            f.update(measModel, measurements);
+            f.update(measModel, measurement);
             
             [stateMean, stateCov] = f.getStateMeanAndCov();
             
@@ -78,18 +70,17 @@ classdef TestUtilsMeasurementModels < handle
         end
         
         function checkUpdateConfigKF(obj, config, test, filter)
-            if ~islogical(config) || ~isequal(size(config), [1 4])
+            if ~islogical(config) || ~isequal(size(config), [1 3])
                 error('Invalid configuration');
             end
             
             stateDecomp = config(1);
-            multiMeas   = config(2);
-            multiIter   = config(3);
-            measGating  = config(4);
+            multiIter   = config(2);
+            measGating  = config(3);
             
-            [initState, measModel, measurements,  ...
+            [initState, measModel, measurement,  ...
              trueStateMean, trueStateCov, ...
-             trueMeasMean, trueMeasCov, trueCrossCov] = obj.updateConfig(stateDecomp, multiMeas);
+             trueMeasMean, trueMeasCov, trueCrossCov] = obj.updateConfig(stateDecomp);
             
             tol = sqrt(eps);
             
@@ -109,13 +100,13 @@ classdef TestUtilsMeasurementModels < handle
             if measGating
                 % Compute threshold that should fail
                 dimMeas  = size(trueMeasMean, 1);
-                measDist = (trueMeasMean - measurements(:))' * trueMeasCov^(-1) * (trueMeasMean - measurements(:));
+                measDist = (trueMeasMean - measurement)' * trueMeasCov^(-1) * (trueMeasMean - measurement);
                 
                 normalizedDist = chi2cdf(measDist, dimMeas);
                 
                 filter.setMeasValidationThreshold(normalizedDist * 0.5);
                 
-                test.verifyWarning(@() filter.update(measModel, measurements), ...
+                test.verifyWarning(@() filter.update(measModel, measurement), ...
                                    'Filter:IgnoringMeasurement');
                 
                 [stateMean, stateCov] = filter.getStateMeanAndCov();
@@ -127,7 +118,7 @@ classdef TestUtilsMeasurementModels < handle
                 test.verifyEqual(stateCov, stateCov');
                 test.verifyEqual(stateCov, initStateCov);
             else
-                filter.update(measModel, measurements);
+                filter.update(measModel, measurement);
                 
                 [stateMean, stateCov] = filter.getStateMeanAndCov();
                 
@@ -142,7 +133,7 @@ classdef TestUtilsMeasurementModels < handle
              stateMeasCrossCov, ...
              numIterations] = filter.getLastUpdateData();
             
-            test.verifyEqual(meas, measurements(:), 'RelTol', tol);
+            test.verifyEqual(meas, measurement, 'RelTol', tol);
             test.verifyEqual(measMean, trueMeasMean, 'RelTol', tol);
             test.verifyEqual(measCov, measCov');
             test.verifyEqual(measCov, trueMeasCov, 'RelTol', tol);
@@ -153,8 +144,8 @@ classdef TestUtilsMeasurementModels < handle
     end
     
     methods (Abstract, Access = 'protected')
-        [initState, measModel, measurements,  ...
+        [initState, measModel, measurement,  ...
          trueStateMean, trueStateCov, ...
-         trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp, multiMeas);
+         trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp);
     end
 end

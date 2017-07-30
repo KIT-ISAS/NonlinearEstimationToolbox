@@ -82,16 +82,6 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
             testUtils.checkUpdate(obj, f, tol);
         end
         
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
         
         function testUpdateAddNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -101,16 +91,6 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
             
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
         end
     end
     

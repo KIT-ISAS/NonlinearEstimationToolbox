@@ -89,30 +89,6 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end
         
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumSamples(201);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-            
-            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
-        end
-        
-        function testUpdateLinearMeasModelStateDecompMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumSamples(201);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
-            
-            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
-        end
-        
         
         function testUpdateAddNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -134,30 +110,6 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdateStateDecomp(obj, f, tol);
-            
-            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumSamples(201);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-            
-            obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecompMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumSamples(201);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
             
             obj.verifyGreaterThanOrEqual(f.getNumProgSteps(), 1);
         end

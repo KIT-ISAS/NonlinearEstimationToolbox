@@ -256,7 +256,7 @@ classdef GaussianFilter < Filter
             obj.checkAndSavePrediction(predictedStateMean, predictedStateCov);
         end
         
-        function performUpdate(obj, measModel, measurements)
+        function performUpdate(obj, measModel, measurement)
             observableStateDim = obj.getObservableStateDim();
             
             % Use decomposed state update?
@@ -269,7 +269,7 @@ classdef GaussianFilter < Filter
                 
                 % Update observable state variables
                 [updatedMean, ...
-                 updatedCov] = obj.performUpdateObservable(measModel, measurements, ...
+                 updatedCov] = obj.performUpdateObservable(measModel, measurement, ...
                                                            mean, cov, covSqrt);
                 
                 % Check if updated observable state covariance is valid
@@ -282,7 +282,7 @@ classdef GaussianFilter < Filter
             else
                 % Update entire system state
                 [updatedStateMean, ...
-                 updatedStateCov] = obj.performUpdateObservable(measModel, measurements, ...
+                 updatedStateCov] = obj.performUpdateObservable(measModel, measurement, ...
                                                                 obj.stateMean, obj.stateCov, obj.stateCovSqrt);
             end
             
@@ -392,7 +392,7 @@ classdef GaussianFilter < Filter
          predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel);
         
         [updatedMean, ...
-         updatedCov] = performUpdateObservable(obj, measModel, measurements, ...
+         updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
                                                priorMean, priorCov, priorCovSqrt);
     end
     

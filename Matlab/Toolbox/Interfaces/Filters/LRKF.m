@@ -112,54 +112,48 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
     end
     
     methods (Access = 'protected')
-        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]           = size(measurements);
+        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurement)
             [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            dimNoise     = size(noiseMean, 1);
-            noiseMean    = repmat(noiseMean, numMeas, 1);
-            noiseCovSqrt = Utils.blockDiag(noiseCovSqrt, numMeas);
+            dimMeas = size(measurement, 1);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncArbitraryNoise(priorMean, priorCov, priorCovSqrt, ...
                                                       iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                      measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCovSqrt);
+                                                      measModel, dimMeas, noiseMean, noiseCovSqrt);
         end
         
-        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]    = size(measurements);
+        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurement)
             [noiseMean, noiseCov] = measModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
+            dimMeas  = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncAdditiveNoise(priorMean, priorCov, priorCovSqrt, ...
                                                      iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                     measModel, dimMeas, numMeas, noiseMean, noiseCov);
+                                                     measModel, dimMeas, noiseMean, noiseCov);
         end
         
-        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurements)
-            [dimMeas, numMeas]           = size(measurements);
+        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurement)
             [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
             [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
             dimAddNoise  = size(addNoiseMean, 1);
-            dimNoise     = size(noiseMean, 1);
-            noiseMean    = repmat(noiseMean, numMeas, 1);
-            noiseCovSqrt = Utils.blockDiag(noiseCovSqrt, numMeas);
+            dimMeas      = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
             momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
                          obj.momentFuncMixedNoise(priorMean, priorCov, priorCovSqrt, ...
                                                   iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                  measModel, dimNoise, dimMeas, numMeas, addNoiseMean, ...
+                                                  measModel, dimMeas, addNoiseMean, ...
                                                   addNoiseCov, noiseMean, noiseCovSqrt);
         end
         
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                 iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCovSqrt)
+                                                                measModel, dimMeas, noiseMean, noiseCovSqrt)
             % Generate state and noise samples
             [stateSamples, ...
              noiseSamples, ...
@@ -168,8 +162,11 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
-                                                    numSamples, dimMeas, numMeas, dimNoise);
+            % Propagate samples through measurement equation
+            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
@@ -186,7 +183,7 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                               measModel, dimMeas, numMeas, noiseMean, noiseCov)
+                                                               measModel, dimMeas, noiseMean, noiseCov)
             % Generate state samples
             [stateSamples, ...
              weights, ...
@@ -199,17 +196,15 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
             % Check computed measurements
             obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
-            [mean, cov, crossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                                measSamples, weights);
+            [mean, cov, ...
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
+                                                              measSamples, weights);
             
             % Compute measurement mean
-            measMean = repmat(mean + noiseMean, numMeas, 1);
+            measMean = mean + noiseMean;
             
             % Compute measurement covariance
-            measCov = Utils.baseBlockDiag(cov, noiseCov, numMeas);
-            
-            % Compute state measurement cross-covariance
-            stateMeasCrossCov = repmat(crossCov, 1, numMeas);
+            measCov = cov + noiseCov;
             
             if iterNum > 1
                 [measMean, measCov, ...
@@ -222,7 +217,7 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                             iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
+                                                            measModel, dimMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
             % Generate state and noise samples
             [stateSamples, ...
              noiseSamples, ...
@@ -231,46 +226,27 @@ classdef LRKF < KF & SampleBasedJointlyGaussianPrediction
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
-                                                    numSamples, dimMeas, numMeas, dimNoise);
+            % Propagate samples through measurement equation
+            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
                                                               measSamples, weights);
             
             % Compute measurement mean
-            measMean = measMean + repmat(addNoiseMean, numMeas, 1);
+            measMean = measMean + addNoiseMean;
             
             % Compute measurement covariance
-            measCov = measCov + Utils.blockDiag(addNoiseCov, numMeas);
+            measCov = measCov + addNoiseCov;
             
             if iterNum > 1
                 [measMean, measCov, ...
                  stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
                                                           iterMean, iterCov, iterCovSqrt, ...
                                                           measMean, measCov, stateMeasCrossCov);
-            end
-        end
-        
-        function measSamples = getStackedMeasSamples(obj, measModel, stateSamples, noiseSamples, ...
-                                                     numSamples, dimMeas, numMeas, dimNoise)
-            measSamples = nan(dimMeas * numMeas, numSamples);
-            a = 1; c = 1;
-            
-            for i = 1:numMeas
-                b = i * dimMeas;
-                d = i * dimNoise;
-                
-                % Propagate samples through measurement equation
-                meas = measModel.measurementEquation(stateSamples, noiseSamples(c:d, :));
-                
-                % Check computed measurements
-                obj.checkComputedMeasurements(meas, dimMeas, numSamples);
-                
-                measSamples(a:b, :) = meas;
-                
-                a = b + 1;
-                c = d + 1;
             end
         end
     end

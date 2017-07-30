@@ -28,7 +28,7 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSimulateDefaultNumMeasurements(obj)
+        function testSimulate(obj)
             measModel = MixedNoiseMeasModel();
             measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
             measModel.setNoise(Uniform([0 0 0], [1 1 1]));
@@ -42,24 +42,6 @@ classdef TestMixedNoiseMeasurementModel < matlab.unittest.TestCase
             obj.verifyEqual(size(measurements), [3 1]);
             obj.verifyGreaterThanOrEqual(measurements, detMeas);
             obj.verifyLessThanOrEqual(measurements, detMeas + 2);
-        end
-        
-        function testSimulate(obj)
-            measModel = MixedNoiseMeasModel();
-            measModel.setAdditiveNoise(Uniform([0 0 0], [1 1 1]));
-            measModel.setNoise(Uniform([0 0 0], [1 1 1]));
-            
-            state = [0.3 -pi]';
-            
-            detMeas = measModel.measMatrix * state;
-            
-            n = 3;
-            
-            measurements = measModel.simulate(state, n);
-            
-            obj.verifyEqual(size(measurements), [3 n]);
-            obj.verifyGreaterThanOrEqual(measurements, repmat(detMeas, 1, n));
-            obj.verifyLessThanOrEqual(measurements, repmat(detMeas, 1, n) + 2);
         end
         
         

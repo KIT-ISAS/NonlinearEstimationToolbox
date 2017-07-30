@@ -6,9 +6,9 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
     %   LinearMeasurementModel - Class constructor.
     %   setNoise               - Set the measurement noise.
     %   measurementEquation    - The measurement equation.
-    %   logLikelihood          - Evaluate the logarithmic likelihood function of the implemented measurement equation.
+    %   logLikelihood          - Evaluate the logarithmic likelihood function.
     %   derivative             - Compute the first-order and second-order derivatives of the implemented measurement equation.
-    %   simulate               - Simulate one ore more measurements for a given system state.
+    %   simulate               - Simulate a measurement for the given system state.
     %   analyticMoments        - Analytic calculation of the first two moments of the measurement distribution.
     %   setMeasurementMatrix   - Set the measurement matrix.
     
@@ -113,21 +113,18 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = analyticMoments(obj, stateMean, stateCov, stateCovSqrt, numMeas)
+                  stateMeasCrossCov] = analyticMoments(obj, stateMean, stateCov, stateCovSqrt)
             % Analytic calculation of the first two moments of the measurement distribution.
             %
             % Parameters:
             %   >> stateMean (Column vector)
-            %      The current state mean.
+            %      The state mean.
             %
             %   >> stateCov (Positive definite matrix)
-            %      The current state covariance.
+            %      The state covariance.
             %
             %   >> stateCovSqrt (Square matrix)
-            %      Square root of the current state covariance.
-            %
-            %   >> numMeas (Positive scalar)
-            %      Number of measurements passed to the Filter.update() function.
+            %      Square root of the state covariance.
             %
             % Returns:
             %   << measMean (Column vector)
@@ -137,7 +134,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
             %      The measurement covariance matrix.
             %
             %   << stateMeasCrossCov (Matrix)
-            %      The state measurement cross-covariance matrix.
+            %      The state-measurement cross-covariance matrix.
             
             [noiseMean, noiseCov] = obj.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
@@ -150,7 +147,7 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
                 measMean = stateMean + noiseMean;
                 
                 % Measurement covariance
-                measCov = stateCov;
+                measCov = stateCov + noiseCov;
                 
                 % State measurement cross-covariance
                 stateMeasCrossCov = stateCov;
@@ -163,15 +160,11 @@ classdef LinearMeasurementModel < AdditiveNoiseMeasurementModel
                 % Measurement covariance
                 G = obj.measMatrix * stateCovSqrt;
                 
-                measCov = G * G';
+                measCov = G * G' + noiseCov;
                 
                 % State measurement cross-covariance
                 stateMeasCrossCov = stateCov * obj.measMatrix';
             end
-            
-            measMean          = repmat(measMean, numMeas, 1);
-            measCov           = Utils.baseBlockDiag(measCov, noiseCov, numMeas);
-            stateMeasCrossCov = repmat(stateMeasCrossCov, 1, numMeas);
         end
     end
     

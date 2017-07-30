@@ -93,26 +93,6 @@ classdef TestGPF < matlab.unittest.TestCase & TestCopy
             testUtils.checkUpdateStateDecomp(obj, f, tol);
         end
         
-        function testUpdateLinearMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelStateDecompMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
-        end
-        
         
         function testUpdateAddNoiseMeasModel(obj)
             f   = obj.initFilter();
@@ -132,26 +112,6 @@ classdef TestGPF < matlab.unittest.TestCase & TestCopy
             
             testUtils = TestUtilsAdditiveNoiseMeasurementModel();
             testUtils.checkUpdateStateDecomp(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateMultiMeas(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecompMultiMeas(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateStateDecompMultiMeas(obj, f, tol);
         end
     end
     

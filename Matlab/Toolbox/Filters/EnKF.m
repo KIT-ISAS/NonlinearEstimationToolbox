@@ -148,13 +148,15 @@ classdef EnKF < BasePF
             end
         end
         
-        function performUpdate(obj, measModel, measurements)
+        function performUpdate(obj, measModel, measurement)
+            obj.checkMeasurementVector(measurement);
+            
             if Checks.isClass(measModel, 'MeasurementModel')
-                obj.updateArbitraryNoise(measModel, measurements);
+                obj.updateArbitraryNoise(measModel, measurement);
             elseif Checks.isClass(measModel, 'AdditiveNoiseMeasurementModel')
-                obj.updateAdditiveNoise(measModel, measurements);
+                obj.updateAdditiveNoise(measModel, measurement);
             elseif Checks.isClass(measModel, 'MixedNoiseMeasurementModel')
-                obj.updateMixedNoise(measModel, measurements);
+                obj.updateMixedNoise(measModel, measurement);
             else
                 obj.errorMeasModel('MeasurementModel', ...
                                    'AdditiveNoiseMeasurementModel', ...
@@ -162,35 +164,24 @@ classdef EnKF < BasePF
             end
         end
         
-        function updateArbitraryNoise(obj, measModel, measurements)
-            [dimMeas, numMeas] = size(measurements);
+        function updateArbitraryNoise(obj, measModel, measurement)
+            dimMeas  = size(measurement, 1);
             
-            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
-            a = 1;
+            % Sample measurement noise
+            noiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
             
-            for i = 1:numMeas
-                b = i * dimMeas;
-                
-                % Sample measurement noise
-                noiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
-                
-                % Propagate ensemble and noise through measurement equation
-                meas = measModel.measurementEquation(obj.ensemble, noiseSamples);
-                
-                % Check computed measurements
-                obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
-                
-                measSamples(a:b, :) = meas;
-                
-                a = b + 1;
-            end
+            % Propagate ensemble and noise through measurement equation
+            measSamples = measModel.measurementEquation(obj.ensemble, noiseSamples);
             
-            obj.updateEnsemble(measurements(:), measSamples);
+            % Check computed measurements
+            obj.checkComputedMeasurements(measSamples, dimMeas, obj.ensembleSize);
+            
+            obj.updateEnsemble(measurement, measSamples);
         end
         
-        function updateAdditiveNoise(obj, measModel, measurements)
-            [dimMeas, numMeas] = size(measurements);
+        function updateAdditiveNoise(obj, measModel, measurement)
             dimNoise = measModel.noise.getDim();
+            dimMeas  = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
             
@@ -200,53 +191,35 @@ classdef EnKF < BasePF
             % Check computed measurements
             obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
             
-            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
-            a = 1;
+            % Sample additive measurement noise
+            addNoiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
             
-            for i = 1:numMeas
-                b = i * dimMeas;
-                
-                % Sample additive measurement noise
-                addNoiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
-                
-                measSamples(a:b, :) = meas + addNoiseSamples;
-                
-                a = b + 1;
-            end
+            measSamples = meas + addNoiseSamples;
             
-            obj.updateEnsemble(measurements(:), measSamples);
+            obj.updateEnsemble(measurement, measSamples);
         end
         
-        function updateMixedNoise(obj, measModel, measurements)
-            [dimMeas, numMeas] = size(measurements);
+        function updateMixedNoise(obj, measModel, measurement)
             dimAddNoise = measModel.additiveNoise.getDim();
+            dimMeas     = size(measurement, 1);
             
             obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
             
-            measSamples = nan(dimMeas * numMeas, obj.ensembleSize);
-            a = 1;
+            % Sample measurement noise
+            noiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
             
-            for i = 1:numMeas
-                b = i * dimMeas;
-                
-                % Sample measurement noise
-                noiseSamples = measModel.noise.drawRndSamples(obj.ensembleSize);
-                
-                % Propagate ensemble and noise through measurement equation
-                meas = measModel.measurementEquation(obj.ensemble, noiseSamples);
-                
-                % Check computed measurements
-                obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
-                
-                % Sample additive measurement noise
-                addNoiseSamples = measModel.additiveNoise.drawRndSamples(obj.ensembleSize);
-                
-                measSamples(a:b, :) = meas + addNoiseSamples;
-                
-                a = b + 1;
-            end
+            % Propagate ensemble and noise through measurement equation
+            meas = measModel.measurementEquation(obj.ensemble, noiseSamples);
             
-            obj.updateEnsemble(measurements(:), measSamples);
+            % Check computed measurements
+            obj.checkComputedMeasurements(meas, dimMeas, obj.ensembleSize);
+            
+            % Sample additive measurement noise
+            addNoiseSamples = measModel.additiveNoise.drawRndSamples(obj.ensembleSize);
+            
+            measSamples = meas + addNoiseSamples;
+            
+            obj.updateEnsemble(measurement, measSamples);
         end
         
         function updateEnsemble(obj, measurement, measSamples)

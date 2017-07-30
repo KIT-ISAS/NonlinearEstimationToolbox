@@ -28,9 +28,9 @@ classdef TestUtilsMeasurementModel < TestUtilsMeasurementModels
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Access = 'protected')
-        function [initState, measModel, measurements,  ...
+        function [initState, measModel, measurement,  ...
                   trueStateMean, trueStateCov, ...
-                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp, multiMeas)
+                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp)
             initState = Gaussian(obj.initMean, obj.initCov);
             
             measModel = MeasModel(stateDecomp);
@@ -44,29 +44,16 @@ classdef TestUtilsMeasurementModel < TestUtilsMeasurementModels
             
             [noiseMean, noiseCov] = obj.measNoise.getMeanAndCov();
             
-            if multiMeas
-                measurements = obj.twoMeas;
-                
-                trueMeasMean   = mat * obj.initMean + noiseMean;
-                trueMeasMean   = repmat(trueMeasMean, 2, 1);
-                trueMeasCov    = mat * obj.initCov * mat';
-                trueMeasCov    = [trueMeasCov + noiseCov trueMeasCov
-                                  trueMeasCov            trueMeasCov + noiseCov];
-                invTrueMeasCov = trueMeasCov \ eye(6);
-                crossCov       = obj.initCov * mat';
-                crossCov       = [crossCov crossCov];
-            else
-                measurements = obj.singleMeas;
-                
-                trueMeasMean   = mat * obj.initMean + noiseMean;
-                trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
-                invTrueMeasCov = trueMeasCov \ eye(3);
-                crossCov       = obj.initCov * mat';
-            end
+            measurement = obj.meas;
+            
+            trueMeasMean   = mat * obj.initMean + noiseMean;
+            trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
+            invTrueMeasCov = trueMeasCov \ eye(3);
+            crossCov       = obj.initCov * mat';
             
             K = crossCov * invTrueMeasCov;
             
-            trueStateMean = obj.initMean + K * (measurements(:) - trueMeasMean);
+            trueStateMean = obj.initMean + K * (measurement - trueMeasMean);
             trueStateCov  = obj.initCov - K * crossCov';
             
             if stateDecomp
@@ -80,16 +67,13 @@ classdef TestUtilsMeasurementModel < TestUtilsMeasurementModels
     end
     
     properties (Constant, Access = 'private')
-        initMean   = [0.3 -pi]';
-        initCov    = [0.5 0.1; 0.1 3];
-        measNoise  = Gaussian([2 -1 0.5]', [ 2   -0.5 0
-                                            -0.5  1.3 0.5
-                                             0    0.5 sqrt(2)]);
-        singleMeas = [ 1
-                      -2
-                       5];
-        twoMeas    = [ 1  1.5
-                      -2 -1.85
-                       5 -4   ];
+        initMean  = [0.3 -pi]';
+        initCov   = [0.5 0.1; 0.1 3];
+        measNoise = Gaussian([2 -1 0.5]', [ 2   -0.5 0
+                                           -0.5  1.3 0.5
+                                            0    0.5 sqrt(2)]);
+        meas      = [ 1
+                     -2
+                     5];
     end
 end

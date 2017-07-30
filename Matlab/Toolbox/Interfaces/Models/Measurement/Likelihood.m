@@ -3,7 +3,7 @@ classdef Likelihood < handle
     % Abstract base class for likelihood functions to represent measurement models.
     %
     % Likelihood Methods:
-    %   logLikelihood - Evaluate the logarithmic likelihood function of the implemented measurement model.
+    %   logLikelihood - Evaluate the logarithmic likelihood function.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -31,19 +31,19 @@ classdef Likelihood < handle
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Abstract)
-        % Evaluate the logarithmic likelihood function of the implemented measurement equation.
+        % Evaluate the logarithmic likelihood function.
         %
         % Parameters:
         %   >> stateSamples (Matrix)
         %      L column-wise arranged state samples.
         %
-        %   >> measurements (Matrix)
-        %      Column-wise arranged measurement vectors, where each column represents an
-        %      individual measurement.
+        %   >> measurement (Arbitrary data)
+        %      The measurement data required by the likelihood function.
+        %      Usually, this is a column vector.
         %
         % Returns:
         %   << logValues (Row vector)
         %      L column-wise arranged logarithmic likelihood function values.
-        logValues = logLikelihood(obj, stateSamples, measurements);
+        logValues = logLikelihood(obj, stateSamples, measurement);
     end
 end

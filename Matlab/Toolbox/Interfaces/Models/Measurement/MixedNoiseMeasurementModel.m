@@ -7,7 +7,7 @@ classdef MixedNoiseMeasurementModel < handle
     %   setAdditiveNoise    - Set the pure additive measurement noise.
     %   measurementEquation - The measurement equation.
     %   derivative          - Compute the first-order and second-order derivatives of the implemented measurement equation.
-    %   simulate            - Simulate one ore more measurements for a given system state.
+    %   simulate            - Simulate a measurement for the given system state.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -103,42 +103,26 @@ classdef MixedNoiseMeasurementModel < handle
             end
         end
         
-        function measurements = simulate(obj, state, numMeasurements)
-            % Simulate one ore more measurements for a given system state.
+        function measurement = simulate(obj, state)
+            % Simulate a measurement for the given system state.
             %
             % Parameters:
             %   >> state (Column vector)
             %      The system state.
             %
-            %   >> numMeasurements (Positive scalar)
-            %      The number of measurements to simulate.
-            %      Default: One measurement will be simulated.
-            %
             % Returns:
-            %   << measurements (Matrix)
-            %      Column-wise arranged simulated measurements.
+            %   << measurement (Column vector)
+            %      The simulated measurement.
             
             if ~Checks.isColVec(state)
                 error('MixedNoiseMeasurementModel:InvalidSystemState', ...
                       'state must be a column vector.');
             end
             
-            if nargin < 3
-                numMeasurements = 1;
-            else
-                if ~Checks.isPosScalar(numMeasurements)
-                    error('MixedNoiseMeasurementModel:InvalidSystemState', ...
-                          'numMeasurements must be a positive scalar.');
-                end
-                
-                numMeasurements = ceil(numMeasurements);
-            end
+            addNoiseSamples = obj.additiveNoise.drawRndSamples(1);
+            noiseSamples    = obj.noise.drawRndSamples(1);
             
-            addNoiseSamples = obj.additiveNoise.drawRndSamples(numMeasurements);
-            noiseSamples    = obj.noise.drawRndSamples(numMeasurements);
-            
-            measurements = obj.measurementEquation(repmat(state, 1, numMeasurements), noiseSamples);
-            measurements = measurements + addNoiseSamples;
+            measurement = obj.measurementEquation(state, noiseSamples) + addNoiseSamples;
         end
     end
     

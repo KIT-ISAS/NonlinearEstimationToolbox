@@ -249,7 +249,7 @@ classdef S2KF < LRKF
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                 iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                                measModel, dimNoise, dimMeas, numMeas, noiseMean, noiseCovSqrt)
+                                                                measModel, dimMeas, noiseMean, noiseCovSqrt)
             % Generate state and noise samples
             % Keep in mind that we know that all samples are equally weighted
             [stateSamples, ...
@@ -259,8 +259,11 @@ classdef S2KF < LRKF
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
-                                                    numSamples, dimMeas, numMeas, dimNoise);
+            % Propagate samples through measurement equation
+            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
@@ -277,7 +280,7 @@ classdef S2KF < LRKF
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                                iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                               measModel, dimMeas, numMeas, noiseMean, noiseCov)
+                                                               measModel, dimMeas, noiseMean, noiseCov)
             % Generate state samples
             % Keep in mind that we know that all samples are equally weighted
             [stateSamples, ...
@@ -291,17 +294,15 @@ classdef S2KF < LRKF
             % Check computed measurements
             obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
-            [mean, cov, crossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                                measSamples);
+            [mean, cov, ...
+             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
+                                                              measSamples);
             
             % Compute measurement mean
-            measMean = repmat(mean + noiseMean, numMeas, 1);
+            measMean = mean + noiseMean;
             
             % Compute measurement covariance
-            measCov = Utils.baseBlockDiag(cov, noiseCov, numMeas);
-            
-            % Compute state measurement cross-covariance
-            stateMeasCrossCov = repmat(crossCov, 1, numMeas);
+            measCov = cov + noiseCov;
             
             if iterNum > 1
                 [measMean, measCov, ...
@@ -314,7 +315,7 @@ classdef S2KF < LRKF
         function [measMean, measCov, ...
                   stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
                                                             iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                            measModel, dimNoise, dimMeas, numMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
+                                                            measModel, dimMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
             % Generate state and noise samples
             % Keep in mind that we know that all samples are equally weighted
             [stateSamples, ...
@@ -324,18 +325,21 @@ classdef S2KF < LRKF
                                                       iterMean, iterCovSqrt, ...
                                                       noiseMean, noiseCovSqrt);
             
-            measSamples = obj.getStackedMeasSamples(measModel, stateSamples, noiseSamples, ...
-                                                    numSamples, dimMeas, numMeas, dimNoise);
+            % Propagate samples through measurement equation
+            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
             
             [measMean, measCov, ...
              stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
                                                               measSamples);
             
             % Compute measurement mean
-            measMean = measMean + repmat(addNoiseMean, numMeas, 1);
+            measMean = measMean + addNoiseMean;
             
             % Compute measurement covariance
-            measCov = measCov + Utils.blockDiag(addNoiseCov, numMeas);
+            measCov = measCov + addNoiseCov;
             
             if iterNum > 1
                 [measMean, measCov, ...

@@ -30,38 +30,23 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
     methods
         function checkUpdate(obj, test, filter, tol)
             obj.hasMeasMatrix = false;
-            obj.checkUpdateConfig(false, false, test, filter, tol);
+            obj.checkUpdateConfig(false, test, filter, tol);
             
             obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(false, false, test, filter, tol);
+            obj.checkUpdateConfig(false, test, filter, tol);
         end
         
         function checkUpdateStateDecomp(obj, test, filter, tol)
             % State decomposition enabled
             % => no identity measurement matrix possible
             obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(true, false, test, filter, tol);
-        end
-        
-        function checkUpdateMultiMeas(obj, test, filter, tol)
-            obj.hasMeasMatrix = false;
-            obj.checkUpdateConfig(false, true, test, filter, tol);
-            
-            obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(false, true, test, filter, tol);
-        end
-        
-        function checkUpdateStateDecompMultiMeas(obj, test, filter, tol)
-            % State decomposition enabled
-            % => no identity measurement matrix possible
-            obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(true, true, test, filter, tol);
+            obj.checkUpdateConfig(true, test, filter, tol);
         end
         
         
         function checkUpdateKF(obj, test, createFilter)
-            configs    = logical(dec2bin(0:15) - '0');
-            numConfigs = 16;
+            configs    = logical(dec2bin(0:7) - '0');
+            numConfigs = 8;
             
             for i = 1:numConfigs
                 filter = createFilter();
@@ -83,9 +68,9 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
     end
     
     methods (Access = 'protected')
-        function [initState, measModel, measurements,  ...
+        function [initState, measModel, measurement,  ...
                   trueStateMean, trueStateCov, ...
-                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp, multiMeas)
+                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp)
             initState = Gaussian(obj.initMean, obj.initCov);
             
             measModel = LinearMeasurementModel();
@@ -102,25 +87,12 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
                 measModel.setNoise(obj.measNoise3D);
                 [noiseMean, noiseCov] = obj.measNoise3D.getMeanAndCov();
                 
-                if multiMeas
-                    trueMeasMean   = mat * obj.initMean + noiseMean;
-                    trueMeasMean   = repmat(trueMeasMean, 2, 1);
-                    trueMeasCov    = mat * obj.initCov * mat';
-                    trueMeasCov    = [trueMeasCov + noiseCov trueMeasCov
-                                      trueMeasCov            trueMeasCov + noiseCov];
-                    invTrueMeasCov = trueMeasCov \ eye(6);
-                    crossCov       = obj.initCov * mat';
-                    crossCov       = [crossCov crossCov];
-                    
-                    measurements = obj.measurements3D;
-                else
-                    trueMeasMean   = mat * obj.initMean + noiseMean;
-                    trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
-                    invTrueMeasCov = trueMeasCov \ eye(3);
-                    crossCov       = obj.initCov * mat';
-                    
-                    measurements = obj.measurement3D;
-                end
+                trueMeasMean   = mat * obj.initMean + noiseMean;
+                trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
+                invTrueMeasCov = trueMeasCov \ eye(3);
+                crossCov       = obj.initCov * mat';
+                
+                measurement = obj.measurement3D;
                 
                 if stateDecomp
                     % If state decomposition is enabled, the true
@@ -135,32 +107,19 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
                 measModel.setNoise(obj.measNoise2D);
                 [noiseMean, noiseCov] = obj.measNoise2D.getMeanAndCov();
                 
-                if multiMeas
-                    trueMeasMean   = mat * obj.initMean + noiseMean;
-                    trueMeasMean   = repmat(trueMeasMean, 2, 1);
-                    trueMeasCov    = mat * obj.initCov * mat';
-                    trueMeasCov    = [trueMeasCov + noiseCov trueMeasCov
-                                      trueMeasCov            trueMeasCov + noiseCov];
-                    invTrueMeasCov = trueMeasCov \ eye(4);
-                    crossCov       = obj.initCov * mat';
-                    crossCov       = [crossCov crossCov];
-                    
-                    measurements = obj.measurements2D;
-                else
-                    trueMeasMean   = mat * obj.initMean + noiseMean;
-                    trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
-                    invTrueMeasCov = trueMeasCov \ eye(2);
-                    crossCov       = obj.initCov * mat';
-                    
-                    measurements = obj.measurement2D;
-                end
+                trueMeasMean   = mat * obj.initMean + noiseMean;
+                trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
+                invTrueMeasCov = trueMeasCov \ eye(2);
+                crossCov       = obj.initCov * mat';
+                
+                measurement = obj.measurement2D;
                 
                 trueCrossCov = crossCov;
             end
             
             K = crossCov * invTrueMeasCov;
             
-            trueStateMean = obj.initMean + K * (measurements(:) - trueMeasMean);
+            trueStateMean = obj.initMean + K * (measurement - trueMeasMean);
             trueStateCov  = obj.initCov  - K * crossCov';
         end
     end
@@ -186,10 +145,5 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
                                             0.2  0.0 3.0]);
         measurement2D  = [ 3 -4]';
         measurement3D  = [15 -0.9 -3]';
-        measurements2D = [ 3  3.3
-                          -4 -3.9];                            
-        measurements3D = [ 15  15.2
-                          -0.9 -0.8 
-                          -3   -3.3];
     end
 end

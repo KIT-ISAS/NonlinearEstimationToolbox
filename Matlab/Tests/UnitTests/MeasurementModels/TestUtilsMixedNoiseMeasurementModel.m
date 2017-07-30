@@ -28,9 +28,9 @@ classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Access = 'protected')
-        function [initState, measModel, measurements,  ...
+        function [initState, measModel, measurement,  ...
                   trueStateMean, trueStateCov, ...
-                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp, multiMeas)
+                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp)
             initState = Gaussian(obj.initMean, obj.initCov);
             
             measModel = MixedNoiseMeasModel(stateDecomp);
@@ -46,29 +46,16 @@ classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
             [addNoiseMean, addNoiseCov] = obj.addMeasNoise.getMeanAndCov();
             [noiseMean, noiseCov]       = obj.measNoise.getMeanAndCov();
             
-            if multiMeas
-                measurements = obj.twoMeas;
-                
-                trueMeasMean   = mat * obj.initMean + addNoiseMean + noiseMean;
-                trueMeasMean   = repmat(trueMeasMean, 2, 1);
-                trueMeasCov    = mat * obj.initCov * mat';
-                trueMeasCov    = [trueMeasCov + addNoiseCov + noiseCov trueMeasCov
-                                  trueMeasCov                          trueMeasCov + addNoiseCov + noiseCov];
-                invTrueMeasCov = trueMeasCov \ eye(6);
-                crossCov       = obj.initCov * mat';
-                crossCov       = [crossCov crossCov];
-            else
-                measurements = obj.singleMeas;
-                
-                trueMeasMean   = mat * obj.initMean + addNoiseMean + noiseMean;
-                trueMeasCov    = mat * obj.initCov * mat' + addNoiseCov + noiseCov;
-                invTrueMeasCov = trueMeasCov \ eye(3);
-                crossCov       = obj.initCov * mat';
-            end
+            measurement = obj.meas;
+            
+            trueMeasMean   = mat * obj.initMean + addNoiseMean + noiseMean;
+            trueMeasCov    = mat * obj.initCov * mat' + addNoiseCov + noiseCov;
+            invTrueMeasCov = trueMeasCov \ eye(3);
+            crossCov       = obj.initCov * mat';
             
             K = crossCov * invTrueMeasCov;
             
-            trueStateMean = obj.initMean + K * (measurements(:) - trueMeasMean);
+            trueStateMean = obj.initMean + K * (measurement - trueMeasMean);
             trueStateCov  = obj.initCov - K * crossCov';
             
             if stateDecomp
@@ -88,11 +75,8 @@ classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
                                               -0.5  1.3 0.5
                                                0    0.5 sqrt(2)]);
         measNoise    = Gaussian([1 2.5 0]', diag([1 2 3]));
-        singleMeas   = [ 1
+        meas         = [ 1
                         -2
                          5];
-        twoMeas      = [ 1  1.5
-                        -2 -1.85
-                         5 -4   ];
     end
 end

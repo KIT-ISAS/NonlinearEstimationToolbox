@@ -89,7 +89,7 @@ classdef ASIRPF < SIRPF
     end
     
     methods (Access = 'protected')
-        function performStep(obj, sysModel, measModel, measurements)
+        function performStep(obj, sysModel, measModel, measurement)
             % Implements the combined time and measurement update described in:
             %   Branko Ristic, Sanjeev Arulampalam, and Neil Gordon,
             %   Beyond the Kalman Filter: Particle filters for Tracking Applications,
@@ -119,7 +119,7 @@ classdef ASIRPF < SIRPF
             predictedParticles = predictParticles(sysModel, obj.particles, obj.numParticles);
             
             % Compute likelihood values at predicted particles
-            predLogValues = measModel.logLikelihood(predictedParticles, measurements);
+            predLogValues = measModel.logLikelihood(predictedParticles, measurement);
             
             obj.checkLogLikelihoodEvaluations(predLogValues, obj.numParticles);
             
@@ -147,7 +147,7 @@ classdef ASIRPF < SIRPF
             predictedParticles = predictParticles(sysModel, particles, obj.numParticles);
             
             % Evaluate logaritmic likelihood at newly predicted particles
-            logValues = measModel.logLikelihood(predictedParticles, measurements);
+            logValues = measModel.logLikelihood(predictedParticles, measurement);
             
             obj.checkLogLikelihoodEvaluations(logValues, obj.numParticles);
             

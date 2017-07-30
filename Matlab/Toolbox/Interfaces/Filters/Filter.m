@@ -198,58 +198,40 @@ classdef Filter < handle & matlab.mixin.Copyable
             end
         end
         
-        function runtime = update(obj, measModel, measurements)
+        function runtime = update(obj, measModel, measurement)
             % Perform a measurement update.
             %
             % Parameters:
             %   >> measModel (Arbitrary class; filter dependent)
             %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise 
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
             %   << runtime (Scalar)
             %      Time needed to perform the measurement update.
             
-            obj.checkMeasurements(measurements);
-            
             if nargout == 1
                 s = tic;
                 try
-                    obj.performUpdate(measModel, measurements);
+                    obj.performUpdate(measModel, measurement);
                 catch ex
                     Filter.handleIgnoreMeas(ex);
                 end
                 runtime = toc(s);
             else
                 try
-                    obj.performUpdate(measModel, measurements);
+                    obj.performUpdate(measModel, measurement);
                 catch ex
                     Filter.handleIgnoreMeas(ex);
                 end
             end
         end
         
-        function runtime = step(obj, sysModel, measModel, measurements)
+        function runtime = step(obj, sysModel, measModel, measurement)
             % Perform a combined state prediction and measurement update.
             %
             % By default, this is equal to execute predict() followed by an update().
@@ -263,37 +245,19 @@ classdef Filter < handle & matlab.mixin.Copyable
             %   >> measModel (Arbitrary class; filter dependent)
             %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
             %   << runtime (Scalar)
             %      Time needed to perform the combined state prediction and measurement update.
             
-            obj.checkMeasurements(measurements);
-            
             if nargout == 1
                 s = tic;
                 try
-                    obj.performStep(sysModel, measModel, measurements);
+                    obj.performStep(sysModel, measModel, measurement);
                 catch ex
                     Filter.handleIgnorePrediction(ex);
                     Filter.handleIgnoreMeas(ex);
@@ -301,7 +265,7 @@ classdef Filter < handle & matlab.mixin.Copyable
                 runtime = toc(s);
             else
                 try
-                    obj.performStep(sysModel, measModel, measurements);
+                    obj.performStep(sysModel, measModel, measurement);
                 catch ex
                     Filter.handleIgnorePrediction(ex);
                     Filter.handleIgnoreMeas(ex);
@@ -334,26 +298,19 @@ classdef Filter < handle & matlab.mixin.Copyable
         
         performPrediction(obj, sysModel);
         
-        performUpdate(obj, measModel, measurements);
+        performUpdate(obj, measModel, measurement);
     end
     
     methods (Access = 'protected')
-        function performStep(obj, sysModel, measModel, measurements)
+        function performStep(obj, sysModel, measModel, measurement)
             obj.performPrediction(sysModel);
-            obj.performUpdate(measModel, measurements);
-        end
-        
-        function checkMeasurements(obj, measurements)
-            if ~Checks.isMat(measurements)
-                obj.error('InvalidMeasurements', ...
-                          'measurements must be a matrix.');
-            end
+            obj.performUpdate(measModel, measurement);
         end
         
         function checkMeasurementVector(obj, measurement)
-            if ~Checks.isColumnVector(measurement)
+            if ~Checks.isColVec(measurement)
                 obj.error('InvalidMeasurement', ...
-                          'Measurement must be a column vector.');
+                          'measurement must be a column vector.');
             end
         end
         
