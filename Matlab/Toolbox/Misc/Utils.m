@@ -5,6 +5,7 @@ classdef Utils
     % Utils Methods:
     %   getMeanAndCov             - Compute sample mean and sample covariance.
     %   getMeanCovAndCrossCov     - Compute sample mean, covariance, and cross-covariance.
+    %   getGMMeanAndCov           - Compute mean and covariance matrix of a Gaussian mixture.
     %   kalmanUpdate              - Perform a Kalman update.
     %   decomposedStateUpdate     - Perform an update for a system state decomposed into two parts A and B.
     %   blockDiag                 - Create a block diagonal matrix.
@@ -184,6 +185,43 @@ classdef Utils
                     
                     stateMeasCrossCov = stateMeasCrossCov - weightedDiffStateSamples * weightedDiffMeasSamples';
                 end
+            end
+        end
+        
+        function [mean, cov] = getGMMeanAndCov(means, covariances, weights)
+            % Compute mean and covariance matrix of a Gaussian mixture.
+            %
+            % Parameters:
+            %   >> means (Matrix)
+            %      Column-wise arranged means of the Gaussian mixture components.
+            %
+            %   >> covariances (3D matrix containing positive definite matrices)
+            %      Slice-wise arranged covariance matrices of the Gaussian mixture components.
+            %
+            %   >> weights (Row vector)
+            %      Row-wise arranged normalized weights of the Gaussian mixture components.
+            %      If no weights are passed, all Gaussian mixture components are assumed to be equally weighted.
+            %
+            % Returns:
+            %   << mean (Column vector)
+            %      The mean of the Gaussian mixture.
+            %
+            %   << cov (Positive definite matrix)
+            %      The covariance matrix of the Gaussian mixture.
+            
+            numComponents = size(means, 2);
+            
+            if nargin < 3
+                [mean, covMeans] = Utils.getMeanAndCov(means);
+                
+                cov = covMeans + sum(covariances, 3) / numComponents;
+            else
+                [mean, covMeans] = Utils.getMeanAndCov(means, weights);
+                
+                weightedCovs = bsxfun(@times, covariances, ...
+                                      reshape(weights, [1 1 numComponents]));
+                
+                cov = covMeans + sum(weightedCovs, 3);
             end
         end
         
