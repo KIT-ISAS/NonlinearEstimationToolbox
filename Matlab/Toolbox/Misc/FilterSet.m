@@ -14,12 +14,12 @@ classdef FilterSet < handle
     %   getStates            - Get the system states of all filters.
     %   getStateDim          - Get the dimension of the system state.
     %   getStateMeansAndCovs - Get state means and state covariance matrices of all filters.
-    %   predict              - Predict all filters in the set using the given system model.
-    %   predictSingle        - Predict the filter with the given id and system model.
-    %   update               - Update all filters in the set using the given measurement model and measurements.
-    %   updateSingle         - Update the filter with the given id, measurement model, and measurements.
-    %   step                 - Predict and update all filters in the set using the given system model, measurement model, and measurements.
-    %   stepSingle           - Predict and update the filter with the given id, system model, measurement model, and measurements.
+    %   predict              - Perform a state prediction for all filters.
+    %   predictSingle        - Perform a state prediction for a particular filter.
+    %   update               - Perform a measurement update for all filters.
+    %   updateSingle         - Perform a measurement update for a particular filter.
+    %   step                 - Perform a combined state prediction and measurement update for all filters.
+    %   stepSingle           - Perform a combined state prediction and measurement update for a particular filter.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -262,16 +262,15 @@ classdef FilterSet < handle
         end
         
         function runtimes = predict(obj, sysModel)
-            % Predict all filters in the set using the given system model.
+            % Perform a state prediction for all filters.
             %
             % Parameters:
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
             % Returns:
-            %   << runtimes (Array)
-            %      Contains the prediction runtimes for all filters.
+            %   << runtimes (Row vector)
+            %      Contains the state prediction runtimes for all filters.
             
             if nargout == 1
                 runtimes = obj.forAllFiltersRuntime(@predict, sysModel);
@@ -281,19 +280,18 @@ classdef FilterSet < handle
         end
         
         function runtime = predictSingle(obj, id, sysModel)
-            % Predict the filter with the given id and system model.
+            % Perform a state prediction for a particular filter.
             %
             % Parameters:
             %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
             % Returns:
             %   << runtime (Scalar)
-            %      Runtime of the prediction.
+            %      Time needed to perform the state prediction.
             
             if nargout == 1
                 runtime = obj.executeFilterRuntime(id, @predict, sysModel);
@@ -302,173 +300,104 @@ classdef FilterSet < handle
             end
         end
         
-        function runtimes = update(obj, measModel, measurements)
-            % Update all filters in the set using the given measurement model and measurements.
+        function runtimes = update(obj, measModel, measurement)
+            % Perform a measurement update for all filters.
             %
             % Parameters:
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between a measurement and the system state.
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise 
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
-            %   << runtimes (Array)
-            %      Contains the update runtimes for all filters.
+            %   << runtimes (Row vector)
+            %      Contains the measurement update runtimes for all filters.
             
             if nargout == 1
-                runtimes = obj.forAllFiltersRuntime(@update, measModel, measurements);
+                runtimes = obj.forAllFiltersRuntime(@update, measModel, measurement);
             else
-                obj.forAllFilters(@update, measModel, measurements);
+                obj.forAllFilters(@update, measModel, measurement);
             end
         end
         
-        function runtime = updateSingle(obj, id, measModel, measurements)
-            % Update the filter with the given id, measurement model, and measurements.
+        function runtime = updateSingle(obj, id, measModel, measurement)
+            % Perform a measurement update for a particular filter.
             %
             % Parameters:
             %   >> id (Char or positive scalar)
             %      The filter id can be either the filter name or its index in the set.
             %
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between a measurement and the system state.
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
             %   << runtime (Scalar)
-            %      Runtime of the measurement update.
+            %      Time needed to perform the measurement update.
             
             if nargout == 1
-                runtime = obj.executeFilterRuntime(id, @update, measModel, measurements);
+                runtime = obj.executeFilterRuntime(id, @update, measModel, measurement);
             else
-                obj.executeFilter(id, @update, measModel, measurements);
+                obj.executeFilter(id, @update, measModel, measurement);
             end
         end
         
-        function runtimes = step(obj, sysModel, measModel, measurements)
-            % Predict and update all filters in the set using the given system model, measurement model, and measurements.
+        function runtimes = step(obj, sysModel, measModel, measurement)
+            % Perform a combined state prediction and measurement update for all filters.
             %
             % Parameters:
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between measurements and the system state.
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
-            %   << runtimes (Array)
+            %   << runtimes (Row vector)
             %      Contains the runtimes for all filters.
             
             if nargout == 1
-                runtimes = obj.forAllFiltersRuntime(@step, sysModel, measModel, measurements);
+                runtimes = obj.forAllFiltersRuntime(@step, sysModel, measModel, measurement);
             else
-                obj.forAllFilters(@step, sysModel, measModel, measurements);
+                obj.forAllFilters(@step, sysModel, measModel, measurement);
             end
         end
         
-        function runtime = stepSingle(obj, id, sysModel, measModel, measurements)
-            % Predict and update the filter with the given id, system model, measurement model, and measurements.
+        function runtime = stepSingle(obj, id, sysModel, measModel, measurement)
+            % Perform a combined state prediction and measurement update for a particular filter.
             %
             % Parameters:
-            %   >> id (Char or positive scalar)
-            %      The filter id can be either the filter name or its index in the set.
+            %   >> sysModel (Arbitrary class; filter dependent)
+            %      System model that describes the temporal behavior of the system state.
             %
-            %   >> sysModel (Arbitrary class (filter dependent))
-            %      System model that provides the mapping between the prior system
-            %      state and the predicted state (i.e., the system state's temporal evolution).
+            %   >> measModel (Arbitrary class; filter dependent)
+            %      Measurement model that describes the relationship between system state and measurement.
             %
-            %   >> measModel (Arbitrary class (filter dependent))
-            %      Measurement model that provides the mapping between measurements and the system state.
-            %
-            %   >> measurements (Matrix)
-            %      Column-wise arranged measurement vectors, where each column represents an individual
-            %      measurement. In case of two or more measurements (i.e., two or more columns), the
-            %      filter assumes that the measurements originate from the same measurement model and
-            %      i.i.d. measurement noise. For example, in case of a measurement model h(x, v) and two
-            %      measurements m1 and m2 the filter assumes
-            %
-            %          m1 = h(x, v) and m2 = h(x, v) .
-            %
-            %      The advantage is that one has to set the measurement noise v only for one
-            %      measurement, no matter how many measurements will be provided in one filter step.
-            %      That is, the measurement noise is assumed to be i.i.d. for all measurements.
-            %      However, in case of non-i.i.d. measurement noise
-            %
-            %          m1 = h(x, v1) and m2 = h(x, v2)
-            %
-            %      (e.g., existing correlations between noise for different measurements or in general
-            %      different noise for different measurements) one has to explicitly stack the
-            %      measurement noise to v = [v1; v2] and pass the measurements m1 and m2 as a stacked
-            %      measurement vector m = [m1; m2].
+            %   >> measurement (Arbitrary data)
+            %      Measurement data that has to be processed by the measurement update.
+            %      What type of data is supported depends on the passed measurement model
+            %      and implemented filter. Usually, this is a column vector.
             %
             % Returns:
             %   << runtime (Scalar)
-            %      Runtime of the combined prediction and update.
+            %      Time needed to perform the combined state prediction and measurement update.
             
             if nargout == 1
-                runtime = obj.executeFilterRuntime(id, @step, sysModel, measModel, measurements);
+                runtime = obj.executeFilterRuntime(id, @step, sysModel, measModel, measurement);
             else
-                obj.executeFilter(id, @step, sysModel, measModel, measurements);
+                obj.executeFilter(id, @step, sysModel, measModel, measurement);
             end
         end
     end
