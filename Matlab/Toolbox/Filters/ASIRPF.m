@@ -73,14 +73,14 @@ classdef ASIRPF < SIRPF
             %      or the user should specify an appropriate name (e.g.,
             %      'PF (10k Particles)').
             %
-            %      Default name: 'Auxiliary SIR-PF'.
+            %      Default name: 'Auxiliary SIRPF'.
             %
             % Returns:
             %   << obj (ASIRPF)
             %      A new ASIRPF instance.
             
             if nargin < 1
-                name = 'Auxiliary SIR-PF';
+                name = 'Auxiliary SIRPF';
             end
             
             % Call superclass constructor
