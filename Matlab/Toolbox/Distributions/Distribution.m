@@ -1,8 +1,9 @@
 
-classdef Distribution < handle
+classdef Distribution < handle & matlab.mixin.Copyable
     % Abstract base class for probability distributions.
     %
     % Distribution Methods:
+    %   copy           - Copy a distribution instance.
     %   getDim         - Get the dimension of the distribution.
     %   getMeanAndCov  - Get mean and covariance matrix of the distribution.
     %   drawRndSamples - Draw random samples from the distribution.

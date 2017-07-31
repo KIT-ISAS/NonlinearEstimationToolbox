@@ -4,6 +4,7 @@ classdef GaussianMixture < Distribution
     %
     % GaussianMixture Methods:
     %   GaussianMixture  - Class constructor.
+    %   copy             - Copy a distribution instance.
     %   set              - Set the parameters of the Gaussian mixture distribution.
     %   getDim           - Get the dimension of the distribution.
     %   getMeanAndCov    - Get mean and covariance matrix of the distribution.

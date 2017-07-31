@@ -4,6 +4,7 @@ classdef DiracMixture < Distribution
     %
     % DiracMixture Methods:
     %   DiracMixture     - Class constructor.
+    %   copy             - Copy a distribution instance.
     %   set              - Set the parameters of the Dirac mixture distribution.
     %   getDim           - Get the dimension of the distribution.
     %   getMeanAndCov    - Get mean and covariance matrix of the distribution.

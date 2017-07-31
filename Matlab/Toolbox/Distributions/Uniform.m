@@ -4,6 +4,7 @@ classdef Uniform < Distribution
     %
     % Uniform Methods:
     %   Uniform        - Class constructor.
+    %   copy           - Copy a distribution instance.
     %   set            - Set the parameters of the uniform distribution.
     %   getDim         - Get the dimension of the distribution.
     %   getMeanAndCov  - Get mean and covariance matrix of the distribution.
