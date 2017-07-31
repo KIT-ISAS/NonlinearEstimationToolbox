@@ -31,17 +31,10 @@ classdef TestUniform < matlab.unittest.TestCase
         function testConstructorDefault(obj)
             u = Uniform();
             
-            a       = 0;
-            b       = 1;
-            dim     = 1;
-            mean    = 0.5;
-            cov     = 1 / 12;
-            covSqrt = sqrt(cov);
-            
-            obj.verifyUniform(u, a, b, dim, mean, cov, covSqrt);
+            obj.verifyResetUniform(u);
         end
         
-        function testConstructor(obj)
+        function testConstructorScalar(obj)
             a       = -1;
             b       = 2;
             dim     = 1;
@@ -51,10 +44,10 @@ classdef TestUniform < matlab.unittest.TestCase
             
             u = Uniform(a, b);
             
-            obj.verifyUniform(u, a, b, dim, mean, cov, covSqrt);
+            obj.verifyUniform(u, dim, a, b, mean, cov, covSqrt);
         end
         
-        function testConstructor2D(obj)
+        function testConstructorMultivariate(obj)
             a       = [-1, 3]';
             b       = [-0.5, 5]';
             dim     = 2;
@@ -64,7 +57,7 @@ classdef TestUniform < matlab.unittest.TestCase
             
             u = Uniform(a, b);
             
-            obj.verifyUniform(u, a, b, dim, mean, cov, covSqrt);
+            obj.verifyUniform(u,  dim, a, b,mean, cov, covSqrt);
         end
         
         function testConstructorInvalidA(obj)
@@ -94,6 +87,79 @@ classdef TestUniform < matlab.unittest.TestCase
                             'Uniform:InvalidMinimum');
         end
         
+        
+        function testSetScalar(obj)
+            a       = -1;
+            b       = 2;
+            dim     = 1;
+            mean    = 0.5;
+            cov     = 9 / 12;
+            covSqrt = sqrt(cov);
+            
+            u = Uniform();
+            
+            u.set(a, b);
+            
+            obj.verifyUniform(u, dim, a, b, mean, cov, covSqrt);
+        end
+        
+        function testSetMultivariate(obj)
+            a       = [-1, 3]';
+            b       = [-0.5, 5]';
+            dim     = 2;
+            mean    = [-0.75, 4]';
+            cov     = diag([0.25 4] / 12);
+            covSqrt = chol(cov)';
+            
+            u = Uniform();
+            
+            u.set(a, b);
+            
+            obj.verifyUniform(u,  dim, a, b,mean, cov, covSqrt);
+        end
+        
+        function testSetInvalidA(obj)
+            u = Uniform();
+            obj.verifyError(@() u.set(eye(2), 2), ...
+                            'Uniform:InvalidMinimum');
+            obj.verifyResetUniform(u);
+            
+            u = Uniform();
+            obj.verifyError(@() u.set('A', 2), ...
+                            'Uniform:InvalidMinimum');
+            obj.verifyResetUniform(u);
+        end
+        
+        function testSetInvalidB(obj)
+            u = Uniform();
+            obj.verifyError(@() u.set(1, eye(2)), ...
+                            'Uniform:InvalidMaximum');
+            obj.verifyResetUniform(u);
+            
+            u = Uniform();
+            obj.verifyError(@() u.set(1, 'B'), ...
+                            'Uniform:InvalidMaximum');
+            obj.verifyResetUniform(u);
+        end
+        
+        function testSetAGreaterEqualB(obj)
+            u = Uniform();
+            obj.verifyError(@() u.set(2, 2), ...
+                            'Uniform:InvalidMinimum');
+            obj.verifyResetUniform(u);
+            
+            u = Uniform();
+            obj.verifyError(@() u.set(2, -1), ...
+                            'Uniform:InvalidMinimum');
+            obj.verifyResetUniform(u);
+            
+            u = Uniform();
+            obj.verifyError(@() u.set([-1 2], [-2 3]), ...
+                            'Uniform:InvalidMinimum');
+            obj.verifyResetUniform(u);
+        end
+        
+        
         function testDrawRndSamples(obj)
             a = [-1.5, 2]';
             b = [2.3, 2.5]';
@@ -122,6 +188,7 @@ classdef TestUniform < matlab.unittest.TestCase
             obj.verifyError(@() u.drawRndSamples('alkdjf'), ...
                             'Uniform:InvalidNumberOfSamples');
         end
+        
         
         function testLogPdf(obj)
             a = [-1.5, 2.0]';
@@ -156,7 +223,7 @@ classdef TestUniform < matlab.unittest.TestCase
     end
     
     methods (Access = 'private')
-        function verifyUniform(obj, u, a, b, dim, mean, cov, covSqrt)
+        function verifyUniform(obj, u, dim, a, b, mean, cov, covSqrt)
             tol = sqrt(eps);
             
             d = u.getDim();
@@ -171,6 +238,10 @@ classdef TestUniform < matlab.unittest.TestCase
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'RelTol', tol);
             obj.verifyEqual(cSqrt, covSqrt, 'RelTol', tol);
+        end
+        
+        function verifyResetUniform(obj, u)
+            obj.verifyUniform(u, 0, [], [], [], [], []);
         end
     end
 end

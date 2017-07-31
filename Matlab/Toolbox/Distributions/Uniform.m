@@ -1,13 +1,14 @@
 
 classdef Uniform < Distribution
-    % This class represents a multivariate uniform distribution.
+    % This class represents a multivariate axis-aligned uniform distribution.
     %
     % Uniform Methods:
     %   Uniform        - Class constructor.
+    %   set            - Set the parameters of the uniform distribution.
     %   getDim         - Get the dimension of the distribution.
-    %   getMeanAndCov  - Get mean and covariance of the distribution.
+    %   getMeanAndCov  - Get mean and covariance matrix of the distribution.
     %   drawRndSamples - Draw random samples from the distribution.
-    %   logPdf         - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   logPdf         - Evaluate the logarithmic probability density function (PDF) of the distribution.
     %   getInterval    - Get the support of the uniform distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -35,47 +36,102 @@ classdef Uniform < Distribution
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = Uniform(a, b)
             % Class constructor
+            %
+            % The default constructor results an uninitialized uniform
+            % distribution of zero dimension.
             %
             % Parameters
             %   >> a (Vector)
             %      Lower bounds of the multivariate uniform distribution.
-            %      Default: 0.
             %
             %   >> b (Vector)
             %      Upper bounds of the multivariate uniform distribution.
             %      Must have the same length as a.
-            %      Default: 1.
             
             if nargin == 2
                 obj.set(a, b);
             else
-                obj.set(0, 1);
+                % Default distribution information
+                obj.dim           = 0;
+                obj.a             = [];
+                obj.b             = [];
+                obj.lengths       = [];
+                obj.validLogValue = [];
+                obj.mean          = [];
+                obj.cov           = [];
+                obj.covSqrt       = [];
             end
+        end
+        
+        function set(obj, a, b)
+            % Set the parameters of the uniform distribution.
+            %
+            % Parameters
+            %   >> a (Vector)
+            %      Lower bounds of the multivariate uniform distribution.
+            %
+            %   >> b (Vector)
+            %      Upper bounds of the multivariate uniform distribution.
+            %      Must have the same length as a.
             
-            obj.mean        = [];
-            obj.covariance  = [];
-            obj.covSqrt     = [];
+            try
+                if ~Checks.isVec(a)
+                    error('Uniform:InvalidMinimum', ...
+                          'a must be vector.');
+                end
+                
+                obj.a = a(:);
+                
+                obj.dim = size(obj.a, 1);
+                
+                if ~Checks.isVec(b, obj.dim)
+                    error('Uniform:InvalidMaximum', ...
+                          'b must be vector of length %d.', obj.dim);
+                end
+                
+                if any(a >= b)
+                    error('Uniform:InvalidMinimum', ...
+                          'All entries of a must be smaller than their corresponding entries in b.');
+                end
+                
+                obj.b = b(:);
+                
+                obj.lengths       = obj.b - obj.a;
+                obj.validLogValue = -log(prod(obj.lengths));
+            catch ex
+                % Reset all distribution information
+                obj.dim           = 0;
+                obj.a             = [];
+                obj.b             = [];
+                obj.lengths       = [];
+                obj.validLogValue = [];
+                obj.mean          = [];
+                obj.cov           = [];
+                obj.covSqrt       = [];
+                
+                ex.rethrow();
+            end
         end
         
         function dim = getDim(obj)
             dim = obj.dim;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
+        function [mean, cov, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
-                obj.mean       = 0.5 * (obj.a + obj.b);
-                obj.covariance = diag((obj.b - obj.a).^2 / 12);
+                obj.mean = 0.5 * (obj.a + obj.b);
+                obj.cov  = diag((obj.b - obj.a).^2 / 12);
             end
             
-            mean       = obj.mean;
-            covariance = obj.covariance;
+            mean = obj.mean;
+            cov  = obj.cov;
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = sqrt(obj.covariance);
+                    obj.covSqrt = sqrt(obj.cov);
                 end
                 
                 covSqrt = obj.covSqrt;
@@ -122,45 +178,29 @@ classdef Uniform < Distribution
         end
     end
     
-    methods (Access = 'private')
-        function set(obj, a, b)
-            if ~Checks.isVec(a)
-                error('Uniform:InvalidMinimum', ...
-                      'a must be vector.');
-            end
-            
-            a = a(:);
-            d = size(a, 1);
-            
-            if ~Checks.isVec(b, d)
-                error('Uniform:InvalidMaximum', ...
-                      'b must be vector of length %d.', d);
-            end
-            
-            b = b(:);
-            
-            if any(a >= b)
-                error('Uniform:InvalidMinimum', ...
-                      'All entries of a must be smaller than their corresponding entries in b.');
-            end
-            
-            obj.a             = a;
-            obj.b             = b;
-            obj.dim           = d;
-            obj.lengths       = obj.b - obj.a;
-            obj.validLogValue = -log(prod(obj.lengths));
-        end
-    end
-    
     properties (Access = 'private')
-        a;
-        b;
+        % Distribution's dimension.
         dim;
+        
+        % Lower bounds.
+        a;
+        
+        % Upper bounds.
+        b;
+        
+        % Lengths of the respective intervals.
         lengths;
+        
+        % Logarithm of the uniform's valid PDF values.
         validLogValue;
         
+        % Mean vector of the uniform distribution.
         mean;
-        covariance;
+        
+        % Covariance matrix of the uniform distribution.
+        cov;
+        
+        % Lower Cholesky decomposition of covariance matrix of the uniform distribution.
         covSqrt;
     end
 end
