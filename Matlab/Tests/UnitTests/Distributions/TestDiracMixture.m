@@ -28,6 +28,12 @@ classdef TestDiracMixture < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
+        function testConstructorDefault(obj)
+            dm = DiracMixture();
+            
+            obj.verifyResetDM(dm);
+        end
+        
         function testConstructorSamples(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));
@@ -60,7 +66,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             
             obj.verifyDM(dm, dim, numComps, samples, weights, mean, cov, covSqrt);
         end
- 
+        
         function testConstructorInvalidSamples(obj)
             obj.verifyError(@() DiracMixture(ones(2, 3, 3)), ...
                             'DiracMixture:InvalidSamples');
@@ -94,6 +100,97 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             obj.verifyError(@() DiracMixture(samples, 'test'), ...
                             'DiracMixture:InvalidWeights');
         end
+        
+        
+        function testSetSamples(obj)
+            samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            
+            dm = DiracMixture();
+            
+            dm.set(samples);
+            
+            dim      = 3;
+            numComps = 7;
+            weights  = ones(1, 7) / 7;
+            mean     = [-4 -4 -4]';
+            cov      = diag(repmat(8 / 7, 1, 3));
+            covSqrt  = chol(cov)';
+            
+            obj.verifyDM(dm, dim, numComps, samples, weights, mean, cov, covSqrt);
+        end
+        
+        function testSetSamplesWeights(obj)
+            samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            weights = [2 1 1 1 1 1 1];
+            
+            dm = DiracMixture();
+            
+            dm.set(samples, weights);
+            
+            dim      = 3;
+            numComps = 7;
+            weights  = weights / 8;
+            mean     = [-4 -4 -4]';
+            cov      = eye(3);
+            covSqrt  = chol(cov)';
+            
+            obj.verifyDM(dm, dim, numComps, samples, weights, mean, cov, covSqrt);
+        end
+        
+        function testSetInvalidSamples(obj)
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(ones(2, 3, 3)), ...
+                            'DiracMixture:InvalidSamples');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set('test'), ...
+                            'DiracMixture:InvalidSamples');
+            obj.verifyResetDM(dm);
+        end
+        
+        function testSetInvalidWeights(obj)
+            samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, 2), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, ones(7, 1)), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, eye(2)), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, ones(1, 7, 2)), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, zeros(1, 7)), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, [1 2 3 4 5 6 -7]), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+            
+            dm = DiracMixture();
+            obj.verifyError(@() dm.set(samples, 'test'), ...
+                            'DiracMixture:InvalidWeights');
+            obj.verifyResetDM(dm);
+        end
+        
         
         function testDrawRndSamples(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
@@ -132,6 +229,7 @@ classdef TestDiracMixture < matlab.unittest.TestCase
                             'DiracMixture:InvalidNumberOfSamples');
         end
         
+        
         function testLogPdf(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));
@@ -163,6 +261,10 @@ classdef TestDiracMixture < matlab.unittest.TestCase
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'AbsTol', absTol);
             obj.verifyEqual(cSqrt, covSqrt, 'AbsTol', absTol);
+        end
+        
+        function verifyResetDM(obj, dm)
+            obj.verifyDM(dm, 0, 0, [], [], [], [], []);
         end
     end
 end

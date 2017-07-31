@@ -4,12 +4,13 @@ classdef DiracMixture < Distribution
     %
     % DiracMixture Methods:
     %   DiracMixture     - Class constructor.
+    %   set              - Set the parameters of the Dirac mixture distribution.
     %   getDim           - Get the dimension of the distribution.
-    %   getMeanAndCov    - Get mean and covariance of the distribution.
+    %   getMeanAndCov    - Get mean and covariance matrix of the distribution.
     %   drawRndSamples   - Draw random samples from the distribution.
-    %   logPdf           - Evaluate the logarithmic probability density function (pdf) of the distribution.
-    %   getNumComponents - Get the number of Dirac mixture components (samples).
-    %   getComponents    - Get the Dirac mixture components (sample positions and weights).
+    %   logPdf           - Evaluate the logarithmic probability density function (PDF) of the distribution.
+    %   getNumComponents - Get the number of Dirac mixture components.
+    %   getComponents    - Get the Dirac mixture components.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -36,9 +37,12 @@ classdef DiracMixture < Distribution
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = DiracMixture(samples, weights)
             % Class constructor.
+            %
+            % The default constructor results an uninitialized Dirac mixture
+            % distribution of zero dimension consisting of zero compoentns.
             %
             % Parameters
             %   >> samples (Matrix)
@@ -50,31 +54,93 @@ classdef DiracMixture < Distribution
             
             if nargin == 2
                 obj.set(samples, weights)
-            else
+            elseif nargin == 1
                 obj.set(samples);
+            else
+                % Default distribution information
+                obj.dim        = 0;
+                obj.numComps   = 0;
+                obj.samples    = [];
+                obj.weights    = [];
+                obj.cumWeights = [];
+                obj.mean       = [];
+                obj.cov        = [];
+                obj.covSqrt    = [];
             end
+        end
+        
+        function set(obj, samples, weights)
+            % Set the parameters of the Dirac mixture distribution.
+            %
+            % Parameters
+            %   >> samples (Matrix)
+            %      Column-wise arranged sample positions.
+            %
+            %   >> weights (Row vector)
+            %      Row-wise arranged weights of the samples.
+            %      If no weights are passed, all samples are assumed to be equally weighted.
             
-            obj.mean       = [];
-            obj.covariance = [];
-            obj.cumWeights = [];
-            obj.covSqrt    = [];
+            try
+                if ~Checks.isMat(samples)
+                    error('DiracMixture:InvalidSamples', ...
+                          'samples must be a matrix.');
+                end
+                
+                [obj.dim, obj.numComps] = size(samples);
+                
+                obj.samples = samples;
+                
+                if nargin == 3
+                    if ~Checks.isNonNegativeRowVec(weights, obj.numComps)
+                        error('DiracMixture:InvalidWeights', ...
+                              ['weights must be a row vector of dimension' ...
+                               '%d containing only non-negative values.'], ...
+                              obj.numComps);
+                    end
+                    
+                    % Normalize sample weights
+                    sumWeights = sum(weights);
+                    
+                    if sumWeights <= 0
+                        error('DiracMixture:InvalidWeights', ...
+                              'Sum of sample weights is not positive.');
+                    end
+                    
+                    obj.weights = weights / sumWeights;
+                else
+                    % Equally weighted samples
+                    obj.weights = repmat(1 / obj.numComps, 1, obj.numComps);
+                end
+            catch ex
+                % Reset all distribution information
+                obj.dim        = 0;
+                obj.numComps   = 0;
+                obj.samples    = [];
+                obj.weights    = [];
+                obj.cumWeights = [];
+                obj.mean       = [];
+                obj.cov        = [];
+                obj.covSqrt    = [];
+                
+                ex.rethrow();
+            end
         end
         
         function dim = getDim(obj)
-            dim = obj.dimension;
+            dim = obj.dim;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
+        function [mean, cov, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
-                [obj.mean, obj.covariance] = Utils.getMeanAndCov(obj.samples, obj.weights);
+                [obj.mean, obj.cov] = Utils.getMeanAndCov(obj.samples, obj.weights);
             end
             
-            mean       = obj.mean;
-            covariance = obj.covariance;
+            mean = obj.mean;
+            cov  = obj.cov;
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = chol(obj.covariance, 'Lower');
+                    obj.covSqrt = chol(obj.cov, 'Lower');
                 end
                 
                 covSqrt = obj.covSqrt;
@@ -99,18 +165,18 @@ classdef DiracMixture < Distribution
                   'A Dirac mixture has no proper pdf.');
         end
         
-        function numComponents = getNumComponents(obj)
-            % Get the number of Dirac mixture components (samples).
+        function numComps = getNumComponents(obj)
+            % Get the number of Dirac mixture components.
             %
             % Returns:
-            %   << numComponents (Scalar )
+            %   << numComps (Scalar )
             %      The number of Dirac mixture components.
             
-            numComponents = obj.numComponents;
+            numComps = obj.numComps;
         end
         
         function [samples, weights] = getComponents(obj)
-            % Get the Dirac mixture components (sample positions and weights).
+            % Get the Dirac mixture components.
             %
             % Returns:
             %   << samples (Matrix)
@@ -124,52 +190,29 @@ classdef DiracMixture < Distribution
         end
     end
     
-    methods (Access = 'private')
-        function set(obj, samples, weights)
-            if ~Checks.isMat(samples)
-                error('DiracMixture:InvalidSamples', ...
-                      'Samples must be a matrix.');
-            end
-            
-            [dim, L] = size(samples);
-            
-            if nargin == 3
-                if ~Checks.isNonNegativeRowVec(weights, L)
-                    error('DiracMixture:InvalidWeights', ...
-                          'Sample weights must be a row vector of dimension %d containing only non-negative values.', L);
-                end
-                
-                % Normalize sample weights
-                sumWeights = sum(weights);
-                
-                if sumWeights <= 0
-                    error('DiracMixture:InvalidWeights', ...
-                          'Sum of sample weights is not positive.');
-                end
-                
-                weights = weights / sumWeights;
-            else
-                % Equally weighted samples
-                weights = repmat(1 / L, 1, L);
-            end
-            
-            obj.dimension     = dim;
-            obj.numComponents = L;
-            obj.samples       = samples;
-            obj.weights       = weights;
-        end
-    end
-    
     properties (Access = 'private')
-        dimension;
-        numComponents;
+        % Distribution's dimension.
+        dim;
+        
+        % Number of Dirac mixture components.
+        numComps;
+        
+        % Component positions (samples).
         samples;
+        
+        % Normalized component weights.
         weights;
         
-        mean;
-        covariance;
-        covSqrt;
-        
+        % Cumulative sum of component weights.
         cumWeights;
+        
+        % Mean vector of the Dirac mixture distribution.
+        mean;
+        
+        % Covariance matrix of the Dirac mixture distribution.
+        cov;
+        
+        % Lower Cholesky decomposition of covariance matrix of the Dirac mixture distribution.
+        covSqrt;
     end
 end
