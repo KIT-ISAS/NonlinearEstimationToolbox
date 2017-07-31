@@ -31,12 +31,7 @@ classdef TestGaussian < matlab.unittest.TestCase
         function testConstructorDefault(obj)
             g = Gaussian();
             
-            dim     = 1;
-            mean    = 0;
-            cov     = 1;
-            covSqrt = 1;
-            
-            obj.verifyGaussian(g, dim, mean, cov, covSqrt);
+            obj.verifyResetGaussian(g);
         end
         
         function testConstructorUncorrelated(obj)
@@ -78,7 +73,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             
             obj.verifyError(@() Gaussian([1 -2], cov), ...
                             'Gaussian:InvalidMean');
-                        
+            
             obj.verifyError(@() Gaussian('k2', cov), ...
                             'Gaussian:InvalidMean');
         end
@@ -116,6 +111,109 @@ classdef TestGaussian < matlab.unittest.TestCase
                             'Gaussian:InvalidCovariance');
         end
         
+        
+        function testSetUncorrelated(obj)
+            dim     = 3;
+            mean    = [1 -2 0.3]';
+            cov     = [1 0.2 3.5];
+            covSqrt = chol(diag(cov))';
+            
+            g = Gaussian();
+            
+            g.set(mean, cov);
+            
+            obj.verifyGaussian(g, dim, mean, diag(cov), covSqrt);
+        end
+        
+        function testSetCorrelated(obj)
+            dim     = 2;
+            mean    = [1 -2]';
+            cov     = [2 0.5; 0.5 1.2];
+            covSqrt = chol(cov)';
+            
+            g = Gaussian();
+            
+            g.set(mean, cov);
+            
+            obj.verifyGaussian(g, dim, mean, cov, covSqrt);
+        end
+        
+        function testSetBlockCovariance(obj)
+            dim     = 6;
+            mean    = [1 -2 0 0 3 4]';
+            cov3D   = cat(3, [2 0.5; 0.5 1.2], eye(2), 3 * eye(2));
+            cov     = blkdiag(cov3D(:, :, 1), cov3D(:, :, 2), cov3D(:, :, 3));
+            covSqrt = chol(cov)';
+            
+            g = Gaussian();
+            
+            g.set(mean, cov3D);
+            
+            obj.verifyGaussian(g, dim, mean, cov, covSqrt);
+        end
+        
+        function testSetInvalidMean(obj)
+            cov = [2 0.5; 0.5 1.2];
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set([1 -2], cov), ...
+                            'Gaussian:InvalidMean');
+            obj.verifyResetGaussian(g);
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set('k2', cov), ...
+                            'Gaussian:InvalidMean');
+           obj.verifyResetGaussian(g);
+        end
+        
+        function testSetInvalidVariances(obj)
+            mean = [1 -2]';
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, 1), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, [1.5 -1]), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, 'kl2'), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+        end
+        
+        function testSetInvalidCovariance(obj)
+            mean = [1 -2]';
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, eye(3)), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, -eye(2)), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+        end
+        
+        function testSetInvalidBlockCovariance(obj)
+            mean = [1 -2 4 2]';
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, cat(3, eye(3), 3 * eye(3))), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+            
+            g = Gaussian();
+            obj.verifyError(@() g.set(mean, cat(3, eye(2), ones(2, 2))), ...
+                            'Gaussian:InvalidCovariance');
+            obj.verifyResetGaussian(g);
+        end
+        
+        
         function testDrawRndSamples(obj)
             mean = [1 -2]';
             cov  = [2 0.5; 0.5 1.2];
@@ -142,6 +240,7 @@ classdef TestGaussian < matlab.unittest.TestCase
             obj.verifyError(@() g.drawRndSamples('Dk23'), ...
                             'Gaussian:InvalidNumberOfSamples');
         end
+        
         
         function testLogPdfUncorrelated(obj)
             mean   = [1 -2]';
@@ -228,6 +327,10 @@ classdef TestGaussian < matlab.unittest.TestCase
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov);
             obj.verifyEqual(cSqrt, covSqrt);
+        end
+        
+        function verifyResetGaussian(obj, g)
+            obj.verifyGaussian(g, 0, [], [], []);
         end
     end
     
