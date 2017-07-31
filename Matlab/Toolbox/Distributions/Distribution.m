@@ -4,9 +4,9 @@ classdef Distribution < handle
     %
     % Distribution Methods:
     %   getDim         - Get the dimension of the distribution.
-    %   getMeanAndCov  - Get mean and covariance of the distribution.
+    %   getMeanAndCov  - Get mean and covariance matrix of the distribution.
     %   drawRndSamples - Draw random samples from the distribution.
-    %   logPdf         - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   logPdf         - Evaluate the logarithmic probability density function (PDF) of the distribution.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -41,18 +41,18 @@ classdef Distribution < handle
         %      The dimension of the distribution.
         dim = getDim(obj);
         
-        % Get mean and covariance of the distribution.
+        % Get mean and covariance matrix of the distribution.
         %
         % Returns:
-        %   << mean (Vector)
+        %   << mean (Column vector)
         %      Mean of the distribution.
         %
-        %   << covariance (Positive definite matrix)
-        %      Covariance of the distribution.
+        %   << cov (Positive definite matrix)
+        %      Covariance matrix of the distribution.
         %
         %   << covSqrt (Square matrix)
-        %      Square root of the distribution's covariance.
-        [mean, covariance, covSqrt] = getMeanAndCov(obj);
+        %      Lower Cholesky decomposition of the distribution's covariance matrix.
+        [mean, cov, covSqrt] = getMeanAndCov(obj);
         
         % Draw random samples from the distribution.
         %
@@ -65,7 +65,7 @@ classdef Distribution < handle
         %      Column-wise arranged random samples.
         rndSamples = drawRndSamples(obj, numSamples);
         
-        % Evaluate the logarithmic probability density function (pdf) of the distribution.
+        % Evaluate the logarithmic probability density function (PDF) of the distribution.
         %
         % Parameters:
         %   >> values (Matrix)
@@ -77,7 +77,7 @@ classdef Distribution < handle
         logValues = logPdf(obj, values);
     end
     
-    methods (Access = 'protected')
+    methods (Sealed, Access = 'protected')
         function checkValues(obj, values)
             dim = obj.getDim();
             
