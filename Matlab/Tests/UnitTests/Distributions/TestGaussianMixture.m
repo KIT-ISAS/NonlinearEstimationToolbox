@@ -31,16 +31,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
         function testConstructorDefault(obj)
             gm = GaussianMixture();
             
-            dim      = 1;
-            numComps = 1;
-            means    = 0;
-            covs     = 1;
-            weights  = 1;
-            mean     = 0;
-            cov      = 1;
-            covSqrt  = 1;
-            
-            obj.verifyGM(gm, dim, numComps, means, covs, weights, mean, cov, covSqrt);
+            obj.verifyResetGM(gm);
         end
         
         function testConstructorMeanCovariance(obj)
@@ -181,6 +172,187 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
                             'GaussianMixture:InvalidWeights');
         end
         
+        
+        function testSetMeanCovariance(obj)
+            means = [1 -2]';
+            covs  = [2 0.5; 0.5 1.2];
+            
+            gm = GaussianMixture();
+            
+            gm.set(means, covs);
+            
+            dim      = 2;
+            numComps = 1;
+            weights  = 1;
+            mean     = [1 -2]';
+            cov      = [2 0.5; 0.5 1.2];
+            covSqrt  = chol(cov)';
+            
+            obj.verifyGM(gm, dim, numComps, means, covs, weights, mean, cov, covSqrt);
+        end
+        
+        function testSetMeansCovariances(obj)
+            m1 = [1 0.4]';
+            m2 = [-2 3.4]';
+            c1 = diag([0.1 3]);
+            c2 = [2 0.5; 0.5 1.2];
+            w1 = 0.5;
+            w2 = 0.5;
+            
+            means = [m1 m2];
+            covs  = cat(3, c1, c2);
+            
+            gm = GaussianMixture();
+            
+            gm.set(means, covs);
+            
+            dim      = 2;
+            numComps = 2;
+            weights  = [w1 w2];
+            mean     = w1 * m1 + w2 * m2;
+            cov      = w1 * c1 + w2 * c2 + ...
+                       w1 * (m1 - mean) * (m1 - mean)' + ...
+                       w2 * (m2 - mean) * (m2 - mean)';
+            covSqrt  = chol(cov)';
+            
+            obj.verifyGM(gm, dim, numComps, means, covs, weights, mean, cov, covSqrt);
+        end
+        
+        function testSetMeansCovariancesWeights(obj)
+            m1 = [1 0.4]';
+            m2 = [-2 3.4]';
+            c1 = diag([0.1 3]);
+            c2 = [2 0.5; 0.5 1.2];
+            w1 = 0.31;
+            w2 = 0.967;
+            
+            means   = [m1 m2];
+            covs    = cat(3, c1, c2);
+            weights = [w1 w2];
+            
+            gm = GaussianMixture();
+            
+            gm.set(means, covs, weights);
+            
+            dim      = 2;
+            numComps = 2;
+            weights  = weights / (w1 + w2);
+            w1       = weights(1);
+            w2       = weights(2);
+            mean     = w1 * m1 + w2 * m2;
+            cov      = w1 * c1 + w2 * c2 + ...
+                       w1 * (m1 - mean) * (m1 - mean)' + ...
+                       w2 * (m2 - mean) * (m2 - mean)';
+            covSqrt  = chol(cov)';
+            
+            obj.verifyGM(gm, dim, numComps, means, covs, weights, mean, cov, covSqrt);
+        end
+        
+        function testSetInvalidMean(obj)
+            covs = cat(3, diag([0.1 3]), [2 0.5; 0.5 1.2]);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(ones(2, 3, 3), covs), ...
+                            'GaussianMixture:InvalidMeans');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() GaussianMixture('test', covs), ...
+                            'GaussianMixture:InvalidMeans');
+            obj.verifyResetGM(gm);
+        end
+        
+        function testSetInvalidCovariances(obj)
+            mean = [1 -2]';
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(mean, 1), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(mean, ones(2, 2)), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(mean, eye(3)), ...
+                            'GaussianMixture:InvalidCovariances');
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(mean, 'test'), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            means = [1 -2; 0.4 3.4];
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, eye(2)), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, ones(3, 2, 2)), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, cat(3, diag([-0.1 3]), [2 0.5; 0.5 1.2])), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, cat(3, diag([0.1 3]), [2 0.5; 0.5 1.2], eye(2))), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, 'test'), ...
+                            'GaussianMixture:InvalidCovariances');
+            obj.verifyResetGM(gm);
+        end
+        
+        function testSetInvalidWeights(obj)
+            means = [1 -2; 0.4 3.4];
+            covs  = cat(3, diag([0.1 3]), [2 0.5; 0.5 1.2]);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, 2), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, eye(2)), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, ones(2, 1)), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, ones(1, 2, 2)), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, [0 0]), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, [-1 2]), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+            
+            gm = GaussianMixture();
+            obj.verifyError(@() gm.set(means, covs, 'test'), ...
+                            'GaussianMixture:InvalidWeights');
+            obj.verifyResetGM(gm);
+        end
+        
+        
         function testDrawRndSamples(obj)
             means   = [1 -2; 0.4 3.4];
             covs    = cat(3, diag([0.1 3]), [2 0.5; 0.5 1.2]);
@@ -231,6 +403,7 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             obj.verifyError(@() gm.drawRndSamples('test'), ...
                             'GaussianMixture:InvalidNumberOfSamples');
         end
+        
         
         function testLogPdfOneComponent(obj)
             mean   = [1 0.4]';
@@ -337,6 +510,10 @@ classdef TestGaussianMixture < matlab.unittest.TestCase
             obj.verifyEqual(c, c');
             obj.verifyEqual(c, cov, 'AbsTol', absTol);
             obj.verifyEqual(cSqrt, covSqrt, 'AbsTol', absTol);
+        end
+        
+        function verifyResetGM(obj, gm)
+            obj.verifyGM(gm, 0, 0, [], [], [], [], [], []);
         end
     end
 end

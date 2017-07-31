@@ -1,15 +1,16 @@
 
 classdef GaussianMixture < Distribution
     % This class represents a multivariate Gaussian mixture distribution.
-    % 
+    %
     % GaussianMixture Methods:
     %   GaussianMixture  - Class constructor.
+    %   set              - Set the parameters of the Gaussian mixture distribution.
     %   getDim           - Get the dimension of the distribution.
-    %   getMeanAndCov    - Get mean and covariance of the distribution.
+    %   getMeanAndCov    - Get mean and covariance matrix of the distribution.
     %   drawRndSamples   - Draw random samples from the distribution.
-    %   logPdf           - Evaluate the logarithmic probability density function (pdf) of the distribution.
+    %   logPdf           - Evaluate the logarithmic probability density function (PDF) of the distribution.
     %   getNumComponents - Get the number of Gaussian mixture components.
-    %   getComponents    - Get the Gaussian mixture components (means, covariances, and weights).
+    %   getComponents    - Get the Gaussian mixture components.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -36,56 +37,154 @@ classdef GaussianMixture < Distribution
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = GaussianMixture(means, covariances, weights)
             % Class constructor.
+            %
+            % The default constructor results an uninitialized Gaussian mixture
+            % distribution of zero dimension consisting of zero compoentns.
             %
             % Parameters
             %   >> means (Matrix)
             %      Column-wise arranged means of the Gaussian mixture components.
-            %      Default: 0.
             %
             %   >> covariances (3D matrix containing positive definite matrices)
-            %      Slice-wise arranged covariance matrices of the Gaussian mixture components.
-            %      Default: 1.
+            %      Slice-wise arranged covariance matrices of the Gaussian
+            %      mixture components.
             %
             %   >> weights (Row vector)
             %      Row-wise arranged weights of the Gaussian mixture components.
-            %      If no weights are passed, all Gaussian mixture components are assumed to be equally weighted.
+            %      If no weights are passed, all Gaussian mixture components
+            %      are assumed to be equally weighted.
             
             if nargin == 3
                 obj.set(means, covariances, weights);
             elseif nargin == 2
                 obj.set(means, covariances);
             else
-                obj.set(0, 1);
+                % Default distribution information
+                obj.dim          = 0;
+                obj.numComps     = 0;
+                obj.means        = [];
+                obj.covs         = [];
+                obj.covSqrts     = [];
+                obj.invCovSqrts  = [];
+                obj.weights      = [];
+                obj.cumWeights   = [];
+                obj.logPdfConsts = [];
+                obj.mean         = [];
+                obj.cov          = [];
+                obj.covSqrt      = [];
             end
+        end
+        
+        function set(obj, means, covariances, weights)
+            % Set the parameters of the Gaussian mixture distribution.
+            %
+            % Parameters
+            %   >> means (Matrix)
+            %      Column-wise arranged means of the Gaussian mixture components.
+            %
+            %   >> covariances (3D matrix containing positive definite matrices)
+            %      Slice-wise arranged covariance matrices of the Gaussian
+            %      mixture components.
+            %
+            %   >> weights (Row vector)
+            %      Row-wise arranged weights of the Gaussian mixture components.
+            %      If no weights are passed, all Gaussian mixture components
+            %      are assumed to be equally weighted.
             
-            obj.mean        = [];
-            obj.covariance  = [];
-            obj.covSqrt     = [];
-            obj.cumWeights  = [];
-            obj.logPdfConst = [];
-            obj.invCovSqrts = [];
+            try
+                % Check means
+                if ~Checks.isMat(means)
+                    error('GaussianMixture:InvalidMeans', ...
+                          'means must be a matrix.');
+                end
+                
+                [obj.dim, obj.numComps] = size(means);
+                
+                obj.means = means;
+                
+                % Check covariances
+                if obj.numComps == 1
+                    [isCov, obj.covSqrts] = Checks.isCov(covariances, obj.dim);
+                    
+                    if ~isCov
+                        error('GaussianMixture:InvalidCovariances', ...
+                              'covariances must be a positive definite matrix of dimension %dx%d.', ...
+                              obj.dim, obj.dim);
+                    end
+                else
+                    [isCov3D, obj.covSqrts] = Checks.isCov3D(covariances, obj.dim, obj.numComps);
+                    
+                    if ~isCov3D
+                        error('GaussianMixture:InvalidCovariances', ...
+                              ['covariances must be a matrix of dimension' ...
+                               '%dx%dx%d containing positive definite matrices.'], ...
+                              obj.dim, obj.dim, obj.numComps);
+                    end
+                end
+                
+                obj.covs = covariances;
+                
+                % Check weights
+                if nargin == 4
+                    if ~Checks.isNonNegativeRowVec(weights, obj.numComps)
+                        error('GaussianMixture:InvalidWeights', ...
+                              ['weights must be a row vector of dimension %d' ...
+                               'containing only non-negative values.'], ...
+                              obj.numComps);
+                    end
+                    
+                    % Normalize component weights
+                    sumWeights = sum(weights);
+                    
+                    if sumWeights <= 0
+                        error('GaussianMixture:InvalidWeights', ...
+                              'Sum of component weights is not positive.');
+                    end
+                    
+                    obj.weights = weights / sumWeights;
+                else
+                    % Equally weighted components
+                    obj.weights = repmat(1 / obj.numComps, 1, obj.numComps);
+                end
+            catch ex
+                % Reset all distribution information
+                obj.dim          = 0;
+                obj.numComps     = 0;
+                obj.means        = [];
+                obj.covs         = [];
+                obj.covSqrts     = [];
+                obj.invCovSqrts  = [];
+                obj.weights      = [];
+                obj.cumWeights   = [];
+                obj.logPdfConsts = [];
+                obj.mean         = [];
+                obj.cov          = [];
+                obj.covSqrt      = [];
+                
+                ex.rethrow();
+            end
         end
         
         function dim = getDim(obj)
-            dim = obj.dimension;
+            dim = obj.dim;
         end
         
-        function [mean, covariance, covSqrt] = getMeanAndCov(obj)
+        function [mean, cov, covSqrt] = getMeanAndCov(obj)
             if isempty(obj.mean)
-                [obj.mean, obj.covariance] = Utils.getGMMeanAndCov(obj.means, ...
-                                                                   obj.covariances, ...
-                                                                   obj.weights);
+                [obj.mean, obj.cov] = Utils.getGMMeanAndCov(obj.means, ...
+                                                            obj.covs, ...
+                                                            obj.weights);
             end
             
-            mean       = obj.mean;
-            covariance = obj.covariance;
+            mean = obj.mean;
+            cov  = obj.cov;
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = chol(obj.covariance, 'Lower');
+                    obj.covSqrt = chol(obj.cov, 'Lower');
                 end
                 
                 covSqrt = obj.covSqrt;
@@ -121,7 +220,7 @@ classdef GaussianMixture < Distribution
             
             u = sort(u);
             
-            numComponentSamples = zeros(1, obj.numComponents);
+            numCompsSamples = zeros(1, obj.numComps);
             
             i = 1;
             
@@ -130,18 +229,18 @@ classdef GaussianMixture < Distribution
                     i = i + 1;
                 end
                 
-                numComponentSamples(i) = numComponentSamples(i) + 1;
+                numCompsSamples(i) = numCompsSamples(i) + 1;
             end
             
             % Generate random samples
-            rndSamples = nan(obj.dimension, numSamples);
+            rndSamples = nan(obj.dim, numSamples);
             compIds    = nan(1, numSamples);
             
             a = 1;
             b = 0;
             
-            for i = 1:obj.numComponents
-                numCompSamples = numComponentSamples(i);
+            for i = 1:obj.numComps
+                numCompSamples = numCompsSamples(i);
                 
                 if numCompSamples > 0
                     b = b + numCompSamples;
@@ -162,31 +261,31 @@ classdef GaussianMixture < Distribution
         function logValues = logPdf(obj, values)
             obj.checkValues(values);
             
-            if isempty(obj.logPdfConst)
-                logNormConst = obj.dimension * 0.5 * log(2 * pi);
+            if isempty(obj.logPdfConsts)
+                logNormConst = obj.dim * 0.5 * log(2 * pi);
                 
-                obj.invCovSqrts = nan(obj.dimension, obj.dimension, obj.numComponents);
-                obj.logPdfConst = nan(1, obj.numComponents);
+                obj.invCovSqrts  = nan(obj.dim, obj.dim, obj.numComps);
+                obj.logPdfConsts = nan(1, obj.numComps);
                 
                 logWeights = log(obj.weights);
                 
-                for i = 1:obj.numComponents
-                    obj.invCovSqrts(:, :, i) = obj.covSqrts(:, :, i) \ eye(obj.dimension);
+                for i = 1:obj.numComps
+                    obj.invCovSqrts(:, :, i) = obj.covSqrts(:, :, i) \ eye(obj.dim);
                     
                     logSqrtDetCov = sum(log(diag(obj.covSqrts(:, :, i))));
                     
-                    obj.logPdfConst(i) = logWeights(i) - (logSqrtDetCov + logNormConst);
+                    obj.logPdfConsts(i) = logWeights(i) - (logSqrtDetCov + logNormConst);
                 end
             end
             
-            compValues = nan(obj.numComponents, size(values, 2));
+            compValues = nan(obj.numComps, size(values, 2));
             
-            for i = 1:obj.numComponents
+            for i = 1:obj.numComps
                 s = bsxfun(@minus, values, obj.means(:, i));
                 
                 v = obj.invCovSqrts(:, :, i) * s;
                 
-                compValues(i, :) = obj.logPdfConst(i) - 0.5 * sum(v.^2, 1);
+                compValues(i, :) = obj.logPdfConsts(i) - 0.5 * sum(v.^2, 1);
             end
             
             maxLogCompValues = max(compValues);
@@ -198,18 +297,18 @@ classdef GaussianMixture < Distribution
             logValues = maxLogCompValues + log(sum(compValues, 1));
         end
         
-        function numComponents = getNumComponents(obj)
+        function numComps = getNumComponents(obj)
             % Get the number of Gaussian mixture components.
             %
             % Returns:
-            %   << numComponents (Scalar )
+            %   << numComps (Non-negative scalar)
             %      The number of Gaussian mixture components.
             
-            numComponents = obj.numComponents;
+            numComps = obj.numComps;
         end
         
         function [means, covariances, weights] = getComponents(obj)
-            % Get the Gaussian mixture components (means, covariances, and weights).
+            % Get the Gaussian mixture components.
             %
             % Returns:
             %   << means (Matrix)
@@ -222,84 +321,46 @@ classdef GaussianMixture < Distribution
             %      Row-wise arranged weights of the Gaussian mixture components.
             
             means       = obj.means;
-            covariances = obj.covariances;
+            covariances = obj.covs;
             weights     = obj.weights;
         end
     end
     
-    methods (Access = 'private')
-        function set(obj, means, covariances, weights)
-            % Check means
-            if ~Checks.isMat(means)
-                error('GaussianMixture:InvalidMeans', ...
-                      'Means must be a matrix.');
-            end
-            
-            [dim, numComps] = size(means);
-            
-            obj.dimension     = dim;
-            obj.numComponents = numComps;
-            obj.means         = means;
-            
-            % Check covariances
-            if numComps == 1
-                [isCov, obj.covSqrts] = Checks.isCov(covariances, dim);
-                
-                if ~isCov
-                    error('GaussianMixture:InvalidCovariances', ...
-                          'Covariances must be a positive definite matrix of dimension %dx%d.', ...
-                          dim, dim);
-                end
-            else
-                [isCov3D, obj.covSqrts] = Checks.isCov3D(covariances, dim, numComps);
-                
-                if ~isCov3D
-                    error('GaussianMixture:InvalidCovariances', ...
-                          'Covariances must be a matrix of dimension %dx%dx%d containing positive definite matrices.', ...
-                          dim, dim, numComps);
-                end
-            end
-            
-            obj.covariances = covariances;
-            
-            % Check weights
-            if nargin == 4
-                if ~Checks.isNonNegativeRowVec(weights, numComps)
-                    error('GaussianMixture:InvalidWeights', ...
-                          'Component weights must be a row vector of dimension %d containing only non-negative values.', numComps);
-                end
-                
-                % Normalize component weights
-                sumWeights = sum(weights);
-                
-                if sumWeights <= 0
-                    error('GaussianMixture:InvalidWeights', ...
-                          'Sum of component weights is not positive.');
-                end
-                
-                obj.weights = weights / sumWeights;
-            else
-                % Equally weighted components
-                obj.weights = repmat(1 / numComps, 1, numComps);
-            end
-        end
-    end
-    
     properties (Access = 'private')
-        dimension;
-        numComponents;
+        % Distribution's dimension.
+        dim;
+        
+        % Number of Gaussian mixture components.
+        numComps;
+        
+        % Component mean vectors.
         means;
-        covariances;
+        
+        % Component covariance matrices.
+        covs;
+        
+        % Lower Cholesky decompositions of component covariance matrices.
         covSqrts;
+        
+        % Inverse lower Cholesky decompositions of component covariance matrices.
+        invCovSqrts;
+        
+        % Normalized component weights.
         weights;
         
-        mean;
-        covariance;
-        covSqrt;
-        
+        % Cumulative sum of component weights.
         cumWeights;
         
-        logPdfConst;
-        invCovSqrts;
+        % Logarithms of the Gaussian component PDF's normalization constants.
+        logPdfConsts;
+        
+        % Mean vector of the Gaussian mixture distribution.
+        mean;
+        
+        % Covariance matrix of the Gaussian mixture distribution.
+        cov;
+        
+        % Lower Cholesky decomposition of covariance matrix of the Gaussian mixture distribution.
+        covSqrt;
     end
 end
