@@ -43,9 +43,6 @@ classdef GaussianSamplingRnd < GaussianSampling
             %   << obj (GaussianSamplingRnd)
             %      A new GaussianSamplingRnd instance.
             
-            % Call superclass constructor
-            obj = obj@GaussianSampling();
-            
             obj.numSamples = 1000;
         end
         

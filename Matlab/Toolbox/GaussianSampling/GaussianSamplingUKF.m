@@ -48,9 +48,6 @@ classdef GaussianSamplingUKF < GaussianSampling
             %   << obj (GaussianSamplingUKF)
             %      A new GaussianSamplingUKF instance.
             
-            % Call superclass constructor
-            obj = obj@GaussianSampling();
-            
             % Default sample scaling
             obj.scaling = 0.5;
         end

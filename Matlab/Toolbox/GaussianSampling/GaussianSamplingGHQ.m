@@ -48,9 +48,6 @@ classdef GaussianSamplingGHQ < GaussianSampling
             %   << obj (GaussianSamplingGHQ)
             %      A new GaussianSamplingGHQ instance.
             
-            % Call superclass constructor
-            obj = obj@GaussianSampling();
-            
             obj.sampleCache = SampleCacheGHQ();
         end
         

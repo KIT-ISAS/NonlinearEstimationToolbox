@@ -46,9 +46,6 @@ classdef GaussianSamplingCKF < GaussianSampling
             %   << obj (GaussianSamplingCKF)
             %      A new GaussianSamplingCKF instance.
             
-            % Call superclass constructor
-            obj = obj@GaussianSampling();
-            
             obj.sampleCache = SampleCacheCKF();
         end
         

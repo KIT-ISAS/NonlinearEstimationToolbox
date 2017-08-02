@@ -49,9 +49,6 @@ classdef GaussianSamplingRUKF < GaussianSampling
             %   << obj (GaussianSamplingRUKF)
             %      A new GaussianSamplingRUKF instance.
             
-            % Call superclass constructor
-            obj = obj@GaussianSampling();
-            
             % By default, 5 iterations are used.
             obj.numIterations = 5;
         end

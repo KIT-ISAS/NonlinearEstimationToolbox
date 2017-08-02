@@ -3,7 +3,6 @@ classdef GaussianSampling < handle & matlab.mixin.Copyable
     % Abstract base class for multivariate Gaussian sampling methods.
     %
     % GaussianSampling Methods:
-    %   GaussianSampling    - Class constructor.
     %   copy                - Copy a GaussianSampling instance.
     %   getStdNormalSamples - Get a set of samples approximating a standard normal distribution.
     %   getSamples          - Get a set of samples approximating a Gaussian distribution.
@@ -34,14 +33,6 @@ classdef GaussianSampling < handle & matlab.mixin.Copyable
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods
-        function obj = GaussianSampling()
-            % Class constructor.
-            %
-            % Returns:
-            %   << obj (GaussianSampling)
-            %      A new GaussianSampling instance.
-        end
-        
         function [samples, weights, numSamples] = getSamples(obj, gaussian)
             % Get a set of samples approximating a Gaussian distribution.
             %
