@@ -58,7 +58,8 @@ classdef SampleCacheGHQ < SampleCache
             obj = obj@SampleCache(sampleCachePath);
             
             % By default, 2 quadrature points are used.
-            obj.setNumQuadraturePoints(2);
+            obj.oneDimSamples = [1 -1];
+            obj.oneDimWeights = [0.5 0.5];
         end
         
         function setNumQuadraturePoints(obj, numPoints)
