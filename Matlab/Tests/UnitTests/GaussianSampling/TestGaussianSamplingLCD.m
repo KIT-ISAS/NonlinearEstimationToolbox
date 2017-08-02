@@ -32,7 +32,7 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g = obj.initSampling();
             
             [numSamplesAbs, ...
-             numSamplesFactor] = g.getNumSamples();
+             numSamplesFactor] = g.getNumSamplesConfig();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
@@ -47,7 +47,7 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamples(201);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = g.getNumSamples();
+             numSamplesFactor] = g.getNumSamplesConfig();
             
             obj.verifyEqual(numSamplesAbs, 201); 
             obj.verifyEmpty(numSamplesFactor);
@@ -59,7 +59,7 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamplesByFactor(5);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = g.getNumSamples();
+             numSamplesFactor] = g.getNumSamplesConfig();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 5);

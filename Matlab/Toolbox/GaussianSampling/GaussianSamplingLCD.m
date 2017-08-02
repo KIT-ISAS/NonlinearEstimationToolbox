@@ -9,7 +9,7 @@ classdef GaussianSamplingLCD < GaussianSampling
     %   getSamples            - Get a set of samples approximating a Gaussian distribution.
     %   setNumSamples         - Set an absolute number of samples.
     %   setNumSamplesByFactor - Set a linear factor to determine the number of samples.
-    %   getNumSamples         - Get the configured number of samples.
+    %   getNumSamplesConfig   - Get the number of samples configuration.
     %   setSymmetricMode      - Select between point-symmetric and asymmetric sampling.
     %   getSymmetricMode      - Get the selected sampling mode.
     
@@ -121,8 +121,8 @@ classdef GaussianSamplingLCD < GaussianSampling
         end
         
         function [numSamplesAbs, ...
-                  numSamplesFactor] = getNumSamples(obj)
-            % Get the configured number of samples.
+                  numSamplesFactor] = getNumSamplesConfig(obj)
+            % Get the number of samples configuration.
             %
             % Returns:
             %   << numSamplesAbs (Positive scalar or empty matrix)
