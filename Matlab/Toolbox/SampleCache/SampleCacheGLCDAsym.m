@@ -1,6 +1,6 @@
 
 classdef SampleCacheGLCDAsym < SampleCache
-    % Asymmetric Gaussian LCD sample cache.
+    % A sample cache for the asymmetric LCD-based Gaussian sampling.
     %
     % SampleCacheGLCDAsym Methods:
     %   SampleCacheGLCDAsym - Class constructor.

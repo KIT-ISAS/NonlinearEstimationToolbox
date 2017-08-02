@@ -1,6 +1,6 @@
 
 classdef SampleCacheGLCDSym < SampleCache
-    % Symmetric Gaussian LCD sample cache.
+    % A sample cache for the point-symmetric LCD-based Gaussian sampling.
     %
     % SampleCacheGLCDSym Methods:
     %   SampleCacheGLCDSym - Class constructor.

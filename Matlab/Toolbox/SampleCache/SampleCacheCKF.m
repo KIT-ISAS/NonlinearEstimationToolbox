@@ -1,6 +1,6 @@
 
 classdef SampleCacheCKF < SampleCache
-    % Fifth-degree cubature Kalman filter sample cache.
+    % A sample cache for the fifth-degree cubature Kalman filter sampling.
     %
     % SampleCacheCKF Methods:
     %   SampleCacheCKF  - Class constructor.

@@ -1,6 +1,6 @@
 
 classdef SampleCacheGHQ < SampleCache
-    % Gaussian Hermite quadrature sample cache.
+    % A sample cache for the Gauss-Hermite quadrature.
     %
     % SampleCacheGHQ Methods:
     %   SampleCacheGHQ         - Class constructor.

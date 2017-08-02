@@ -1,9 +1,8 @@
 
 classdef SampleCache < handle & matlab.mixin.Copyable
-    % Represents a Sample Cache.
+    % Abstract base class for a file system-based sample cache.
     %
     % SampleCache Methods:
-    %   SampleCache     - Class constructor.
     %   copy            - Copy a SampleCache instance.
     %   getSamples      - Retrieve samples from the sample cache.
     %   generateSamples - Generate and store samples in the sample cache.
