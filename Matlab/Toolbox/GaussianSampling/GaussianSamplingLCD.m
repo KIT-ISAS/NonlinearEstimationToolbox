@@ -60,7 +60,7 @@ classdef GaussianSamplingLCD < GaussianSampling
             %   << obj (GaussianSamplingLCD)
             %      A new GaussianSamplingLCD instance.
             
-            % By default, the symmetric sampling mode is used.
+            % By default, the point-symmetric sampling scheme is used.
             obj.useSymmetric = true;
             obj.sampleCache  = SampleCacheGLCDSym();
             
