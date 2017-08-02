@@ -35,13 +35,13 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             obj.verifyEqual(f.getMaxNumProgSteps(), 0);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
@@ -63,13 +63,13 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             f.setNumSamples(201);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEqual(numSamplesAbs, 201);
             obj.verifyEmpty(numSamplesFactor);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEqual(numSamplesAbs, 201);
             obj.verifyEmpty(numSamplesFactor);
@@ -81,13 +81,13 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             f.setNumSamples(201, 501);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEqual(numSamplesAbs, 201);
             obj.verifyEmpty(numSamplesFactor);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEqual(numSamplesAbs, 501);
             obj.verifyEmpty(numSamplesFactor);
@@ -99,13 +99,13 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             f.setNumSamples(201, []);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEqual(numSamplesAbs, 201);
             obj.verifyEmpty(numSamplesFactor);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
@@ -117,13 +117,13 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             f.setNumSamples([], 501);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEqual(numSamplesAbs, 501);
             obj.verifyEmpty(numSamplesFactor);
@@ -135,104 +135,104 @@ classdef TestPGF < matlab.unittest.TestCase & TestCopy
             f.setNumSamples([], []);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
         end
         
         
-        function testSetNumSamplesByFactor(obj)
+        function testSetNumSamplesByFactors(obj)
             f = obj.initFilter();
             
-            f.setNumSamplesByFactor(5);
+            f.setNumSamplesByFactors(5);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 5);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 5);
         end
         
-        function testSetNumSamplesByFactorBoth(obj)
+        function testSetNumSamplesByFactorsBoth(obj)
             f = obj.initFilter();
             
-            f.setNumSamplesByFactor(5, 20);
+            f.setNumSamplesByFactors(5, 20);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 5);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 20);
         end
         
-        function testSetNumSamplesByFactorMeasEmpty(obj)
+        function testSetNumSamplesByFactorsMeasEmpty(obj)
             f = obj.initFilter();
             
-            f.setNumSamplesByFactor(5, []);
+            f.setNumSamplesByFactors(5, []);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 5);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
         end
         
-        function testSetNumSamplesByFactorPredEmpty(obj)
+        function testSetNumSamplesByFactorsPredEmpty(obj)
             f = obj.initFilter();
             
-            f.setNumSamplesByFactor([], 20);
+            f.setNumSamplesByFactors([], 20);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 20);
         end
         
-        function testSetNumSamplesByFactorBothEmpty(obj)
+        function testSetNumSamplesByFactorsBothEmpty(obj)
             f = obj.initFilter();
             
-            f.setNumSamplesByFactor([], []);
+            f.setNumSamplesByFactors([], []);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesPrediction();
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);
             
             [numSamplesAbs, ...
-             numSamplesFactor] = f.getNumSamplesUpdate();
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
             
             obj.verifyEmpty(numSamplesAbs);
             obj.verifyEqual(numSamplesFactor, 10);

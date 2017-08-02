@@ -3,32 +3,32 @@ classdef PGF < GaussianFilter
     % The progressive Gaussian filter (PGF).
     %
     % PGF Methods:
-    %   PGF                         - Class constructor.
-    %   copy                        - Copy a Filter instance.
-    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
-    %   getName                     - Get the filter name/description.
-    %   setColor                    - Set the filter color/plotting properties.
-    %   getColor                    - Get the filter color/plotting properties.
-    %   setState                    - Set the system state.
-    %   getState                    - Get the system state.
-    %   getStateDim                 - Get the dimension of the system state.
-    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
-    %   predict                     - Perform a state prediction.
-    %   update                      - Perform a measurement update.
-    %   step                        - Perform a combined state prediction and measurement update.
-    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
-    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
-    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
-    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
-    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
-    %   setNumSamples               - Set absolute numbers of samples used for state prediction and measurement update.
-    %   setNumSamplesByFactor       - Set linear factors to determine the number of samples used for state prediction and measurement update.
-    %   getNumSamplesPrediction     - Get the configured number of samples used for the state prediction.
-    %   getNumSamplesUpdate         - Get the configured number of samples used for the measurement update.
-    %   setMaxNumProgSteps          - Set the maximum number of allowed progression steps.
-    %   getMaxNumProgSteps          - Get the maximum number of allowed progression steps.
-    %   getNumProgSteps             - Get the number of progression steps required by the last measurement update.
+    %   PGF                           - Class constructor.
+    %   copy                          - Copy a Filter instance.
+    %   copyWithName                  - Copy a Filter instance and give the copy a new name/description.
+    %   getName                       - Get the filter name/description.
+    %   setColor                      - Set the filter color/plotting properties.
+    %   getColor                      - Get the filter color/plotting properties.
+    %   setState                      - Set the system state.
+    %   getState                      - Get the system state.
+    %   getStateDim                   - Get the dimension of the system state.
+    %   getStateMeanAndCov            - Get mean and covariance matrix of the system state.
+    %   predict                       - Perform a state prediction.
+    %   update                        - Perform a measurement update.
+    %   step                          - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim             - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim             - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing   - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing   - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing       - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing       - Get the post-processing method for the measurement update.
+    %   setNumSamples                 - Set absolute numbers of samples used for state prediction and measurement update.
+    %   setNumSamplesByFactors        - Set linear factors to determine the number of samples used for state prediction and measurement update.
+    %   getNumSamplesConfigPrediction - Get the number of samples configuration used for the state prediction.
+    %   getNumSamplesConfigUpdate     - Get the number of samples configuration used for the measurement update.
+    %   setMaxNumProgSteps            - Set the maximum number of allowed progression steps.
+    %   getMaxNumProgSteps            - Get the maximum number of allowed progression steps.
+    %   getNumProgSteps               - Get the number of progression steps required by the last measurement update.
     
     % Literature:
     %   Jannik Steinbring, Antonio Zea, and Uwe D. Hanebeck,
@@ -118,15 +118,17 @@ classdef PGF < GaussianFilter
             % and measurement update.
             %
             % Parameters:
-            %    >> numSamplesPrediction (Positive scalar or empty matrix)
-            %       The new absolute number of samples used for the state prediction.
-            %       Pass an empty matrix to keep the current setting for the state prediction.
+            %   >> numSamplesPrediction (Positive scalar or empty matrix)
+            %      The new absolute number of samples used for the state prediction.
+            %      Pass an empty matrix to keep the current configuration for the
+            %      state prediction.
             %
-            %    >> numSamplesUpdate (Positive scalar or empty matrix)
-            %       The new absolute number of samples used for the measurement update.
-            %       Pass an empty matrix to keep the current setting for the measurement
-            %       update. If nothing is passed, the absolute number of samples specified
-            %       for the state prediction is also used for the measurement update.
+            %   >> numSamplesUpdate (Positive scalar or empty matrix)
+            %      The new absolute number of samples used for the measurement update.
+            %      Pass an empty matrix to keep the current configuration for the
+            %      measurement update. If nothing is passed, the absolute number of
+            %      samples specified for the state prediction is also used for the
+            %      measurement update.
             
             if ~isempty(numSamplesPrediction)
                 obj.samplingPrediction.setNumSamples(numSamplesPrediction);
@@ -141,7 +143,7 @@ classdef PGF < GaussianFilter
             end
         end
         
-        function setNumSamplesByFactor(obj, factorPrediction, factorUpdate)
+        function setNumSamplesByFactors(obj, factorPrediction, factorUpdate)
             % Set linear factors to determine the number of samples used for state prediction and measurement update.
             %
             % The actual number of samples will be computed according to
@@ -153,21 +155,21 @@ classdef PGF < GaussianFilter
             % This also overwrites a possible previous setting, where the number of
             % samples are determined in an absolute way (see setNumSamples()).
             %
-            % By default, a linear factor 10 is used for both state prediction
+            % By default, a linear factor of 10 is used for both state prediction
             % and measurement update.
             %
             % Parameters:
-            %    >> factorPrediction (Positive scalar or empty matrix)
-            %       The new linear factor to determine the number of samples used for
-            %       the state prediction. Pass an empty matrix to keep the current
-            %       setting for the state prediction.
+            %   >> factorPrediction (Positive scalar or empty matrix)
+            %      The new linear factor to determine the number of samples used for
+            %      the state prediction. Pass an empty matrix to keep the current
+            %      configuration for the state prediction.
             %
-            %    >> factorUpdate (Positive scalar or empty matrix)
-            %       The new linear factor to determine the number of samples used for
-            %       the measurement update. Pass an empty matrix to keep the current
-            %       setting for the measurement update. If nothing is passed, the
-            %       linear factor specified for the state prediction is also used for
-            %       the measurement update.
+            %   >> factorUpdate (Positive scalar or empty matrix)
+            %      The new linear factor to determine the number of samples used for
+            %      the measurement update. Pass an empty matrix to keep the current
+            %      configuration for the measurement update. If nothing is passed, the
+            %      linear factor specified for the state prediction is also used for
+            %      the measurement update.
             
             if ~isempty(factorPrediction)
                 obj.samplingPrediction.setNumSamplesByFactor(factorPrediction);
@@ -183,8 +185,8 @@ classdef PGF < GaussianFilter
         end
         
         function [numSamplesAbs, ...
-                  numSamplesFactor] = getNumSamplesPrediction(obj)
-            % Get the configured number of samples used for the state prediction.
+                  numSamplesFactor] = getNumSamplesConfigPrediction(obj)
+            % Get the number of samples configuration used for the state prediction.
             %
             % Returns:
             %   << numSamplesAbs (Positive scalar or empty matrix)
@@ -196,12 +198,12 @@ classdef PGF < GaussianFilter
             %      Otherwise, an empty matrix.
             
             [numSamplesAbs, ...
-             numSamplesFactor] = obj.samplingPrediction.getNumSamples();
+             numSamplesFactor] = obj.samplingPrediction.getNumSamplesConfig();
         end
         
         function [numSamplesAbs, ...
-                  numSamplesFactor] = getNumSamplesUpdate(obj)
-            % Get the configured number of samples used for the measurement update.
+                  numSamplesFactor] = getNumSamplesConfigUpdate(obj)
+            % Get the number of samples configuration used for the measurement update.
             %
             % Returns:
             %   << numSamplesAbs (Positive scalar or empty matrix)
@@ -213,7 +215,7 @@ classdef PGF < GaussianFilter
             %      Otherwise, an empty matrix.
             
             [numSamplesAbs, ...
-             numSamplesFactor] = obj.samplingUpdate.getNumSamples();
+             numSamplesFactor] = obj.samplingUpdate.getNumSamplesConfig();
         end
         
         function setMaxNumProgSteps(obj, maxNumProgSteps)
