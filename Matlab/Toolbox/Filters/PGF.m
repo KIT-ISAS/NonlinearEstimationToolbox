@@ -99,6 +99,10 @@ classdef PGF < GaussianFilter
             obj.samplingPrediction = GaussianSamplingLCD();
             obj.samplingUpdate     = GaussianSamplingLCD();
             
+            % The point-symmetric LCD-based sampling is used.
+            obj.samplingPrediction.setSymmetricMode(true);
+            obj.samplingUpdate.setSymmetricMode(true);
+            
             % By default, determine the number of samples for state prediction
             % and measurement update by using a linear factor of 10.
             obj.samplingPrediction.setNumSamplesByFactor(10);
