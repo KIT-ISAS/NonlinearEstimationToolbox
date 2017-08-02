@@ -49,6 +49,9 @@ classdef GaussianSamplingGHQ < GaussianSampling
             %      A new GaussianSamplingGHQ instance.
             
             obj.sampleCache = SampleCacheGHQ();
+            
+            % By default, 2 quadrature points are used.
+            obj.sampleCache.setNumQuadraturePoints(2);
         end
         
         function setNumQuadraturePoints(obj, numPoints)
