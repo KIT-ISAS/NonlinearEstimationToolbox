@@ -1,5 +1,5 @@
 
-classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
+classdef TestSIRPF < TestFilter
     % Provides unit tests for the SIRPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,15 +28,6 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
-            
-            obj.verifyEqual(f.getName(), 'SIRPF');
-            obj.verifyEqual(f.getNumParticles(), 1000);
-            obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.5);
-        end
-        
-        
         function testSetStateGaussian(obj)
             f = obj.initFilter();
             
@@ -145,68 +136,143 @@ classdef TestSIRPF < matlab.unittest.TestCase & TestCopy
         end
         
         
-        function testPredictLinearSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testPredictLinearSystemModel(obj)
+            configs    = logical(dec2bin(0:7) - '0');
+            numConfigs = 8;
             
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
+            for i = 1:numConfigs
+                obj.testPredictLinearSystemModelConfiguration(configs(i, :));
+            end
         end
         
-        function testPredictAddNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testPredictAdditiveNoiseSystemModel(obj)
+            getSysModelData = @() TestUtilsAdditiveNoiseSystemModel.getSysModelData;
             
-            f.setNumParticles(1000000);
-            
-            TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
+            obj.testPredictNonlinear(getSysModelData);
         end
         
-        function testPredictSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testPredictSystemModel(obj)
+            getSysModelData = @() TestUtilsSystemModel.getSysModelData;
             
-            f.setNumParticles(1000000);
-            
-            TestUtilsSystemModel.checkPrediction(obj,f, tol);
+            obj.testPredictNonlinear(getSysModelData);
         end
         
-        function testPredictMixedNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testPredictMixedNoiseSystemModel(obj)
+            getSysModelData = @() TestUtilsMixedNoiseSystemModel.getSysModelData;
             
-            f.setNumParticles(1000000);
-            
-            TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
+            obj.testPredictNonlinear(getSysModelData);
         end
         
         
-        function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testUpdateLinearMeasurementModel(obj)
+            % Without measurement matrix set
+            obj.testUpdateLinearMeasurementModelConfiguration(false);
             
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdate(obj, f, tol);
+            % With measurement matrix set
+            obj.testUpdateLinearMeasurementModelConfiguration(true);
         end
         
-        
-        function testUpdateAddNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
+        function testUpdateAdditiveNoiseMeasurementModel(obj)
+            [initState, measModel, ...
+             measurement, ~, ...
+             trueStateMean, trueStateCov] = TestUtilsAdditiveNoiseMeasurementModel.getMeasModelData(false);
             
-            f.setNumParticles(5000000);
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            tol = 1e-2;
             
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdate(obj, f, tol);
+            f.setState(initState);
+            
+            f.update(measModel, measurement);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
         end
     end
     
     methods (Access = 'protected')
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestFilter(f);
+            
+            % SIRPF-related tests
+            obj.verifyEqual(f.getName(), 'SIRPF');
+            obj.verifyEqual(f.getNumParticles(), 1000);
+            obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.5);
+        end
+        
         function f = initFilter(~)
             f = SIRPF();
+        end
+        
+        function testPredictLinearSystemModelConfiguration(obj, config)
+            hasSysMat      = config(1);
+            hasInput       = config(2);
+            hasSysNoiseMat = config(3);
+            
+            [initState, sysModel, ...
+             trueStateMean, trueStateCov] = TestUtilsLinearSystemModel.getSysModelData(hasSysMat, ...
+                                                                                       hasSysNoiseMat, ...
+                                                                                       hasInput);
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            
+            tol = 1e-2;
+            
+            f.setState(initState);
+            
+            f.predict(sysModel);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
+        end
+        
+        function testPredictNonlinear(obj, getSysModelData)
+            [initState, sysModel, ...
+             trueStateMean, trueStateCov] = getSysModelData();
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e6);
+            
+            tol = 1e-2;
+            
+            f.setState(initState);
+            
+            f.predict(sysModel);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
+        end
+        
+        function testUpdateLinearMeasurementModelConfiguration(obj, hasMeasMatrix)
+            [initState, measModel, ...
+             measurement, ~, ...
+             trueStateMean, trueStateCov] = TestUtilsLinearMeasurementModel.getMeasModelData(hasMeasMatrix);
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            
+            tol = 1e-2;
+            
+            f.setState(initState);
+            
+            f.update(measModel, measurement);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
         end
     end
     

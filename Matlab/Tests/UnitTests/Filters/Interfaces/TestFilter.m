@@ -1,6 +1,6 @@
 
-classdef TestCopy < matlab.unittest.TestCase
-    % Provides unit tests for Filter copy methods.
+classdef TestFilter < matlab.unittest.TestCase
+    % Provides unit tests for the Filter class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -28,6 +28,13 @@ classdef TestCopy < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
+        function testConstructorDefault(obj)
+            f = obj.initFilter();
+            
+            obj.defaultConstructorTests(f);
+        end
+        
+        
         function testCopy(obj)
             f = obj.initFilter();
             
@@ -36,6 +43,7 @@ classdef TestCopy < matlab.unittest.TestCase
             obj.verifyEqual(g.getName(), f.getName());
         end
         
+        
         function testCopyWithName(obj)
             f = obj.initFilter();
             
@@ -43,10 +51,26 @@ classdef TestCopy < matlab.unittest.TestCase
             
             obj.verifyEqual(g.getName(), 'Copy');
         end
+        
+        
+        function testSetColor(obj)
+            f = obj.initFilter();
+            
+            color = { 'Color', 'r', 'LineStyle', '-' };
+            
+            f.setColor(color);
+            
+            obj.verifyEqual(f.getColor(), color);
+        end
+    end
+    
+    methods (Access = 'protected')
+        function defaultConstructorTests(obj, f)
+            obj.verifyEqual(f.getStateDim(), 0);
+        end
     end
     
     methods (Abstract, Access = 'protected')
         f = initFilter(obj);
     end
 end
-

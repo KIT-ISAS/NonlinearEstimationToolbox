@@ -27,43 +27,17 @@ classdef TestRPF < TestSIRPF
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
-            
-            obj.verifyEqual(f.getName(), 'RPF');
-        end
-        
-        
-        function testSetNumParticles(obj)
-            f = obj.initFilter();
-            
-            f.setNumParticles(2000);
-            
-            obj.verifyEqual(f.getNumParticles(), 2000);
-        end
-        
-        function testSetNumParticlesWithResampling(obj)
-            f = obj.initFilter();
-            
-            d = Gaussian(zeros(2, 1), diag([1.5, 2]));
-            f.setState(d);
-            
-            f.setNumParticles(2000);
-            
-            obj.verifyEqual(f.getNumParticles(), 2000);
-            
-            dm = f.getState();
-            
-            [samples, weights] = dm.getComponents();
-            
-            obj.verifySize(samples, [2, 2000]);
-            obj.verifySize(weights, [1, 2000]);
-            obj.verifyEqual(weights, repmat(1/2000, 1, 2000), 'AbsTol', 1e-14);
-        end
-    end
-    
     methods (Access = 'protected')
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestFilter(f);
+            
+            % RPF-related tests
+            obj.verifyEqual(f.getName(), 'RPF')
+            obj.verifyEqual(f.getNumParticles(), 1000);
+            obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.5);
+        end
+        
         function f = initFilter(~)
             f = RPF();
         end

@@ -1,5 +1,5 @@
 
-classdef TestEKF < TestKFSubclasses
+classdef TestEKF < TestIterativeKalmanFilter
     % Provides unit tests for the EKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -27,17 +27,17 @@ classdef TestEKF < TestKFSubclasses
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
-            
-            obj.verifyEqual(f.getName(), 'EKF');
-        end
-    end
-    
     methods (Access = 'protected')
         function f = initFilter(~)
             f = EKF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % EKF-related tests
+            obj.verifyEqual(f.getName(), 'EKF');
         end
     end
 end

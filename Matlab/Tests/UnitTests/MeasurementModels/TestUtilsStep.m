@@ -28,43 +28,46 @@ classdef TestUtilsStep
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkAdditiveNoiseSystemModel(test, filter, tol)
+        function [initState, sysModel, ...
+                  measModel, measurement, ...
+                  trueStateMean, trueStateCov] = getAdditiveNoiseSystemModelData()
+            initState = Gaussian(TestUtilsStep.initMean, ...
+                                 TestUtilsStep.initCov);
+          	
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
             
             % True update
             [measModel, measurement, ...
-             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
-                                    trueMean, trueCov, test, filter, tol);
+             trueStateMean, trueStateCov] = TestUtilsStep.update(truePredMean, truePredCov);
         end
         
-        function checkSystemModel(test, filter, tol)
+        function [initState, sysModel, ...
+                  measModel, measurement, ...
+                  trueStateMean, trueStateCov] = getSystemModelData()
+            initState = Gaussian(TestUtilsStep.initMean, ...
+                                 TestUtilsStep.initCov);
+          	
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
             
             % True update
             [measModel, measurement, ...
-             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
-                                    trueMean, trueCov, test, filter, tol);
+             trueStateMean, trueStateCov] = TestUtilsStep.update(truePredMean, truePredCov);
         end
         
-        function checkMixedNoiseSystemModel(test, filter, tol)
+        function [initState, sysModel, ...
+                  measModel, measurement, ...
+                  trueStateMean, trueStateCov] = getMixedNoiseSystemModelData()
+            initState = Gaussian(TestUtilsStep.initMean, ...
+                                 TestUtilsStep.initCov);
+          	
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
             
             % True update
             [measModel, measurement, ...
-             trueMean, trueCov] = TestUtilsStep.update(truePredMean, truePredCov);
-            
-            % Test step method
-            TestUtilsStep.checkStep(sysModel, measModel, measurement, ...
-                                    trueMean, trueCov, test, filter, tol);
+             trueStateMean, trueStateCov] = TestUtilsStep.update(truePredMean, truePredCov);
         end
     end
     
@@ -105,7 +108,7 @@ classdef TestUtilsStep
         end
         
         function [measModel, measurement, ...
-                  trueMean, trueCov] = update(truePredMean, truePredCov)
+                  trueStateMean, trueStateCov] = update(truePredMean, truePredCov)
             measModel = AddNoiseMeasModel();
             measModel.setNoise(TestUtilsStep.measNoise);
             
@@ -122,21 +125,8 @@ classdef TestUtilsStep
             
             K = trueCrossCov * invMeasCov;
             
-            trueMean = truePredMean + K * (measurement - trueMeasMean);
-            trueCov  = truePredCov - K * trueCrossCov';
-        end
-        
-        function checkStep(sysModel, measModel, measurement, trueMean, trueCov, test, f, tol)
-            f.setState(Gaussian(TestUtilsStep.initMean, ...
-                                TestUtilsStep.initCov));
-            
-            f.step(sysModel, measModel, measurement);
-            
-            [stateMean, stateCov] = f.getStateMeanAndCov();
-            
-            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
-            test.verifyEqual(stateCov, stateCov');
-            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
+            trueStateMean = truePredMean + K * (measurement - trueMeasMean);
+            trueStateCov  = truePredCov - K * trueCrossCov';
         end
     end
     
@@ -149,8 +139,6 @@ classdef TestUtilsStep
         measNoise  = Gaussian([2 -1 0.5]', 10 * [ 2   -0.5 0
                                             -0.5  1.3 0.5
                                              0    0.5 sqrt(2)]);
-        meas       = [ 1
-                      -2
-                       5];
+        meas       = [1, -2, 5]';
     end
 end

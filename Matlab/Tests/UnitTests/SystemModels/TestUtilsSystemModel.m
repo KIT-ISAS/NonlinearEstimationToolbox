@@ -28,26 +28,36 @@ classdef TestUtilsSystemModel
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkPrediction(test, f, tol)
+        function testPrediction(test, setupPrediction)
+            [initState, sysModel, ...
+             trueStateMean, trueStateCov] = TestUtilsSystemModel.getSysModelData();
+            
+            [f, tol] = setupPrediction();
+            
+            f.setState(initState);
+            
+            f.predict(sysModel);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            test.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            test.verifyEqual(stateCov, stateCov');
+            test.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
+        end
+        
+        function [initState, sysModel, ...
+                  trueStateMean, trueStateCov] = getSysModelData()
+            initState = Gaussian(TestUtilsSystemModel.initMean, ...
+                                 TestUtilsSystemModel.initCov);
+            
             sysModel = SysModel();
             sysModel.setNoise(TestUtilsSystemModel.sysNoise);
             
             mat                   = sysModel.sysMatrix;
             [noiseMean, noiseCov] = TestUtilsSystemModel.sysNoise.getMeanAndCov();
             
-            trueMean = mat * TestUtilsSystemModel.initMean + noiseMean;
-            trueCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;
-            
-            f.setState(Gaussian(TestUtilsSystemModel.initMean, ...
-                                TestUtilsSystemModel.initCov));
-            
-            f.predict(sysModel);
-            
-            [stateMean, stateCov] = f.getStateMeanAndCov();
-            
-            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
-            test.verifyEqual(stateCov, stateCov');
-            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
+            trueStateMean = mat * TestUtilsSystemModel.initMean + noiseMean;
+            trueStateCov  = mat * TestUtilsSystemModel.initCov * mat' + noiseCov;
         end
     end
     

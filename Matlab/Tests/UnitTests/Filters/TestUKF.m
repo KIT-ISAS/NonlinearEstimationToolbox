@@ -1,5 +1,5 @@
 
-classdef TestUKF < TestKFSubclasses
+classdef TestUKF < TestIterativeKalmanFilter
     % Provides unit tests for the UKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,34 +28,25 @@ classdef TestUKF < TestKFSubclasses
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
+        function testSetSampleScalings(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'UKF');
+            f.setSampleScalings(1);
             
-            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
-            
-            obj.verifyEqual(scalingPrediction, 0.5);
-            obj.verifyEqual(scalingUpdate, 0.5);
-        end
-        
-        function testSetSampleScalingDefault(obj)
-            f = obj.initFilter();
-            
-            f.setSampleScaling(1);
-            
-            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
+            [scalingPrediction, ...
+             scalingUpdate] = f.getSampleScalings();
             
             obj.verifyEqual(scalingPrediction, 1);
             obj.verifyEqual(scalingUpdate, 1);
         end
         
-        function testSetSampleScaling(obj)
+        function testSetSampleScalingsBoth(obj)
             f = obj.initFilter();
             
-            f.setSampleScaling(1, 0);
+            f.setSampleScalings(1, 0);
             
-            [scalingPrediction, scalingUpdate] = f.getSampleScaling();
+            [scalingPrediction, ...
+             scalingUpdate] = f.getSampleScalings();
             
             obj.verifyEqual(scalingPrediction, 1);
             obj.verifyEqual(scalingUpdate, 0);
@@ -65,6 +56,20 @@ classdef TestUKF < TestKFSubclasses
     methods (Access = 'protected')
         function f = initFilter(~)
             f = UKF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % UKF-related tests
+            obj.verifyEqual(f.getName(), 'UKF');
+            
+            [scalingPrediction, ...
+             scalingUpdate] = f.getSampleScalings();
+            
+            obj.verifyEqual(scalingPrediction, 0.5);
+            obj.verifyEqual(scalingUpdate, 0.5);
         end
     end
 end

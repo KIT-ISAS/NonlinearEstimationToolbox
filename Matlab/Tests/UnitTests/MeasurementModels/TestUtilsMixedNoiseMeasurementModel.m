@@ -1,5 +1,5 @@
 
-classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
+classdef TestUtilsMixedNoiseMeasurementModel
     % Provides test utilities for the MixedNoiseMeasurementModel class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -27,44 +27,46 @@ classdef TestUtilsMixedNoiseMeasurementModel < TestUtilsMeasurementModels
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods (Access = 'protected')
-        function [initState, measModel, measurement,  ...
+    methods (Static)
+        function [initState, measModel, ...
+                  measurement, stateDecompDim, ...
                   trueStateMean, trueStateCov, ...
-                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp)
-            initState = Gaussian(obj.initMean, obj.initCov);
+                  trueMeasMean, trueMeasCov] = getMeasModelData(stateDecomp)
+            if nargin < 1
+                stateDecomp = false;
+            end
+            
+            initState = Gaussian(TestUtilsMixedNoiseMeasurementModel.initMean, ...
+                                 TestUtilsMixedNoiseMeasurementModel.initCov);
             
             measModel = MixedNoiseMeasModel(stateDecomp);
-            measModel.setAdditiveNoise(obj.addMeasNoise);
-            measModel.setNoise(obj.measNoise);
+            measModel.setAdditiveNoise(TestUtilsMixedNoiseMeasurementModel.addMeasNoise);
+            measModel.setNoise(TestUtilsMixedNoiseMeasurementModel.measNoise);
             
             if stateDecomp
+                stateDecompDim = 1;
+                
                 mat = [measModel.measMatrix zeros(3, 1)];
             else
+                stateDecompDim = 0;
+                
                 mat = measModel.measMatrix;
             end
             
-            [addNoiseMean, addNoiseCov] = obj.addMeasNoise.getMeanAndCov();
-            [noiseMean, noiseCov]       = obj.measNoise.getMeanAndCov();
+            [addNoiseMean, addNoiseCov] = TestUtilsMixedNoiseMeasurementModel.addMeasNoise.getMeanAndCov();
+            [noiseMean, noiseCov]       = TestUtilsMixedNoiseMeasurementModel.measNoise.getMeanAndCov();
             
-            measurement = obj.meas;
+            measurement = TestUtilsMixedNoiseMeasurementModel.meas;
             
-            trueMeasMean   = mat * obj.initMean + addNoiseMean + noiseMean;
-            trueMeasCov    = mat * obj.initCov * mat' + addNoiseCov + noiseCov;
+            trueMeasMean   = mat * TestUtilsMixedNoiseMeasurementModel.initMean + addNoiseMean + noiseMean;
+            trueMeasCov    = mat * TestUtilsMixedNoiseMeasurementModel.initCov * mat' + addNoiseCov + noiseCov;
             invTrueMeasCov = trueMeasCov \ eye(3);
-            crossCov       = obj.initCov * mat';
+            crossCov       = TestUtilsMixedNoiseMeasurementModel.initCov * mat';
             
             K = crossCov * invTrueMeasCov;
             
-            trueStateMean = obj.initMean + K * (measurement - trueMeasMean);
-            trueStateCov  = obj.initCov - K * crossCov';
-            
-            if stateDecomp
-                % If state decomposition is enabled, the true
-                % cross-covariance matirx is
-                trueCrossCov = crossCov(1, :);
-            else
-                trueCrossCov = crossCov;
-            end
+            trueStateMean = TestUtilsMixedNoiseMeasurementModel.initMean + K * (measurement - trueMeasMean);
+            trueStateCov  = TestUtilsMixedNoiseMeasurementModel.initCov - K * crossCov';
         end
     end
     

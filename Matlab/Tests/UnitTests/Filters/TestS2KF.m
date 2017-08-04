@@ -1,5 +1,5 @@
 
-classdef TestS2KF < TestKFSubclasses
+classdef TestS2KF < TestIterativeKalmanFilter
     % Provides unit tests for the S2KF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,16 +28,211 @@ classdef TestS2KF < TestKFSubclasses
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
+        function testSetNumSamples(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'S2KF');
+            f.setNumSamples(201);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEqual(numSamplesAbs, 201);
+            obj.verifyEmpty(numSamplesFactor);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEqual(numSamplesAbs, 201);
+            obj.verifyEmpty(numSamplesFactor);
+        end
+        
+        function testSetNumSamplesBoth(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamples(201, 501);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEqual(numSamplesAbs, 201);
+            obj.verifyEmpty(numSamplesFactor);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEqual(numSamplesAbs, 501);
+            obj.verifyEmpty(numSamplesFactor);
+        end
+        
+        function testSetNumSamplesMeasEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamples(201, []);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEqual(numSamplesAbs, 201);
+            obj.verifyEmpty(numSamplesFactor);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+        end
+        
+        function testSetNumSamplesPredEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamples([], 501);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEqual(numSamplesAbs, 501);
+            obj.verifyEmpty(numSamplesFactor);
+        end
+        
+        function testSetNumSamplesBothEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamples([], []);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+        end
+        
+        
+        function testSetNumSamplesByFactors(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamplesByFactors(5);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 5);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 5);
+        end
+        
+        function testSetNumSamplesByFactorsBoth(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamplesByFactors(5, 20);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 5);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 20);
+        end
+        
+        function testSetNumSamplesByFactorsMeasEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamplesByFactors(5, []);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 5);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+        end
+        
+        function testSetNumSamplesByFactorsPredEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamplesByFactors([], 20);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 20);
+        end
+        
+        function testSetNumSamplesByFactorsBothEmpty(obj)
+            f = obj.initFilter();
+            
+            f.setNumSamplesByFactors([], []);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
         end
     end
     
     methods (Access = 'protected')
         function f = initFilter(~)
             f = S2KF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % S2KF-related tests
+            obj.verifyEqual(f.getName(), 'S2KF');
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigPrediction();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
+            
+            [numSamplesAbs, ...
+             numSamplesFactor] = f.getNumSamplesConfigUpdate();
+            
+            obj.verifyEmpty(numSamplesAbs);
+            obj.verifyEqual(numSamplesFactor, 10);
         end
     end
 end

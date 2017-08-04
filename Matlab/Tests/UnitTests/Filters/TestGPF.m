@@ -1,5 +1,5 @@
 
-classdef TestGPF < matlab.unittest.TestCase & TestCopy
+classdef TestGPF < TestGaussianFilter
     % Provides unit tests for the GPF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,96 +28,116 @@ classdef TestGPF < matlab.unittest.TestCase & TestCopy
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
+        function testsetNumParticles(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'GPF');
-            obj.verifyEqual(f.getNumParticles(), 1000);
+            f.setNumParticles(5000);
+            
+            obj.verifyEqual(f.getNumParticles(), 5000);
         end
         
         
-        function testPredictLinearSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testUpdateLinearMeasurementModel(obj)
+            configs    = logical(dec2bin(0:7) - '0');
+            numConfigs = 8;
             
-            f.setNumParticles(5000000);
-            
-            TestUtilsLinearSystemModel.checkPrediction(obj, f, tol);
+            for i = 1:numConfigs
+                obj.testUpdateLinearMeasurementModelConfiguration(configs(i, :));
+            end
         end
         
-        function testPredictAddNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
+        function testUpdateAdditiveNoiseMeasurementModel(obj)
+            % Without state decompoosition
+            obj.testUpdateAdditiveNoiseMeasurementModelConfiguration(false);
             
-            f.setNumParticles(1000000);
-            
-            TestUtilsAdditiveNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        function testPredictSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsSystemModel.checkPrediction(obj,f, tol);
-        end
-        
-        function testPredictMixedNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(1000000);
-            
-            TestUtilsMixedNoiseSystemModel.checkPrediction(obj, f, tol);
-        end
-        
-        
-        function testUpdateLinearMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateLinearMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsLinearMeasurementModel();
-            testUtils.checkUpdateStateDecomp(obj, f, tol);
-        end
-        
-        
-        function testUpdateAddNoiseMeasModel(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdate(obj, f, tol);
-        end
-        
-        function testUpdateAddNoiseMeasModelStateDecomp(obj)
-            f   = obj.initFilter();
-            tol = 5 * 1e-2;
-            
-            f.setNumParticles(5000000);
-            
-            testUtils = TestUtilsAdditiveNoiseMeasurementModel();
-            testUtils.checkUpdateStateDecomp(obj, f, tol);
+            % With state decomposition
+            obj.testUpdateAdditiveNoiseMeasurementModelConfiguration(true);
         end
     end
     
     methods (Access = 'protected')
         function f = initFilter(~)
             f = GPF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestGaussianFilter(f);
+            
+            % GPF-related tests
+            obj.verifyEqual(f.getName(), 'GPF');
+            obj.verifyEqual(f.getNumParticles(), 1000);
+        end
+        
+        function [f, tol] = setupNonlinarPrediction(obj)
+            f = obj.initFilter();
+            
+            f.setNumParticles(5000000);
+            
+            tol = 1e-2;
+        end
+        
+        function testUpdateLinearMeasurementModelConfiguration(obj, config)
+            hasMeasMatrix  = config(1);
+            stateDecomp    = config(2);
+            postProcessing = config(3);
+            
+            [initState, measModel, ...
+             measurement, stateDecompDim, ...
+             trueStateMean, trueStateCov] = TestUtilsLinearMeasurementModel.getMeasModelData(hasMeasMatrix, stateDecomp);
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            
+            tol = 1e-2;
+            
+            f.setState(initState);
+            
+            if stateDecomp
+                f.setStateDecompDim(stateDecompDim);
+            end
+            
+            if postProcessing
+                f.setUpdatePostProcessing(@TestGaussianFilter.postProcessingScale);
+            end
+            
+            f.update(measModel, measurement);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            if postProcessing
+                [trueStateMean, ...
+                 trueStateCov] = TestGaussianFilter.postProcessingScale(trueStateMean, trueStateCov);
+            end
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
+        end
+        
+        function testUpdateAdditiveNoiseMeasurementModelConfiguration(obj, stateDecomp)
+            [initState, measModel, ...
+             measurement, stateDecompDim, ...
+             trueStateMean, trueStateCov] = TestUtilsAdditiveNoiseMeasurementModel.getMeasModelData(stateDecomp);
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            
+            tol = 1e-2;
+            
+            f.setState(initState);
+            
+            if stateDecomp
+                f.setStateDecompDim(stateDecompDim);
+            end
+            
+            f.update(measModel, measurement);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
         end
     end
 end

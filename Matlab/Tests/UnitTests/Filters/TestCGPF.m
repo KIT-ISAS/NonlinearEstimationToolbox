@@ -28,45 +28,58 @@ classdef TestCGPF < TestGPF
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
+        function testStepAdditiveNoiseSystemModel(obj)
+            getStepData = @() TestUtilsStep.getAdditiveNoiseSystemModelData;
             
-            obj.verifyEqual(f.getName(), 'CGPF');
-            obj.verifyEqual(f.getNumParticles(), 1000);
+            obj.testStep(getStepData);
         end
         
-        
-        function testStepAddNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
+        function testStepSystemModel(obj)
+            getStepData = @() TestUtilsStep.getSystemModelData;
             
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkAdditiveNoiseSystemModel(obj, f, tol);
+            obj.testStep(getStepData);
         end
         
-        function testStepSysModel(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
+        function testStepMixedNoiseSystemModel(obj)
+            getStepData = @() TestUtilsStep.getMixedNoiseSystemModelData;
             
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkSystemModel(obj, f, tol);
-        end
-        
-        function testStepMixedNoiseSysModel(obj)
-            f   = obj.initFilter();
-            tol = 0.5;
-            
-            f.setNumParticles(5000000);
-            
-            TestUtilsStep.checkMixedNoiseSystemModel(obj, f, tol);
+            obj.testStep(getStepData);
         end
     end
     
     methods (Access = 'protected')
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestGaussianFilter(f);
+            
+            % CGPF-related tests
+            obj.verifyEqual(f.getName(), 'CGPF');
+            obj.verifyEqual(f.getNumParticles(), 1000);
+        end
+        
         function f = initFilter(~)
             f = CGPF();
+        end
+        
+        function testStep(obj, getStepData)
+            [initState, sysModel, ...
+             measModel, measurement, ...
+             trueStateMean, trueStateCov] = getStepData();
+            
+            f = obj.initFilter();
+            f.setNumParticles(1e7);
+            
+            tol = 0.5;
+            
+            f.setState(initState);
+            
+            f.step(sysModel, measModel, measurement);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            obj.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            obj.verifyEqual(stateCov, stateCov');
+            obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
         end
     end
 end

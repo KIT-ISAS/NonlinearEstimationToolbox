@@ -1,5 +1,5 @@
 
-classdef TestCKF < TestKFSubclasses
+classdef TestCKF < TestIterativeKalmanFilter
     % Provides unit tests for the CKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -27,17 +27,17 @@ classdef TestCKF < TestKFSubclasses
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
-            
-            obj.verifyEqual(f.getName(), 'CKF');
-        end
-    end
-    
     methods (Access = 'protected')
         function f = initFilter(~)
             f = CKF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % CKF-related tests
+            obj.verifyEqual(f.getName(), 'CKF');
         end
     end
 end

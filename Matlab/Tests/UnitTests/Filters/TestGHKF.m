@@ -1,5 +1,5 @@
 
-classdef TestGHKF < TestKFSubclasses
+classdef TestGHKF < TestIterativeKalmanFilter
     % Provides unit tests for the GHKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,18 +28,7 @@ classdef TestGHKF < TestKFSubclasses
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
-            f = obj.initFilter();
-            
-            obj.verifyEqual(f.getName(), 'GHKF');
-            
-            [numPointsPrediction, numPointsUpdate] = f.getNumQuadraturePoints();
-            
-            obj.verifyEqual(numPointsPrediction, 2);
-            obj.verifyEqual(numPointsUpdate, 2);
-        end
-        
-        function testSetNumQuadraturePointsDefault(obj)
+        function testSetNumQuadraturePoints(obj)
             f = obj.initFilter();
             
             f.setNumQuadraturePoints(3);
@@ -50,7 +39,7 @@ classdef TestGHKF < TestKFSubclasses
             obj.verifyEqual(numPointsUpdate, 3);
         end
         
-        function testSetNumQuadraturePoints(obj)
+        function testSetNumQuadraturePointsBoth(obj)
             f = obj.initFilter();
             
             f.setNumQuadraturePoints(4, 3);
@@ -65,6 +54,20 @@ classdef TestGHKF < TestKFSubclasses
     methods (Access = 'protected')
         function f = initFilter(~)
             f = GHKF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % GHKF-related tests
+            obj.verifyEqual(f.getName(), 'GHKF');
+            
+            [numPointsPrediction, ...
+             numPointsUpdate] = f.getNumQuadraturePoints();
+            
+            obj.verifyEqual(numPointsPrediction, 2);
+            obj.verifyEqual(numPointsUpdate, 2);
         end
     end
 end

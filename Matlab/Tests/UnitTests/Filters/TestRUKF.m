@@ -1,5 +1,5 @@
 
-classdef TestRUKF < TestKFSubclasses
+classdef TestRUKF < TestIterativeKalmanFilter
     % Provides unit tests for the RUKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -28,43 +28,48 @@ classdef TestRUKF < TestKFSubclasses
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testConstructorDefault(obj)
+        function testSetNumSamplesFactors(obj)
             f = obj.initFilter();
             
-            obj.verifyEqual(f.getName(), 'RUKF');
+            f.setNumSamplesFactors(10);
             
-            [numIterationsPrediction, numIterationsUpdate] = f.getNumIterations();
+            [factorPrediction, ...
+             factorUpdate] = f.getNumSamplesFactors();
             
-            obj.verifyEqual(numIterationsPrediction, 5);
-            obj.verifyEqual(numIterationsUpdate, 5);
+            obj.verifyEqual(factorPrediction, 10);
+            obj.verifyEqual(factorUpdate, 10);
         end
         
-        function testSetNumIterationsDefault(obj)
+        function testSetNumSamplesFactorsBoth(obj)
             f = obj.initFilter();
             
-            f.setNumIterations(10);
+            f.setNumSamplesFactors(10, 6);
             
-            [numIterationsPrediction, numIterationsUpdate] = f.getNumIterations();
+            [factorPrediction, ...
+             factorUpdate] = f.getNumSamplesFactors();
             
-            obj.verifyEqual(numIterationsPrediction, 10);
-            obj.verifyEqual(numIterationsUpdate, 10);
-        end
-        
-        function testSetNumIterations(obj)
-            f = obj.initFilter();
-            
-            f.setNumIterations(10, 6);
-            
-            [numIterationsPrediction, numIterationsUpdate] = f.getNumIterations();
-            
-            obj.verifyEqual(numIterationsPrediction, 10);
-            obj.verifyEqual(numIterationsUpdate, 6);
+            obj.verifyEqual(factorPrediction, 10);
+            obj.verifyEqual(factorUpdate, 6);
         end
     end
     
     methods (Access = 'protected')
         function f = initFilter(~)
             f = RUKF();
+        end
+        
+        function defaultConstructorTests(obj, f)
+            % Call superclass tests
+            obj.defaultConstructorTests@TestIterativeKalmanFilter(f);
+            
+            % RUKF-related tests
+            obj.verifyEqual(f.getName(), 'RUKF');
+            
+            [factorPrediction, ...
+             factorUpdate] = f.getNumSamplesFactors();
+            
+            obj.verifyEqual(factorPrediction, 5);
+            obj.verifyEqual(factorUpdate, 5);
         end
     end
 end

@@ -28,63 +28,75 @@ classdef TestUtilsLinearSystemModel
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkPrediction(test, filter, tol)
+        function testPrediction(test, setupPrediction)
             configs    = logical(dec2bin(0:7) - '0');
             numConfigs = 8;
             
             for i = 1:numConfigs
-                TestUtilsLinearSystemModel.checkPredictionConfig(configs(i, :), test, filter, tol);
+                TestUtilsLinearSystemModel.testPredictionConfiguration(configs(i, :), test, setupPrediction);
             end
         end
-    end
-    
-    methods (Static, Access = 'private')
-        function checkPredictionConfig(config, test, f, tol)
-            sysMat   = config(1);
-            input    = config(2);
-            noiseMat = config(3);
+        
+        function [initState, sysModel, ...
+                  trueStateMean, trueStateCov] = getSysModelData(hasSysMat, hasSysNoiseMat, hasInput)
+            initState = Gaussian(TestUtilsLinearSystemModel.initMean, ...
+                                 TestUtilsLinearSystemModel.initCov);
             
             sysModel = LinearSystemModel();
             sysModel.setNoise(TestUtilsLinearSystemModel.sysNoise);
             
             [noiseMean, noiseCov] = TestUtilsLinearSystemModel.sysNoise.getMeanAndCov();
             
-            if sysMat
+            if hasSysMat
                 sysModel.setSystemMatrix(TestUtilsLinearSystemModel.sysMatrix);
                 
-                trueMean = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initMean;
-                trueCov  = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initCov * TestUtilsLinearSystemModel.sysMatrix';
+                trueStateMean = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initMean;
+                trueStateCov  = TestUtilsLinearSystemModel.sysMatrix * TestUtilsLinearSystemModel.initCov * TestUtilsLinearSystemModel.sysMatrix';
             else
-                trueMean = TestUtilsLinearSystemModel.initMean;
-                trueCov  = TestUtilsLinearSystemModel.initCov;
+                trueStateMean = TestUtilsLinearSystemModel.initMean;
+                trueStateCov  = TestUtilsLinearSystemModel.initCov;
             end
             
-            if input
+            if hasInput
                 sysModel.setSystemInput(TestUtilsLinearSystemModel.sysInput);
                 
-                trueMean = trueMean + TestUtilsLinearSystemModel.sysInput;
+                trueStateMean = trueStateMean + TestUtilsLinearSystemModel.sysInput;
             end
             
-            if noiseMat
+            if hasSysNoiseMat
                 sysModel.setSystemNoiseMatrix(TestUtilsLinearSystemModel.sysNoiseMatrix);
                 
-                trueMean = trueMean + TestUtilsLinearSystemModel.sysNoiseMatrix * noiseMean;
-                trueCov  = trueCov + TestUtilsLinearSystemModel.sysNoiseMatrix * noiseCov * TestUtilsLinearSystemModel.sysNoiseMatrix';
+                trueStateMean = trueStateMean + TestUtilsLinearSystemModel.sysNoiseMatrix * noiseMean;
+                trueStateCov  = trueStateCov + TestUtilsLinearSystemModel.sysNoiseMatrix * noiseCov * TestUtilsLinearSystemModel.sysNoiseMatrix';
             else
-                trueMean = trueMean + noiseMean;
-                trueCov  = trueCov + noiseCov;
+                trueStateMean = trueStateMean + noiseMean;
+                trueStateCov  = trueStateCov + noiseCov;
             end
+        end
+    end
+    
+    methods (Static, Access = 'private')
+        function testPredictionConfiguration(config, test, setupPrediction)
+            hasSysMat      = config(1);
+            hasInput       = config(2);
+            hasSysNoiseMat = config(3);
             
-            f.setState(Gaussian(TestUtilsLinearSystemModel.initMean, ...
-                                TestUtilsLinearSystemModel.initCov));
+            [initState, sysModel, ...
+             trueStateMean, trueStateCov] = TestUtilsLinearSystemModel.getSysModelData(hasSysMat, ...
+                                                                                       hasSysNoiseMat, ...
+                                                                                       hasInput);
+            
+            [f, tol] = setupPrediction();
+            
+            f.setState(initState);
             
             f.predict(sysModel);
             
             [stateMean, stateCov] = f.getStateMeanAndCov();
             
-            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
+            test.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
             test.verifyEqual(stateCov, stateCov');
-            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
+            test.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
         end
     end
     

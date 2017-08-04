@@ -28,26 +28,36 @@ classdef TestUtilsAdditiveNoiseSystemModel
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Static)
-        function checkPrediction(test, f, tol)
+        function testPrediction(test, setupPrediction)
+            [initState, sysModel, ...
+             trueStateMean, trueStateCov] = TestUtilsAdditiveNoiseSystemModel.getSysModelData();
+            
+            [f, tol] = setupPrediction();
+            
+            f.setState(initState);
+            
+            f.predict(sysModel);
+            
+            [stateMean, stateCov] = f.getStateMeanAndCov();
+            
+            test.verifyEqual(stateMean, trueStateMean, 'RelTol', tol);
+            test.verifyEqual(stateCov, stateCov');
+            test.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
+        end
+        
+        function [initState, sysModel, ...
+                  trueStateMean, trueStateCov] = getSysModelData()
+            initState = Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
+                                 TestUtilsAdditiveNoiseSystemModel.initCov);
+            
             sysModel = AddNoiseSysModel();
             sysModel.setNoise(TestUtilsAdditiveNoiseSystemModel.sysNoise);
             
             mat                   = sysModel.sysMatrix;
             [noiseMean, noiseCov] = TestUtilsAdditiveNoiseSystemModel.sysNoise.getMeanAndCov();
             
-            trueMean = mat * TestUtilsAdditiveNoiseSystemModel.initMean + noiseMean;
-            trueCov  = mat * TestUtilsAdditiveNoiseSystemModel.initCov * mat' + noiseCov;
-            
-            f.setState(Gaussian(TestUtilsAdditiveNoiseSystemModel.initMean, ...
-                                TestUtilsAdditiveNoiseSystemModel.initCov));
-            
-            f.predict(sysModel);
-            
-            [stateMean, stateCov] = f.getStateMeanAndCov();
-            
-            test.verifyEqual(stateMean, trueMean, 'RelTol', tol);
-            test.verifyEqual(stateCov, stateCov');
-            test.verifyEqual(stateCov, trueCov, 'RelTol', tol);
+            trueStateMean = mat * TestUtilsAdditiveNoiseSystemModel.initMean + noiseMean;
+            trueStateCov  = mat * TestUtilsAdditiveNoiseSystemModel.initCov * mat' + noiseCov;
         end
     end
     

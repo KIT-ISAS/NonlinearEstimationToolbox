@@ -1,5 +1,5 @@
 
-classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
+classdef TestUtilsLinearMeasurementModel
     % Provides test utilities for the LinearMeasurementModel class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
@@ -27,105 +27,66 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
-        function checkUpdate(obj, test, filter, tol)
-            obj.hasMeasMatrix = false;
-            obj.checkUpdateConfig(false, test, filter, tol);
-            
-            obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(false, test, filter, tol);
-        end
-        
-        function checkUpdateStateDecomp(obj, test, filter, tol)
-            % State decomposition enabled
-            % => no identity measurement matrix possible
-            obj.hasMeasMatrix = true;
-            obj.checkUpdateConfig(true, test, filter, tol);
-        end
-        
-        
-        function checkUpdateKF(obj, test, createFilter)
-            configs    = logical(dec2bin(0:7) - '0');
-            numConfigs = 8;
-            
-            for i = 1:numConfigs
-                filter = createFilter();
-                
-                if configs(i, 1)
-                    % State decomposition enabled
-                    % => no identity measurement matrix possible
-                    obj.hasMeasMatrix = true;
-                    obj.checkUpdateConfigKF(configs(i, :), test, filter);
-                else
-                    obj.hasMeasMatrix = false;
-                    obj.checkUpdateConfigKF(configs(i, :), test, filter);
-                    
-                    obj.hasMeasMatrix = true;
-                    obj.checkUpdateConfigKF(configs(i, :), test, filter);
-                end
-            end
-        end
-    end
-    
-    methods (Access = 'protected')
-        function [initState, measModel, measurement,  ...
+    methods (Static)
+        function [initState, measModel, ...
+                  measurement, stateDecompDim, ...
                   trueStateMean, trueStateCov, ...
-                  trueMeasMean, trueMeasCov, trueCrossCov] = updateConfig(obj, stateDecomp)
-            initState = Gaussian(obj.initMean, obj.initCov);
+                  trueMeasMean, trueMeasCov] = getMeasModelData(hasMeasMatrix, stateDecomp)
+            if nargin < 2
+                stateDecomp = false;
+            end
+            
+            initState = Gaussian(TestUtilsLinearMeasurementModel.initMean, ...
+                                 TestUtilsLinearMeasurementModel.initCov);
             
             measModel = LinearMeasurementModel();
             
-            if obj.hasMeasMatrix
+            if hasMeasMatrix
                 if stateDecomp
-                    measModel.setMeasurementMatrix(obj.measMatrixStateDecomp);
-                    mat = [obj.measMatrixStateDecomp zeros(3, 1)];
+                    stateDecompDim = 1;
+                    
+                    measModelMat = TestUtilsLinearMeasurementModel.measMatrixStateDecomp;
+                    measModel.setMeasurementMatrix(measModelMat);
+                    mat = [measModelMat zeros(3, 1)];
                 else
-                    measModel.setMeasurementMatrix(obj.measMatrix);
-                    mat = obj.measMatrix;
+                    stateDecompDim = 0;
+                    
+                    measModelMat = TestUtilsLinearMeasurementModel.measMatrix;
+                    measModel.setMeasurementMatrix(measModelMat);
+                    mat = measModelMat;
                 end
                 
-                measModel.setNoise(obj.measNoise3D);
-                [noiseMean, noiseCov] = obj.measNoise3D.getMeanAndCov();
+                measModel.setNoise(TestUtilsLinearMeasurementModel.measNoise3D);
+                [noiseMean, noiseCov] = TestUtilsLinearMeasurementModel.measNoise3D.getMeanAndCov();
                 
-                trueMeasMean   = mat * obj.initMean + noiseMean;
-                trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
+                trueMeasMean   = mat * TestUtilsLinearMeasurementModel.initMean + noiseMean;
+                trueMeasCov    = mat * TestUtilsLinearMeasurementModel.initCov * mat' + noiseCov;
                 invTrueMeasCov = trueMeasCov \ eye(3);
-                crossCov       = obj.initCov * mat';
+                crossCov       = TestUtilsLinearMeasurementModel.initCov * mat';
                 
-                measurement = obj.measurement3D;
-                
-                if stateDecomp
-                    % If state decomposition is enabled, the true
-                    % cross-covariance matirx is
-                    trueCrossCov = crossCov(1, :);
-                else
-                    trueCrossCov = crossCov;
-                end
+                measurement = TestUtilsLinearMeasurementModel.meas3D;
             else
+                % Identity measurement matrix => no state decomposition is possible
+                stateDecompDim = 0;
+                
                 mat = eye(2);
                 
-                measModel.setNoise(obj.measNoise2D);
-                [noiseMean, noiseCov] = obj.measNoise2D.getMeanAndCov();
+                measModel.setNoise(TestUtilsLinearMeasurementModel.measNoise2D);
+                [noiseMean, noiseCov] = TestUtilsLinearMeasurementModel.measNoise2D.getMeanAndCov();
                 
-                trueMeasMean   = mat * obj.initMean + noiseMean;
-                trueMeasCov    = mat * obj.initCov * mat' + noiseCov;
+                trueMeasMean   = mat * TestUtilsLinearMeasurementModel.initMean + noiseMean;
+                trueMeasCov    = mat * TestUtilsLinearMeasurementModel.initCov * mat' + noiseCov;
                 invTrueMeasCov = trueMeasCov \ eye(2);
-                crossCov       = obj.initCov * mat';
+                crossCov       = TestUtilsLinearMeasurementModel.initCov * mat';
                 
-                measurement = obj.measurement2D;
-                
-                trueCrossCov = crossCov;
+                measurement = TestUtilsLinearMeasurementModel.meas2D;
             end
             
             K = crossCov * invTrueMeasCov;
             
-            trueStateMean = obj.initMean + K * (measurement - trueMeasMean);
-            trueStateCov  = obj.initCov  - K * crossCov';
+            trueStateMean = TestUtilsLinearMeasurementModel.initMean + K * (measurement - trueMeasMean);
+            trueStateCov  = TestUtilsLinearMeasurementModel.initCov  - K * crossCov';
         end
-    end
-    
-    properties (Access = 'private')
-        hasMeasMatrix;
     end
     
     properties (Constant, Access = 'private')
@@ -143,7 +104,7 @@ classdef TestUtilsLinearMeasurementModel < TestUtilsMeasurementModels
         measNoise3D = Gaussian([2 -1 3]', [ 2.0 -0.5 0.2
                                            -0.5  1.3 0.0
                                             0.2  0.0 3.0]);
-        measurement2D  = [ 3 -4]';
-        measurement3D  = [15 -0.9 -3]';
+        meas2D = [ 3 -4]';
+        meas3D = [15 -0.9 -3]';
     end
 end
