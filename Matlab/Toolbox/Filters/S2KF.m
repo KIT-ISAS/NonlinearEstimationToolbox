@@ -1,31 +1,38 @@
 
-classdef S2KF < LRKF
-    % The Smart Sampling Kalman Filter (S²KF)
+classdef S2KF < SampleBasedIterativeKalmanFilter & SmartSamplingLinearGaussianFilter
+    % The smart sampling Kalman filter (S²KF)
     %
     % S2KF Methods:
-    %   S2KF                       - Class constructor.
-    %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
-    %   setNumSamples              - Set an absolute number of samples used by the S2KF for prediction and upate.
-    %   setNumSamplesByFactor      - Set a linear factor to determine the number of samples used by the S2KF for prediction and upate.
-    %   setSymmetricMode           - Select between point-symmetric and asymmetric sampling.
+    %   S2KF                          - Class constructor.
+    %   copy                          - Copy a Filter instance.
+    %   copyWithName                  - Copy a Filter instance and give the copy a new name/description.
+    %   getName                       - Get the filter name/description.
+    %   setColor                      - Set the filter color/plotting properties.
+    %   getColor                      - Get the filter color/plotting properties.
+    %   setState                      - Set the system state.
+    %   getState                      - Get the system state.
+    %   getStateDim                   - Get the dimension of the system state.
+    %   getStateMeanAndCov            - Get mean and covariance matrix of the system state.
+    %   predict                       - Perform a state prediction.
+    %   update                        - Perform a measurement update.
+    %   step                          - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim             - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim             - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing   - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing   - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing       - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing       - Get the post-processing method for the measurement update.
+    %   setMeasGatingThreshold        - Set the measurement gating threshold.
+    %   getMeasGatingThreshold        - Get the measurement gating threshold.
+    %   setMaxNumIterations           - Set the maximum number of iterations that will be performed by a measurement update.
+    %   getMaxNumIterations           - Get the maximum number of iterations that will be performed by a measurement update.
+    %   getNumIterations              - Get number of iterations performed by the last measurement update.
+    %   setConvergenceCheck           - Set a convergence check to determine if no further iterations are required.
+    %   getConvergenceCheck           - Get the convergence check.
+    %   setNumSamples                 - Set absolute numbers of samples used for state prediction and measurement update.
+    %   setNumSamplesByFactors        - Set linear factors to determine the number of samples used for state prediction and measurement update.
+    %   getNumSamplesConfigPrediction - Get the number of samples configuration used for the state prediction.
+    %   getNumSamplesConfigUpdate     - Get the number of samples configuration used for the measurement update.
     
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
@@ -83,250 +90,9 @@ classdef S2KF < LRKF
                 name = 'S2KF';
             end
             
-            samplingPred = GaussianSamplingLCD();
-            samplingUp   = GaussianSamplingLCD();
-            
-            % By default, determine the number of samples for prediction
-            % and update by using a factor of 10.
-            samplingPred.setNumSamplesByFactor(10);
-            samplingUp.setNumSamplesByFactor(10);
-            
-            % By default, the symmetric sampling mode is used.
-            samplingPred.setSymmetricMode(true);
-            samplingUp.setSymmetricMode(true);
-            
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-        end
-        
-        function setNumSamples(obj, numSamplesPrediction, numSamplesUpdate)
-            % Set an absolute number of samples used by the S2KF for prediction and upate.
-            %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined by a linear factor (see setNumSamplesByFactor()).
-            %
-            % By default, a linear factor 10 is used for prediction and update.
-            %
-            % Parameters:
-            %    >> numSamplesPrediction (Positive scalar)
-            %       The new absolute number of samples used for the prediction.
-            %
-            %    >> numSamplesUpdate (Positive scalar)
-            %       The new absolute number of samples used for the update.
-            %       Default: the same number of samples specified for the prediction.
-            
-            obj.samplingPrediction.setNumSamples(numSamplesPrediction);
-            
-            if nargin == 3
-                obj.samplingUpdate.setNumSamples(numSamplesUpdate);
-            else
-                obj.samplingUpdate.setNumSamples(numSamplesPrediction);
-            end
-        end
-        
-        function setNumSamplesByFactor(obj, factorPrediction, factorUpdate)
-            % Set a linear factor to determine the number of samples used by the S2KF for prediction and upate.
-            %
-            % The actual number of samples will be computed according to
-            %
-            %    Number of samples = factor * dimension
-            %
-            % This overwrites a possible previous setting, where the number of samples
-            % are determined in an absolute way (see setNumSamples()).
-            %
-            % By default, a linear factor 10 is used for prediction and update.
-            %
-            % Parameters:
-            %    >> factorPrediction (Positive scalar)
-            %       The new linear factor to determine the number of samples for the prediction.
-            %
-            %    >> factorUpdate (Positive scalar)
-            %       The new linear factor to determine the number of samples for the update.
-            %       Default: the same factor specified for the prediction.
-            
-            obj.samplingPrediction.setNumSamplesByFactor(factorPrediction);
-            
-            if nargin == 3
-                obj.samplingUpdate.setNumSamplesByFactor(factorUpdate);
-            else
-                obj.samplingUpdate.setNumSamplesByFactor(factorPrediction);
-            end
-        end
-        
-        function setSymmetricMode(obj, useSymmetric)
-            % Select between point-symmetric and asymmetric sampling.
-            %
-            % By default, the recommended point-symmetric sampling mode is used.
-            %
-            % Parameters:
-            %   >> useSymmetric (Logcial scalar)
-            %      If true, the symmetric Gaussian LCD sampling scheme is used.
-            %      Otherwise, the asymmetric one is used.
-            
-            obj.samplingPrediction.setSymmetricMode(useSymmetric);
-            obj.samplingUpdate.setSymmetricMode(useSymmetric);
-        end
-    end
-    
-    methods (Access = 'protected')
-        % We overwrite the moment computations for the state prediction and
-        % the measurement update in order to exploit the fact that all samples
-        % used by the S²KF are equally weighted. This reduces runtime and has
-        % numerical benefits.
-        
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
-            [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
-            
-            % Generate state and noise samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             noiseSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingPrediction, ...
-                                                      obj.stateMean, obj.stateCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
-            
-            % Propagate samples through system equation
-            predictedStates = sysModel.systemEquation(stateSamples, noiseSamples);
-            
-            % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
-            
-            % Compute predicted state mean and covariance
-            [predictedStateMean, ...
-             predictedStateCov] = Utils.getMeanAndCov(predictedStates);
-        end
-        
-        function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
-            [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
-            dimNoise = size(noiseMean, 1);
-            
-            obj.checkAdditiveSysNoise(dimNoise);
-            
-            % Generate state samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateSamples(obj.samplingPrediction, ...
-                                                 obj.stateMean, obj.stateCovSqrt);
-            
-            % Propagate samples through deterministic system equation
-            predictedStates = sysModel.systemEquation(stateSamples);
-            
-            % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
-            
-            [mean, cov] = Utils.getMeanAndCov(predictedStates);
-            
-            % Compute predicted state mean
-            predictedStateMean = mean + noiseMean;
-            
-            % Compute predicted state covariance
-            predictedStateCov = cov + noiseCov;
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                                iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                                measModel, dimMeas, noiseMean, noiseCovSqrt)
-            % Generate state and noise samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             noiseSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingUpdate, ...
-                                                      iterMean, iterCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
-            
-            % Propagate samples through measurement equation
-            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
-            
-            % Check computed measurements
-            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
-            
-            [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                              measSamples);
-            
-            if iterNum > 1
-                [measMean, measCov, ...
-                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
-                                                          iterMean, iterCov, iterCovSqrt, ...
-                                                          measMean, measCov, stateMeasCrossCov);
-            end
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                               iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                               measModel, dimMeas, noiseMean, noiseCov)
-            % Generate state samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateSamples(obj.samplingUpdate, ...
-                                                 iterMean, iterCovSqrt);
-            
-            % Propagate samples through deterministic measurement equation
-            measSamples = measModel.measurementEquation(stateSamples);
-            
-            % Check computed measurements
-            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
-            
-            [mean, cov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                              measSamples);
-            
-            % Compute measurement mean
-            measMean = mean + noiseMean;
-            
-            % Compute measurement covariance
-            measCov = cov + noiseCov;
-            
-            if iterNum > 1
-                [measMean, measCov, ...
-                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
-                                                          iterMean, iterCov, iterCovSqrt, ...
-                                                          measMean, measCov, stateMeasCrossCov);
-            end
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                            iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                            measModel, dimMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
-            % Generate state and noise samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             noiseSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingUpdate, ...
-                                                      iterMean, iterCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
-            
-            % Propagate samples through measurement equation
-            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
-            
-            % Check computed measurements
-            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
-            
-            [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(iterMean, stateSamples, ...
-                                                              measSamples);
-            
-            % Compute measurement mean
-            measMean = measMean + addNoiseMean;
-            
-            % Compute measurement covariance
-            measCov = measCov + addNoiseCov;
-            
-            if iterNum > 1
-                [measMean, measCov, ...
-                 stateMeasCrossCov] = KF.momentCorrection(priorMean, priorCov, priorCovSqrt, ...
-                                                          iterMean, iterCov, iterCovSqrt, ...
-                                                          measMean, measCov, stateMeasCrossCov);
-            end
+            % Call superclass constructors
+            obj = obj@SampleBasedIterativeKalmanFilter(name);
+            obj = obj@SmartSamplingLinearGaussianFilter(name);
         end
     end
 end

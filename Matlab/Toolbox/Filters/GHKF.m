@@ -1,30 +1,36 @@
 
-classdef GHKF < LRKF
-    % The Gauss-Hermite Kalman Filter (GHKF).
+classdef GHKF < SampleBasedIterativeKalmanFilter & GaussHermiteLinearGaussianFilter
+    % The Gauss-Hermite Kalman filter (GHKF).
     %
     % GHKF Methods:
-    %   GHKF                       - Class constructor.
-    %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
-    %   setNumQuadraturePoints     - Set the number of quadrature points for prediction and update.
-    %   getNumQuadraturePoints     - Get the current number of quadrature points for prediction and update.
+    %   GHKF                        - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setMeasGatingThreshold      - Set the measurement gating threshold.
+    %   getMeasGatingThreshold      - Get the measurement gating threshold.
+    %   setMaxNumIterations         - Set the maximum number of iterations that will be performed by a measurement update.
+    %   getMaxNumIterations         - Get the maximum number of iterations that will be performed by a measurement update.
+    %   getNumIterations            - Get number of iterations performed by the last measurement update.
+    %   setConvergenceCheck         - Set a convergence check to determine if no further iterations are required.
+    %   getConvergenceCheck         - Get the convergence check.
+    %   setNumQuadraturePoints      - Set the number of quadrature points used for state prediction and measurement update.
+    %   getNumQuadraturePoints      - Get the number of quadrature points used for state prediction and measurement update.
     
     % Literature:
     %   Kazufumi Ito and Kaiqi Xiong,
@@ -78,47 +84,9 @@ classdef GHKF < LRKF
                 name = 'GHKF';
             end
             
-            samplingPred = GaussianSamplingGHQ();
-            samplingUp   = GaussianSamplingGHQ();
-            
-            % Call superclass constructor
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-        end
-        
-        function setNumQuadraturePoints(obj, numPointsPrediction, numPointsUpdate)
-            % Set the number of quadrature points for prediction and update.
-            %
-            % By default, 2 quadrature points are used for prediction and update.
-            %
-            % Parameters:
-            %   >> numPointsPrediction (Scalar in { 2, 3, 4 })
-            %      The new number of quadrature points used for the prediction.
-            %
-            %   >> numPointsUpdate (Scalar in { 2, 3, 4 })
-            %      The new number of quadrature points used for the update.
-            %      Default: the same number of quadrature points specified for the prediction.
-            
-            obj.samplingPrediction.setNumQuadraturePoints(numPointsPrediction);
-            
-            if nargin == 3
-                obj.samplingUpdate.setNumQuadraturePoints(numPointsUpdate);
-            else
-                obj.samplingUpdate.setNumQuadraturePoints(numPointsPrediction);
-            end
-        end
-        
-        function [numPointsPrediction, numPointsUpdate] = getNumQuadraturePoints(obj)
-            % Get the current number of quadrature points for prediction and update.
-            %
-            % Returns:
-            %   << numPointsPrediction (Scalar in { 2, 3, 4 })
-            %      The current number of quadrature points for the prediction.
-            %
-            %   << numPointsUpdate (Scalar in { 2, 3, 4 })
-            %      The current number of quadrature points for the update.
-            
-            numPointsPrediction = obj.samplingPrediction.getNumQuadraturePoints();
-            numPointsUpdate     = obj.samplingUpdate.getNumQuadraturePoints();
+            % Call superclass constructors
+            obj = obj@SampleBasedIterativeKalmanFilter(name);
+            obj = obj@GaussHermiteLinearGaussianFilter(name);
         end
     end
 end

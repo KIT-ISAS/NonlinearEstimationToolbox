@@ -1,30 +1,36 @@
 
-classdef RUKF < LRKF
-    % The Randomized Unscented Kalman Filter (RUKF).
+classdef RUKF < SampleBasedIterativeKalmanFilter & RandomizedUnscentedLinearGaussianFilter
+    % The randomized unscented Kalman filter (RUKF).
     %
     % RUKF Methods:
-    %   RUKF                       - Class constructor.
-    %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
-    %   setNumIterations           - Set the number of iterations used for prediction and update.
-    %   getNumIterations           - Get the current number of iterations used for prediction and update.
+    %   RUKF                        - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setMeasGatingThreshold      - Set the measurement gating threshold.
+    %   getMeasGatingThreshold      - Get the measurement gating threshold.
+    %   setMaxNumIterations         - Set the maximum number of iterations that will be performed by a measurement update.
+    %   getMaxNumIterations         - Get the maximum number of iterations that will be performed by a measurement update.
+    %   getNumIterations            - Get number of iterations performed by the last measurement update.
+    %   setConvergenceCheck         - Set a convergence check to determine if no further iterations are required.
+    %   getConvergenceCheck         - Get the convergence check.
+    %   setNumSamplesFactors        - Set the linear factors to determine the number of samples used for state prediction and measurement update.
+    %   getNumSamplesFactors        - Get the linear factors to determine the number of samples used for state prediction and measurement upate.
     
     % Literature:
     %   Jindrich Dunik, Ondrej Straka, and Miroslav Simandl,
@@ -79,50 +85,9 @@ classdef RUKF < LRKF
                 name = 'RUKF';
             end
             
-            samplingPred = GaussianSamplingRUKF();
-            samplingUp   = GaussianSamplingRUKF();
-            
-            % By default, 5 iterations are used for prediction and update.
-            samplingPred.setNumIterations(5);
-            samplingUp.setNumIterations(5);
-            
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-        end
-        
-        function setNumIterations(obj, numIterationsPrediction, numIterationsUpdate)
-            % Set the number of iterations used for prediction and update.
-            %
-            % By default, 5 iterations are used for prediction and update.
-            %
-            % Parameters:
-            %   >> numIterationsPrediction (Positive scalar)
-            %      The new number of iterations used for the prediction.
-            %
-            %   >> numIterationsUpdate (Positive scalar)
-            %      The new number of iterations used for the update.
-            %      Default: the same number of iterations specified for the prediction.
-            
-            obj.samplingPrediction.setNumIterations(numIterationsPrediction);
-            
-            if nargin == 3
-                obj.samplingUpdate.setNumIterations(numIterationsUpdate);
-            else
-                obj.samplingUpdate.setNumIterations(numIterationsPrediction);
-            end
-        end
-        
-        function [numIterationsPrediction, numIterationsUpdate] = getNumIterations(obj)
-            % Get the current number of iterations for prediction and update.
-            %
-            % Returns:
-            %   << numIterationsPrediction (Positive scalar)
-            %      The current number of iterations used for the prediction.
-            %
-            %   << numIterationsUpdate (Positive scalar)
-            %      The current number of iterations used for the update.
-            
-            numIterationsPrediction = obj.samplingPrediction.getNumIterations();
-            numIterationsUpdate     = obj.samplingUpdate.getNumIterations();
+            % Call superclass constructors
+            obj = obj@SampleBasedIterativeKalmanFilter(name);
+            obj = obj@RandomizedUnscentedLinearGaussianFilter(name);
         end
     end
 end

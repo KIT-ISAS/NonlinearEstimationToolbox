@@ -1,30 +1,36 @@
 
-classdef UKF < LRKF
-    % The Unscented Kalman Filter (UKF).
+classdef UKF < SampleBasedIterativeKalmanFilter & UnscentedLinearGaussianFilter
+    % The unscented Kalman filter (UKF).
     %
     % UKF Methods:
-    %   UKF                        - Class constructor.
-    %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
-    %   setSampleScaling           - Set the sample scaling factors for prediction and upate.
-    %   getSampleScaling           - Get the current sample scaling factors for prediction and update.
+    %   UKF                         - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setMeasGatingThreshold      - Set the measurement gating threshold.
+    %   getMeasGatingThreshold      - Get the measurement gating threshold.
+    %   setMaxNumIterations         - Set the maximum number of iterations that will be performed by a measurement update.
+    %   getMaxNumIterations         - Get the maximum number of iterations that will be performed by a measurement update.
+    %   getNumIterations            - Get number of iterations performed by the last measurement update.
+    %   setConvergenceCheck         - Set a convergence check to determine if no further iterations are required.
+    %   getConvergenceCheck         - Get the convergence check.
+    %   setSampleScalings             - Set the sample scaling factors used for state prediction and measurement update.
+    %   getSampleScalings             - Get the sample scaling factors used for state prediction and measurement update.
     
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
@@ -78,59 +84,9 @@ classdef UKF < LRKF
                 name = 'UKF';
             end
             
-            samplingPred = GaussianSamplingUKF();
-            samplingUp   = GaussianSamplingUKF();
-            
-            % Call superclass constructor
-            obj = obj@LRKF(name, samplingPred, samplingUp);
-            
-            % By default, all samples are equally weighted for prediction and update.
-            obj.setSampleScaling(0.5);
-        end
-        
-        function setSampleScaling(obj, scalingPrediction, scalingUpdate)
-            % Set the sample scaling factors for prediction and upate.
-            % 
-            % For example, a scaling factor of 0.5 results in an equal sample
-            % weight for all samples, a factor of 1 results in a double
-            % weighted sample located at the state space origin, and a factor
-            % of 0 results in a zero weight for the sample located at the state
-            % space origin.
-            %
-            % Note: a valid sampling requires a scaling factor larger than -N,
-            % where N denotes the requested dimension of the samples.
-            %
-            % By default, the sample scaling factor is set to 0.5 for prediction and update.
-            %
-            % Parameters:
-            %   >> scalingPrediction (Scalar)
-            %      The new sample scaling factor used for the prediction.
-            %
-            %   >> scalingUpdate (Scalar)
-            %      The new sample scaling factor used for the update.
-            %      Default: the same scaling factor specified for the prediction.
-            
-            obj.samplingPrediction.setSampleScaling(scalingPrediction);
-            
-            if nargin == 3
-                obj.samplingUpdate.setSampleScaling(scalingUpdate);
-            else
-                obj.samplingUpdate.setSampleScaling(scalingPrediction);
-            end
-        end
-        
-        function [scalingPrediction, scalingUpdate] = getSampleScaling(obj)
-            % Get the current sample scaling factors for prediction and update.
-            % 
-            % Returns:
-            %   << scalingPrediction (Scalar)
-            %      The current sample scaling factor for the prediction.
-            %
-            %   << scalingUpdate (Scalar)
-            %      The current sample scaling factor for the update.
-            
-            scalingPrediction = obj.samplingPrediction.getSampleScaling();
-            scalingUpdate     = obj.samplingUpdate.getSampleScaling();
+            % Call superclass constructors
+            obj = obj@SampleBasedIterativeKalmanFilter(name);
+            obj = obj@UnscentedLinearGaussianFilter(name);
         end
     end
 end

@@ -1,28 +1,34 @@
 
-classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
-    % The Extended Kalman Filter (EKF).
+classdef EKF < TaylorBasedIterativeKalmanFilter & FirstOrderTaylorLinearGaussianFilter
+    % The extended Kalman filter (EKF).
     %
     % EKF Methods:
-    %   EKF                        - Class constructor.
-    %   copy                       - Copy a Filter instance.
-    %   copyWithName               - Copy a Filter instance and give the copy a new name / description.
-    %   getName                    - Get the filter name / description.
-    %   setColor                   - Set the filter color / plotting properties.
-    %   getColor                   - Get the current filter color / plotting properties.
-    %   setState                   - Set the system state.
-    %   getState                   - Get the current system state.
-    %   getStateDim                - Get the dimension of the current system state.
-    %   predict                    - Perform a time update (prediction step).
-    %   update                     - Perform a measurement update (filter step) using the given measurement(s).
-    %   step                       - Perform a combined time and measurement update.
-    %   getPointEstimate           - Get a point estimate of the current system state.
-    %   setStateDecompDim          - Set the dimension of the unobservable part of the system state.
-    %   getStateDecompDim          - Get the dimension of the unobservable part of the system state.
-    %   setMaxNumIterations        - Set the maximum number of iterations that will be performed during a measurement update.
-    %   getMaxNumIterations        - Get the current maximum number of iterations that will be performed during a measurement update.
-    %   setMeasValidationThreshold - Set a threshold to perform a measurement validation (measurement acceptance/rejection).
-    %   getMeasValidationThreshold - Get the current measurement validation threshold.
-    %   getLastUpdateData          - Get information from the last performed measurement update.
+    %   EKF                         - Class constructor.
+    %   copy                        - Copy a Filter instance.
+    %   copyWithName                - Copy a Filter instance and give the copy a new name/description.
+    %   getName                     - Get the filter name/description.
+    %   setColor                    - Set the filter color/plotting properties.
+    %   getColor                    - Get the filter color/plotting properties.
+    %   setState                    - Set the system state.
+    %   getState                    - Get the system state.
+    %   getStateDim                 - Get the dimension of the system state.
+    %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   predict                     - Perform a state prediction.
+    %   update                      - Perform a measurement update.
+    %   step                        - Perform a combined state prediction and measurement update.
+    %   setStateDecompDim           - Set the dimension of the unobservable part of the system state.
+    %   getStateDecompDim           - Get the dimension of the unobservable part of the system state.
+    %   setPredictionPostProcessing - Set a post-processing method for the state prediction.
+    %   getPredictionPostProcessing - Get the post-processing method for the state prediction.
+    %   setUpdatePostProcessing     - Set a post-processing method for the measurement update.
+    %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
+    %   setMeasGatingThreshold      - Set the measurement gating threshold.
+    %   getMeasGatingThreshold      - Get the measurement gating threshold.
+    %   setMaxNumIterations         - Set the maximum number of iterations that will be performed by a measurement update.
+    %   getMaxNumIterations         - Get the maximum number of iterations that will be performed by a measurement update.
+    %   getNumIterations            - Get number of iterations performed by the last measurement update.
+    %   setConvergenceCheck         - Set a convergence check to determine if no further iterations are required.
+    %   getConvergenceCheck         - Get the convergence check.
     
     % Literature:
     %   Dan Simon,
@@ -77,132 +83,9 @@ classdef EKF < KF & FOTaylorBasedJointlyGaussianPrediction
                 name = 'EKF';
             end
             
-            % Superclass constructors
-            obj = obj@KF(name);
-            obj = obj@FOTaylorBasedJointlyGaussianPrediction(name);
+            % Call superclass constructors
+            obj = obj@TaylorBasedIterativeKalmanFilter(name);
+            obj = obj@FirstOrderTaylorLinearGaussianFilter(name);
         end 
-    end
-    
-    methods (Access = 'protected')
-        function momentFunc = getMomentFuncArbitraryNoise(obj, measModel, measurement)
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            dimNoise = size(noiseMean, 1);
-            dimMeas  = size(measurement, 1);
-            
-            momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
-                         obj.momentFuncArbitraryNoise(priorMean, priorCov, priorCovSqrt, ...
-                                                      iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                      measModel, dimNoise, dimMeas, noiseMean, noiseCovSqrt);
-        end
-        
-        function momentFunc = getMomentFuncAdditiveNoise(obj, measModel, measurement)
-            [noiseMean, noiseCov] = measModel.noise.getMeanAndCov();
-            dimNoise = size(noiseMean, 1);
-            dimMeas  = size(measurement, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimNoise);
-            
-            momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
-                         obj.momentFuncAdditiveNoise(priorMean, priorCov, priorCovSqrt, ...
-                                                     iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                     measModel, dimMeas, noiseMean, noiseCov);
-        end
-        
-        function momentFunc = getMomentFuncMixedNoise(obj, measModel, measurement)
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
-            dimNoise    = size(noiseMean, 1);
-            dimAddNoise = size(addNoiseMean, 1);
-            dimMeas     = size(measurement, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
-            
-            momentFunc = @(priorMean, priorCov, priorCovSqrt, iterNum, iterMean, iterCov, iterCovSqrt) ...
-                         obj.momentFuncMixedNoise(priorMean, priorCov, priorCovSqrt, ...
-                                                  iterNum, iterMean, iterCov, iterCovSqrt, ...
-                                                  measModel, dimNoise, dimMeas, addNoiseMean, ...
-                                                  addNoiseCov, noiseMean, noiseCovSqrt);
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncArbitraryNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                                ~, iterMean, ~, ~, ...
-                                                                measModel, dimNoise, dimMeas, noiseMean, noiseCovSqrt)
-            dimState = size(iterMean, 1);
-            
-            % Linearize measurement model around current state mean and noise mean
-            [stateJacobian, ...
-             noiseJacobian] = measModel.derivative(iterMean, noiseMean);
-            
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
-            obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
-            
-            % Compute measurement mean
-            measMean = measModel.measurementEquation(iterMean, noiseMean) + ...
-                       stateJacobian * (priorMean - iterMean);
-            
-            % Compute measurement covariance
-            A = stateJacobian * priorCovSqrt;
-            B = noiseJacobian * noiseCovSqrt;
-            
-            measCov = A * A' + B * B';
-            
-            % Compute state measurement cross-covariance
-            stateMeasCrossCov = priorCov * stateJacobian';
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAdditiveNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                               ~, iterMean, ~, ~, ...
-                                                               measModel, dimMeas, noiseMean, noiseCov)
-            dimState = size(iterMean, 1);
-            
-            % Linearize measurement model around current state mean
-            stateJacobian = measModel.derivative(iterMean);
-            
-            % Check computed derivative
-            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
-            
-            % Compute measurement mean
-            measMean = measModel.measurementEquation(iterMean) + noiseMean + ...
-                       stateJacobian * (priorMean - iterMean);
-            
-            % Compute measurement covariance
-            A = stateJacobian * priorCovSqrt;
-            
-            measCov = A * A' + noiseCov;
-            
-            % Compute state measurement cross-covariance
-            stateMeasCrossCov = priorCov * stateJacobian';
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMixedNoise(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                            ~, iterMean, ~, ~, ...
-                                                            measModel, dimNoise, dimMeas, addNoiseMean, addNoiseCov, noiseMean, noiseCovSqrt)
-            dimState = size(iterMean, 1);
-            
-            % Linearize measurement model around current state mean and noise mean
-            [stateJacobian, ...
-             noiseJacobian] = measModel.derivative(iterMean, noiseMean);
-            
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
-            obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
-            
-            % Compute measurement mean
-            measMean = measModel.measurementEquation(iterMean, noiseMean) + addNoiseMean + ...
-                       stateJacobian * (priorMean - iterMean);
-            
-            % Compute measurement covariance
-            A = stateJacobian * priorCovSqrt;
-            B = noiseJacobian * noiseCovSqrt;
-            
-            measCov = A * A' + B * B' + addNoiseCov;
-            
-            % Compute state measurement cross-covariance
-            stateMeasCrossCov = priorCov * stateJacobian';
-        end
     end
 end
