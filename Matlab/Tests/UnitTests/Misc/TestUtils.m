@@ -72,6 +72,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
+        
         function testGetMeanCovAndCrossCov(obj)
             stateMean    = [2 -1]';
             stateSamples = [zeros(2, 1) sqrt(2.5) * eye(2) -sqrt(2.5) * eye(2)];
@@ -154,6 +155,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(stateMeasCrossCov, trueStateMeasCrossCov, 'AbsTol', 1e-12);
         end
         
+        
         function testGetGMMeanAndCovSingleComponent(obj)
             means   = [1 -2]';
             covs    = [2 0.5; 0.5 1.2];
@@ -230,6 +232,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
+        
         function testKalmanUpdate(obj)
             stateMean         = [1, -1]';
             stateCov          = [1.7 -0.5; -0.5 1.3];
@@ -268,6 +271,7 @@ classdef TestUtils < matlab.unittest.TestCase
                                                    measMean, measCov, stateMeasCrossCov), ...
                             'Utils:InvalidMeasurementCovariance');
         end
+        
         
         function testDecomposedStateUpdatePriorUncorrelated(obj)
             % 1D subspace A
@@ -503,6 +507,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(updatedStateCov, trueCov, 'AbsTol', 1e-12);
         end
         
+        
         function testBlockDiag(obj)
             mat = [1 2; 3 4];
             n   = 3;
@@ -518,6 +523,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(blockMat, trueMat);
         end
+        
         
         function testBaseBlockDiag(obj)
             matBase = [1 2; 3 4];
@@ -536,6 +542,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(blockMat, trueMat);
         end
         
+        
         function testDrawGaussianRndSamples(obj)
             mean       = [1 -2]';
             cov        = [2 0.5; 0.5 1.2];
@@ -547,6 +554,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifySize(samples, [2, numSamples]);
         end
+        
         
         function testResampling(obj)
             samples    = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
@@ -560,6 +568,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifySize(rndSamples, [3, numSamples]);
         end
         
+        
         function testSystematicResampling(obj)
             samples    = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples    = bsxfun(@plus, samples, -4 * ones(3, 1));
@@ -571,6 +580,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifySize(rndSamples, [3, numSamples]);
         end
+        
         
         function testGetGaussianKLDScalar(obj)
             meanA    =   1;
@@ -612,6 +622,70 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(value, 0);
         end
         
+        
+        function testGetGaussianL2DistanceScalar(obj)
+            meanA    =   1;
+            meanB    =  10;
+            covA     = 100;
+            covB     = 200;
+            covSqrtA = sqrt(covA);
+            covSqrtB = sqrt(covB);
+            
+            gA = Gaussian(meanA, covA);
+            gB = Gaussian(meanB, covB);
+            
+            distFunc = @(x) (exp(gA.logPdf(x)) - exp(gB.logPdf(x))).^2;
+            
+            trueValue = sqrt(integral(distFunc, -Inf, Inf));
+            
+            value1 = Utils.getGaussianL2Distance(meanA, meanB, covA, covB, covSqrtA, covSqrtB);
+            
+            obj.verifyEqual(value1, trueValue, 'AbsTol', 1e-8);
+            
+            value2 = Utils.getGaussianL2Distance(meanB, meanA, covB, covA, covSqrtB, covSqrtA);
+            
+            obj.verifyEqual(value2, trueValue, 'AbsTol', 1e-8);
+            
+            obj.verifyEqual(value1, value2);
+        end
+        
+        function testGetGaussianL2DistanceMultivariate(obj)
+            meanA    = [1 10]';
+            meanB    = [-15 2]';
+            covA     = gallery('moler', 2);
+            covB     = 0.5 * eye(2);
+            covSqrtA = chol(covA, 'Lower');
+            covSqrtB = chol(covB, 'Lower');
+            
+            gA = Gaussian(meanA, covA);
+            gB = Gaussian(meanB, covB);
+            
+            distFunc = @(x, y) (exp(gA.logPdf([x; y])) - exp(gB.logPdf([x; y]))).^2;
+            
+            trueValue = sqrt(integral2(distFunc, -Inf, Inf, -Inf, Inf));
+            
+            value1 = Utils.getGaussianL2Distance(meanA, meanB, covA, covB, covSqrtA, covSqrtB);
+            
+            obj.verifyEqual(value1, trueValue, 'AbsTol', 1e-8);
+            
+            value2 = Utils.getGaussianL2Distance(meanB, meanA, covB, covA, covSqrtB, covSqrtA);
+            
+            obj.verifyEqual(value2, trueValue, 'AbsTol', 1e-8);
+            
+            obj.verifyEqual(value1, value2);
+        end
+        
+        function testGetGaussianL2DistanceIdentical(obj)
+            meanA    = [1 1]';
+            covA     = gallery('moler', 2);
+            covSqrtA = chol(covA, 'Lower');
+            
+            value = Utils.getGaussianL2Distance(meanA, meanA, covA, covA, covSqrtA, covSqrtA);
+            
+            obj.verifyEqual(value, 0);
+        end
+        
+        
         function testRndOrthogonalMatrix(obj)
             rndMat = Utils.rndOrthogonalMatrix(4);
             
@@ -619,6 +693,7 @@ classdef TestUtils < matlab.unittest.TestCase
             
             obj.verifyEqual(identity, eye(4), 'AbsTol', 1e-8);
         end
+        
         
         function testGetStateSamples(obj)
             sampling = GaussianSamplingUKF();
@@ -640,6 +715,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(weights, w, 'AbsTol', 1e-8);
             obj.verifyEqual(numSamples, 5);
         end
+        
         
         function testGetStateNoiseSamples(obj)
             sampling = GaussianSamplingUKF();
@@ -665,6 +741,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(numSamples, 5);
         end
         
+        
         function testDiffQuotientState(obj)
             nominalState = [-1.5 3.2]';
             
@@ -676,6 +753,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(stateJacobian, trueStateJacobian, 'RelTol', 1e-8);
             obj.verifyEqual(stateHessians, trueStateHessians, 'AbsTol', 1e-5);
         end
+        
         
         function testDiffQuotientStateAndNoise(obj)
             nominalState = [-1.5 3.2]';
