@@ -14,6 +14,7 @@ classdef Utils
     %   resampling                - Perform a simple resampling.
     %   systematicResampling      - Perform a systematic resampling.
     %   getGaussianKLD            - Compute Kullback-Leibler divergence (KLD) between two Gaussian distributions.
+    %   getGaussianL2Distance     - Compute L2 distance between two Gaussian distributions.
     %   rndOrthogonalMatrix       - Creates a random orthogonal matrix of the specified dimension.
     %   getStateSamples           - Get a set of samples approximating a Gaussian distributed system state.
     %   getStateNoiseSamples      - Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
@@ -529,6 +530,62 @@ classdef Utils
                 logDetPart      = sum(log(diag(covSqrtB))) - sum(log(diag(covSqrtA)));
                 
                 value = logDetPart + 0.5 * (tracePart + mahalanobisPart - dim);
+            end
+        end
+        
+        function value = getGaussianL2Distance(meanA, meanB, covA, covB, covSqrtA, covSqrtB)
+            % Compute L2 distance between two Gaussian distributions.
+            %
+            % Parameters:
+            %   >> meanA (Column vector)
+            %      Mean of Gaussian A.
+            %
+            %   >> meanB (Column vector)
+            %      Mean of Gaussian B.
+            %
+            %   >> covA (Positive definite matrix)
+            %      Covariance matrix of Gaussian A.
+            %
+            %   >> covB (Positive definite matrix)
+            %      Covariance matrix of Gaussian B.
+            %
+            %   >> covSqrtA (Square matrix)
+            %      Lower Cholesky decomposition of covariance matrix of Gaussian A.
+            %
+            %   >> covSqrtB (Square matrix)
+            %      Lower Cholesky decomposition of covariance matrix of Gaussian B.
+            %
+            % Returns:
+            %   << value (Scalar)
+            %      Computed L2 distance.
+            
+            if isequal(meanA, meanB) && isequal(covA, covB)
+                % Handle trivial case of equal Gaussians
+                value = 0;
+            else
+                dim              = size(meanA, 1);
+                factor           = (4 * pi)^(0.5 * dim);
+                sqrtDetCovA      = prod(diag(covSqrtA));
+                sqrtDetCovB      = prod(diag(covSqrtB));
+                covSumSqrt       = chol(covA + covB, 'Lower');
+                invCovSumSqrt    = covSumSqrt \ eye(dim);
+                sqrtDetInvCovSum = prod(diag(invCovSumSqrt));
+                
+                normPart         = 1 / (factor * sqrtDetCovA) + 1 / (factor * sqrtDetCovB);
+                mahalanobisPart  = sum((invCovSumSqrt * (meanA - meanB)).^2);
+                innerProductPart = (sqrtDetInvCovSum / (2 * pi)^(0.5 * dim)) * exp(-0.5 * mahalanobisPart);
+                
+                diff = normPart - 2 * innerProductPart;
+                
+                if (diff < 0)
+                    % Due to numercial issues, we cannot compute a valid,
+                    % i.e., non-negative, distance. Hence, we simply set
+                    % the distance to zero, which implies that we assume
+                    % both Gaussians to be identical.
+                    value = 0;
+                else
+                    value = sqrt(diff);
+                end
             end
         end
         
