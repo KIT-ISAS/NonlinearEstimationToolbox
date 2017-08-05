@@ -525,24 +525,6 @@ classdef TestUtils < matlab.unittest.TestCase
         end
         
         
-        function testBaseBlockDiag(obj)
-            matBase = [1 2; 3 4];
-            matDiag = [2 -1; 3 -2];
-            n       = 3;
-            
-            blockMat = Utils.baseBlockDiag(matBase, matDiag, n);
-            
-            trueMat = [3 1 1 2 1 2
-                       6 2 3 4 3 4
-                       1 2 3 1 1 2
-                       3 4 6 2 3 4
-                       1 2 1 2 3 1
-                       3 4 3 4 6 2];
-            
-            obj.verifyEqual(blockMat, trueMat);
-        end
-        
-        
         function testDrawGaussianRndSamples(obj)
             mean       = [1 -2]';
             cov        = [2 0.5; 0.5 1.2];

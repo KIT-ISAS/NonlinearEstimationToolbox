@@ -9,7 +9,6 @@ classdef Utils
     %   kalmanUpdate              - Perform a Kalman update.
     %   decomposedStateUpdate     - Perform an update for a system state decomposed into two parts A and B.
     %   blockDiag                 - Create a block diagonal matrix.
-    %   baseBlockDiag             - Create a block diagonal matrix.
     %   drawGaussianRndSamples    - Draw random samples from a multivariate Gaussian distribution.
     %   resampling                - Perform a simple resampling.
     %   systematicResampling      - Perform a systematic resampling.
@@ -358,27 +357,6 @@ classdef Utils
             %      Block diagonal matrix.
             
             blockMat = kron(speye(numRepetitions), matrix);
-        end
-        
-        function blockMat = baseBlockDiag(matrixBase, matrixDiag, numRepetitions)
-            % Create a block diagonal matrix.
-            %
-            % Parameters:
-            %   >> matrixBase (Matrix)
-            %      Matrix.
-            %
-            %   >> matrixDiag (Matrix)
-            %      Matrix of same size as matrixBase.
-            %
-            %   >> numRepetitions (Positive scalar)
-            %      Number of matrix repetitions along the diagonal.
-            %
-            % Returns:
-            %   << blockMat (Matrix)
-            %      Block diagonal matrix.
-            
-            blockMat = repmat(matrixBase, numRepetitions, numRepetitions) + ...
-                       Utils.blockDiag(matrixDiag, numRepetitions);
         end
         
         function rndSamples = drawGaussianRndSamples(mean, covSqrt, numSamples)
