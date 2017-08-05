@@ -80,7 +80,7 @@ classdef FirstOrderTaylorLinearGaussianFilter < LinearGaussianFilter
     
     methods (Sealed, Access = 'protected')
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
+                  predictedStateCov] = predictSysModel(obj, sysModel)
             [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             
@@ -103,7 +103,7 @@ classdef FirstOrderTaylorLinearGaussianFilter < LinearGaussianFilter
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
+                  predictedStateCov] = predictAddNoiseSysModel(obj, sysModel)
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             

@@ -114,7 +114,7 @@ classdef GPF < GaussianFilter & ParticleFilter
     
     methods (Access = 'protected')
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
+                  predictedStateCov] = predictSysModel(obj, sysModel)
             % Sample system noise
             noise = sysModel.noise.drawRndSamples(obj.numParticles);
             
@@ -133,7 +133,7 @@ classdef GPF < GaussianFilter & ParticleFilter
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
+                  predictedStateCov] = predictAddNoiseSysModel(obj, sysModel)
             % Get additive noise moments
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             

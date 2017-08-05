@@ -275,7 +275,7 @@ classdef PGF < GaussianFilter
     
     methods (Access = 'protected')
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel)
+                  predictedStateCov] = predictSysModel(obj, sysModel)
             [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
             
             % Generate state and noise samples
@@ -299,7 +299,7 @@ classdef PGF < GaussianFilter
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel)
+                  predictedStateCov] = predictAddNoiseSysModel(obj, sysModel)
             [noiseMean, noiseCov] = sysModel.noise.getMeanAndCov();
             dimNoise = size(noiseMean, 1);
             

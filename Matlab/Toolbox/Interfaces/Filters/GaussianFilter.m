@@ -236,16 +236,16 @@ classdef GaussianFilter < Filter
         function performPrediction(obj, sysModel)
             if Checks.isClass(sysModel, 'LinearSystemModel')
                 [predictedStateMean, ...
-                 predictedStateCov] = obj.predictedMomentsLinear(sysModel);
+                 predictedStateCov] = obj.predictLinearSysModel(sysModel);
             elseif Checks.isClass(sysModel, 'SystemModel')
                 [predictedStateMean, ...
-                 predictedStateCov] = obj.predictedMomentsArbitraryNoise(sysModel);
+                 predictedStateCov] = obj.predictSysModel(sysModel);
             elseif Checks.isClass(sysModel, 'AdditiveNoiseSystemModel')
                 [predictedStateMean, ...
-                 predictedStateCov] = obj.predictedMomentsAdditiveNoise(sysModel);
+                 predictedStateCov] = obj.predictAddNoiseSysModel(sysModel);
             elseif Checks.isClass(sysModel, 'MixedNoiseSystemModel')
                 [predictedStateMean, ...
-                 predictedStateCov] = obj.predictedMomentsMixedNoise(sysModel);
+                 predictedStateCov] = obj.predictMixedNoiseSysModel(sysModel);
             else
                 obj.errorSysModel('LinearSystemModel', ...
                                   'SystemModel', ...
@@ -360,7 +360,7 @@ classdef GaussianFilter < Filter
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsLinear(obj, sysModel)
+                  predictedStateCov] = predictLinearSysModel(obj, sysModel)
             [predictedStateMean, ...
              predictedStateCov] = sysModel.analyticMoments(obj.stateMean, ...
                                                            obj.stateCov, ...
@@ -368,13 +368,13 @@ classdef GaussianFilter < Filter
         end
         
         function [predictedStateMean, ...
-                  predictedStateCov] = predictedMomentsMixedNoise(obj, sysModel)
+                  predictedStateCov] = predictMixedNoiseSysModel(obj, sysModel)
             [addNoiseMean, addNoiseCov]  = sysModel.additiveNoise.getMeanAndCov();
             dimAddNoise = size(addNoiseMean, 1);
             
             obj.checkAdditiveSysNoise(dimAddNoise);
             
-            [mean, cov] = obj.predictedMomentsArbitraryNoise(sysModel);
+            [mean, cov] = obj.predictSysModel(sysModel);
             
             % Compute predicted state mean
             predictedStateMean = mean + addNoiseMean;
@@ -386,10 +386,10 @@ classdef GaussianFilter < Filter
     
     methods (Abstract, Access = 'protected')
         [predictedStateMean, ...
-         predictedStateCov] = predictedMomentsArbitraryNoise(obj, sysModel);
+         predictedStateCov] = predictSysModel(obj, sysModel);
         
         [predictedStateMean, ...
-         predictedStateCov] = predictedMomentsAdditiveNoise(obj, sysModel);
+         predictedStateCov] = predictAddNoiseSysModel(obj, sysModel);
         
         [updatedMean, ...
          updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
