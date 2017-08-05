@@ -1,6 +1,6 @@
 
-function printPointEstimate(filter)
-    [mean, cov] = filter.getPointEstimate();
+function printStateMeanAndCov(filter)
+    [mean, cov] = filter.getStateMeanAndCov();
     
     fprintf('State mean:\n');
     disp(mean);

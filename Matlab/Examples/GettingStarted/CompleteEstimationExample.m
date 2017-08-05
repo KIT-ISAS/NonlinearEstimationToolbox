@@ -70,7 +70,7 @@ function CompleteEstimationExample()
         sysStates(:, k)    = sysState;
         measurements(:, k) = measurement;
         
-        [stateMeans(:, :, k), stateCovs(:, :, :, k)] = filters.getPointEstimates();
+        [stateMeans(:, :, k), stateCovs(:, :, :, k)] = filters.getStateMeansAndCovs();
         
         % Simulate next system state
         sysState = sysModel.simulate(sysState);

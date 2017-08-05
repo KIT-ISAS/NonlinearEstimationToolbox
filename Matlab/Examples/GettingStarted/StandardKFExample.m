@@ -47,9 +47,9 @@ function StandardKFExample()
     % * Hence, if both matrices are not set, the LinearSystemModel acts
     %   like a random walk system model.
     %
-    % * It is possible to pass the system and noise matrices directly to
-    %   the class constructor of the LinearSystemModel to avoid the
-    %   additional set methods.
+    % * It is possible to pass the system matrix and system noise matrix
+    %   directly to the class constructor of the LinearSystemModel to avoid
+    %   the additional set methods.
     %
     % * The system noise does not have to be distributed according to
     %   a Gaussian distribution. One can pass here any other distribution,
@@ -88,11 +88,13 @@ function StandardKFExample()
     %   the optimal MMSE estimator (only a linear MMSE estimator).
     
     %%%%% The estimator
-    % As both models are linear, we can use the AnalyticKF here, as both
-    % prediction and measurement update can be fully calculated in
-    % closed-form.
-    
-    filter = AnalyticKF();
+    % As both models are linear, state prediction and measurement update
+    % can be fully calculated in closed-form by a Kalman filter.
+    % Consequently, all implemented Kalman filters handle these models
+    % in an analytic way, e.g., without calculating derivates or using samples.
+    % Hence, we simply choose to use the extended Kalman filter (EKF)
+    % implementation in this example.
+    filter = EKF();
     
     % Set initial state estimate
     %   E[x(0)]    = [0 0]'
@@ -117,7 +119,7 @@ function StandardKFExample()
     filter.predict(sysModel);
     
     % Show the predicted state estimate
-    printPointEstimate(filter);
+    printStateMeanAndCov(filter);
     
     % Assume we receive the measurement
     measurement = 2.139;
@@ -126,5 +128,5 @@ function StandardKFExample()
     filter.update(measModel, measurement);
     
     % Show the filtered state estimate
-    printPointEstimate(filter);
+   printStateMeanAndCov(filter);
 end

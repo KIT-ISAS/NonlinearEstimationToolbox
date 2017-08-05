@@ -73,7 +73,7 @@ function FilterSetExample()
     filters.predict(sysModel);
     
     % Show the predicted state estimates
-    printPointEstimates(filters);
+    printStateMeansAndCovs(filters);
     
     % Assume we receive the measurement
     measurement = [3 pi/5]';
@@ -82,14 +82,14 @@ function FilterSetExample()
     filters.update(measModel, measurement)
     
     % Show the filtered state estimates
-    printPointEstimates(filters);
+    printStateMeansAndCovs(filters);
 end
 
-function printPointEstimates(filters)
+function printStateMeansAndCovs(filters)
     numFilters = filters.getNumFilters();
     names      = filters.getNames();
     
-    [stateMeans, stateCovs] = filters.getPointEstimates();
+    [stateMeans, stateCovs] = filters.getStateMeansAndCovs();
     
     for i = 1:numFilters
         fprintf('\nFilter: %s\n', names{i});

@@ -38,7 +38,7 @@ function NonlinearEstimationExample()
     filter.predict(sysModel);
     
     % Show the predicted state estimate
-    printPointEstimate(filter);
+    printStateMeanAndCov(filter);
     
     % Assume we receive the measurement
     measurement = [3 pi/5]';
@@ -47,5 +47,5 @@ function NonlinearEstimationExample()
     filter.update(measModel, measurement);
     
     % Show the filtered state estimate
-    printPointEstimate(filter);
+    printStateMeanAndCov(filter);
 end
