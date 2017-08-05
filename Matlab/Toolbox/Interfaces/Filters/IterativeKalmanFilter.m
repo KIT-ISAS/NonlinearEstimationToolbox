@@ -132,8 +132,9 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
             %                                  updatedMean, updatedCov, updatedCovSqrt)
             %
             % For example, a convergence check can be based on the Kulback-Leibler
-            % divergence between the state estimates of the last and current iteration,
-            % see Utils.getGaussianKLD().
+            % divergence (see Utils.getGaussianKLD()) or the L2 distance
+            % (see Utils.getGaussianL2Distance()) between the state estimates of
+            % the last and current iteration.
             %
             % Remove a set convergence check by passing an empty matrix.
             %
