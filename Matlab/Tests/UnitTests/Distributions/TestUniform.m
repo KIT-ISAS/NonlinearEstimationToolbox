@@ -167,7 +167,7 @@ classdef TestUniform < matlab.unittest.TestCase
             obj.verifySize(samples, [2, n]);
             
             obj.verifyGreaterThanOrEqual(samples, repmat(a, 1, n));
-            obj.verifyLessThanOrEqual(samples, repmat(b, 1, n));            
+            obj.verifyLessThanOrEqual(samples, repmat(b, 1, n));
         end
         
         function testDrawRndSamplesInvalidNumSamples(obj)
@@ -212,7 +212,7 @@ classdef TestUniform < matlab.unittest.TestCase
                             'Distribution:InvalidValues');
             
             obj.verifyError(@() u.logPdf('42kd'), ...
-                            'Distribution:InvalidValues');  
+                            'Distribution:InvalidValues');
         end
     end
     

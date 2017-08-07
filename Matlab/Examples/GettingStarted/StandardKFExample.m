@@ -77,7 +77,7 @@ function StandardKFExample()
     % * If no measurement matrix is provided, it is assumed to be the
     %   identity matrix of appropriate dimensions.
     %
-    % * It is possible to pass the measurement matrix directly to 
+    % * It is possible to pass the measurement matrix directly to
     %   the class constructor of LinearMeasurementModel to avoid the
     %   additional set method.
     %
@@ -108,7 +108,7 @@ function StandardKFExample()
     %
     %  * The initial state estimate can be of any distribution as the Kalman filter
     %    internally only works with the distribution's mean and covariance matrix.
-    %    For example, a Gaussian mixture will be reduced to its mean and 
+    %    For example, a Gaussian mixture will be reduced to its mean and
     %    covariance matrix, and thus, will lose any existing multi-modality.
     %
     %  * The system state can be set to any value to any time by calling

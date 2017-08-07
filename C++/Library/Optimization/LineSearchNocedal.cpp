@@ -37,7 +37,7 @@ LineSearchNocedal::~LineSearchNocedal()
 }
 
 bool LineSearchNocedal::search(Function&                function,
-                               const Eigen::VectorXd&   initialParameters, 
+                               const Eigen::VectorXd&   initialParameters,
                                const Eigen::VectorXd&   initialGradient,
                                const Eigen::VectorXd&   direction,
                                Eigen::VectorXd&         parameters,

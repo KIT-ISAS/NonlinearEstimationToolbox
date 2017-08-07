@@ -30,7 +30,7 @@
 
 namespace Quadrature {
 
-void GaussKronrod::evaluate(const int n, 
+void GaussKronrod::evaluate(const int n,
                             const double xgk[],
                             const double wg[],
                             const double wgk[],
@@ -70,7 +70,7 @@ void GaussKronrod::evaluate(const int n,
         
         result_gauss   += wg[j]    * fsum;
         result_kronrod += wgk[jtw] * fsum;
-        result_abs     += wgk[jtw] * (std::fabs(fval1) + 
+        result_abs     += wgk[jtw] * (std::fabs(fval1) +
                                       std::fabs(fval2));
     }
     
@@ -84,7 +84,7 @@ void GaussKronrod::evaluate(const int n,
         fv2[jtwm1] = fval2;
         
         result_kronrod += wgk[jtwm1] * (fval1 + fval2);
-        result_abs     += wgk[jtwm1] * (std::fabs(fval1) + 
+        result_abs     += wgk[jtwm1] * (std::fabs(fval1) +
                                         std::fabs(fval2));
     };
     
@@ -143,7 +143,7 @@ double GaussKronrod::rescale_error(double err,
  **************************/
 
 /* abscissae of the 15-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 7-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 7-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 7-point gauss rule */
 const double GaussKronrod15::xgk[8] =
 {
@@ -198,7 +198,7 @@ void GaussKronrod15::operator()(Function function,
  **************************/
 
 /* abscissae of the 21-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 10-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 10-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 10-point gauss rule */
 const double GaussKronrod21::xgk[11] =
 {
@@ -260,7 +260,7 @@ void GaussKronrod21::operator()(Function function,
  **************************/
 
 /* abscissae of the 31-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 15-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 15-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 15-point gauss rule */
 const double GaussKronrod31::xgk[16] =
 {
@@ -335,7 +335,7 @@ void GaussKronrod31::operator()(Function function,
  **************************/
 
 /* abscissae of the 41-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 20-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 20-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 20-point gauss rule */
 const double GaussKronrod41::xgk[21] =
 {
@@ -422,7 +422,7 @@ void GaussKronrod41::operator()(Function function,
  **************************/
  
 /* abscissae of the 51-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 25-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 25-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 25-point gauss rule */
 const double GaussKronrod51::xgk[26] =
 {
@@ -523,7 +523,7 @@ void GaussKronrod51::operator()(Function function,
  **************************/
 
 /* abscissae of the 61-point kronrod rule */
-/* xgk[1], xgk[3], ... abscissae of the 30-point gauss rule. 
+/* xgk[1], xgk[3], ... abscissae of the 30-point gauss rule.
    xgk[0], xgk[2], ... abscissae to optimally extend the 30-point gauss rule */
 const double GaussKronrod61::xgk[31] =
 {

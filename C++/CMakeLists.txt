@@ -51,7 +51,7 @@ CONFIGURE_FILE(
 )
 
 INSTALL(
-    FILES "${PROJECT_BINARY_DIR}/nonlinear-estimation-toolbox.pc"    
+    FILES "${PROJECT_BINARY_DIR}/nonlinear-estimation-toolbox.pc"
     DESTINATION "lib/pkgconfig"
 )
 

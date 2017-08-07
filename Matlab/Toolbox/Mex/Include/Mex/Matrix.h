@@ -30,7 +30,7 @@
 namespace Mex {
 
 template<typename Scalar, int r, int c>
-class ConstMatrix : public Eigen::Map<const Eigen::Matrix<Scalar, r, c>, Eigen::Aligned> { 
+class ConstMatrix : public Eigen::Map<const Eigen::Matrix<Scalar, r, c>, Eigen::Aligned> {
     private:
         typedef Eigen::Map<const Eigen::Matrix<Scalar, r, c>, Eigen::Aligned>  BaseClass;
         
@@ -105,7 +105,7 @@ class MatrixBase : public Eigen::Map<Eigen::Matrix<Scalar, r, c>, Eigen::Aligned
             BaseClass(createMxArray(mat.rows(), mat.cols()),
                       mat.rows(),
                       mat.cols()) {
-            BaseClass::operator=(mat); 
+            BaseClass::operator=(mat);
         }
         
         ~MatrixBase() {

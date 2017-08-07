@@ -46,7 +46,7 @@ classdef SampleCacheGLCDAsym < SampleCache
             
             % Construct path
             file = mfilename('fullpath');
-            path = fileparts(file); 
+            path = fileparts(file);
             
             sampleCachePath = [path '/' SampleCacheGLCDAsym.sampleCacheDir];
             

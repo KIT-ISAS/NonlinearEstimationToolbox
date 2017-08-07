@@ -165,7 +165,7 @@ void Workspace::qpsrt()
     while (i_nrmax > 0 && errmax > elist[order[i_nrmax - 1]]) {
         order[i_nrmax] = order[i_nrmax - 1];
         i_nrmax--;
-    } 
+    }
     
     /* Compute the number of elements in the list to be maintained in
        descending order. This number depends on the number of

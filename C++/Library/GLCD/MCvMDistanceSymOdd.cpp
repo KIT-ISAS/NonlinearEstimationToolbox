@@ -94,7 +94,7 @@ void MCvMDistanceSymOdd::computeD3(double& D3)
 {
     MCvMDistanceSym::computeD3Base(D3);
     
-    D3 += 4.0 * sampleWeightSquared * (0.5 * bMaxSquared * expSquaredNorms + 
+    D3 += 4.0 * sampleWeightSquared * (0.5 * bMaxSquared * expSquaredNorms +
                                        0.125 * squaredNorms * expIntSquaredNorms).sum();
     
     D3 += constD3;

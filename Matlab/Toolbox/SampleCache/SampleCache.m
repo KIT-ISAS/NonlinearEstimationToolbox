@@ -84,7 +84,7 @@ classdef SampleCache < handle & matlab.mixin.Copyable
                isempty(obj.data{dimension}{numSamples})
                 % Samples not in memory => Load it!
                 if ~obj.loadSamplesFromFile(dimension, numSamples)
-                   % This dimension and number of sample combination 
+                   % This dimension and number of sample combination
                    % doesn't exists in sample cache => Try to create and
                    % subsequently load it.
                    warning('SampleCache:SamplesNotExist', ...
@@ -219,11 +219,11 @@ classdef SampleCache < handle & matlab.mixin.Copyable
             filename = obj.getSampleFilename(dimension, numSamples);
             
             % Store samples and weights in Little-Endian and column order
-            fd = fopen(filename, 'w+', 'l');     
+            fd = fopen(filename, 'w+', 'l');
             
             if fd == -1
                 error('SampleCache:OpenSampleFileFailed', ...
-                      'Could not open sample file "%s".', filename); 
+                      'Could not open sample file "%s".', filename);
             end
             
             numElementsWritten = fwrite(fd, samples, 'double', 0, 'l');

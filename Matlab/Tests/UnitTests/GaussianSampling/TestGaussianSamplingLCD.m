@@ -43,7 +43,7 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             [numSamplesAbs, ...
              numSamplesFactor] = g.getNumSamplesConfig();
             
-            obj.verifyEqual(numSamplesAbs, 201); 
+            obj.verifyEqual(numSamplesAbs, 201);
             obj.verifyEmpty(numSamplesFactor);
         end
         

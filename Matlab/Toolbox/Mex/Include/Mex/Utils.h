@@ -47,14 +47,14 @@ struct Utils {
     }
     
     // from the slice size vectors [..., i, ...] and [..., j, ...]
-    // creates the slice size vector [..., max(i, j), ...], taking 
+    // creates the slice size vector [..., max(i, j), ...], taking
     // into account that the inputs might have different sizes
     static Dimensions expandSliceDims(const Dimensions& sliceDimsA,
                                       const Dimensions& sliceDimsB) {
         Dimensions sliceDims(std::max(sliceDimsA.size(), sliceDimsB.size()));
         
         for (int64_t i = 0; i < sliceDims.size(); i++) {
-            sliceDims(i) = std::max(i < sliceDimsA.size() ? sliceDimsA(i) : 1, 
+            sliceDims(i) = std::max(i < sliceDimsA.size() ? sliceDimsA(i) : 1,
                                     i < sliceDimsB.size() ? sliceDimsB(i) : 1);
         }
         

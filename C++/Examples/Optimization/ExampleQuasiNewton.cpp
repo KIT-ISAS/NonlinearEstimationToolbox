@@ -36,7 +36,7 @@ static void objFuncAnalyticDerivative(const Eigen::VectorXd&   parameters,
     funcValue = objFunc(parameters);
     
     gradient(0) = objFunc(parameters) * 2 * ( 3 - parameters(0)) * (-1);
-    gradient(1) = objFunc(parameters) * 2 * (-2 - parameters(1)) * (-1);             
+    gradient(1) = objFunc(parameters) * 2 * (-2 - parameters(1)) * (-1);
 }
 
 class ObjFuncApproxDerivative : public Optimization::ApproxDerivative {

@@ -48,7 +48,7 @@ classdef GaussianSamplingUKF < GaussianSampling
         
         function setSampleScaling(obj, scaling)
             % Set the sample scaling factor.
-            % 
+            %
             % For example, a scaling factor of 0.5 results in an equal sample
             % weight for all samples, a factor of 1 results in a double
             % weighted sample located at the state space origin, and a factor
@@ -74,7 +74,7 @@ classdef GaussianSamplingUKF < GaussianSampling
         
         function scaling = getSampleScaling(obj)
             % Get the sample scaling factor.
-            % 
+            %
             % Returns:
             %   << scaling (Scalar)
             %      The sample scaling factor.

@@ -69,7 +69,7 @@ classdef CKF < SampleBasedIterativeKalmanFilter & CubatureLinearGaussianFilter
             %      An appropriate filter name / description of the implemented
             %      filter. The Filter subclass should set this during its
             %      construction to a meaningful default value (e.g., 'EKF'),
-            %      or the user should specify an appropriate name (e.g., 
+            %      or the user should specify an appropriate name (e.g.,
             %      'PF (10k Particles)').
             %
             %      Default name: 'CKF'.

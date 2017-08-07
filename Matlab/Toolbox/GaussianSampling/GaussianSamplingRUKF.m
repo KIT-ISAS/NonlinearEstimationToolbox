@@ -50,7 +50,7 @@ classdef GaussianSamplingRUKF < GaussianSampling
             % Set the number of iterations.
             %
             % By default, 5 iterations are used.
-            % 
+            %
             % Parameters:
             %   >> numIterations (Positive scalar)
             %      The new number of iterations.

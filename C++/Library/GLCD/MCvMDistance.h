@@ -100,7 +100,7 @@ class MCvMDistance {
     private:
         Eigen::MatrixXd     grad1;
         Eigen::MatrixXd     grad2;
-        double              D1;  
+        double              D1;
         Quadrature::QAG     quadrature;
         
 };

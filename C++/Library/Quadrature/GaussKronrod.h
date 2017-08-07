@@ -58,7 +58,7 @@ class GaussKronrod
                                 double& resasc) = 0;
         
     protected:
-        void evaluate(const int n, 
+        void evaluate(const int n,
                       const double xgk[],
                       const double wg[],
                       const double wgk[],

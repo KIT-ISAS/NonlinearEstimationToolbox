@@ -1,5 +1,5 @@
 
-classdef TargetSysModelB < AdditiveNoiseSystemModel 
+classdef TargetSysModelB < AdditiveNoiseSystemModel
     methods
         function predictedStates = systemEquation(obj, stateSamples)
             [dimState, numSamples] = size(stateSamples);

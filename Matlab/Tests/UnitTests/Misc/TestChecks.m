@@ -34,7 +34,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.colVec));
             obj.verifyFalse(func(obj.emptyMat));
             obj.verifyFalse(func(obj.mat));
-        end  
+        end
         
         
         function testIsScalar(obj)
@@ -171,7 +171,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -232,7 +232,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -293,7 +293,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -355,7 +355,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -416,7 +416,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -477,7 +477,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -535,7 +535,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -592,7 +592,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));
@@ -653,7 +653,7 @@ classdef TestChecks < matlab.unittest.TestCase
             obj.verifyFalse(func(obj.mat, 2));
             
             obj.verifyFalse(func(obj.squareMat));
-            obj.verifyFalse(func(obj.squareMat, 2)); 
+            obj.verifyFalse(func(obj.squareMat, 2));
             
             obj.verifyFalse(func(obj.cov));
             obj.verifyFalse(func(obj.cov, 2));

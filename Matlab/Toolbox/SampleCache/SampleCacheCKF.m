@@ -42,7 +42,7 @@ classdef SampleCacheCKF < SampleCache
             
             % Construct path
             file = mfilename('fullpath');
-            path = fileparts(file); 
+            path = fileparts(file);
             
             sampleCachePath = [path '/' SampleCacheCKF.sampleCacheDir];
             

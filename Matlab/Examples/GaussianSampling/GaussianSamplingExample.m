@@ -4,11 +4,11 @@ function GaussianSamplingExample()
     
     % This example demonstrates the usage of the implemented Gaussian
     % sampling techniques. As all samplings possess a common interface
-    % for drawing samples of standard normal and arbitrary Gaussian 
+    % for drawing samples of standard normal and arbitrary Gaussian
     % distributions, they can be easily exchanged or their performance
     % compared.
     
-    % Each sampling has its own methods (if any provided) for setting up 
+    % Each sampling has its own methods (if any provided) for setting up
     % the respective sampling techniques. For example, the sample spread of
     % the UKF, or the number of samples for the Gaussian LCD sampling and
     % the simple random sampling.

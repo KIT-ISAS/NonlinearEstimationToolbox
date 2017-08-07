@@ -175,7 +175,7 @@ classdef FilterSet < handle
         
         function numFilters = getNumFilters(obj)
             % Get the number of filters in the set.
-            % 
+            %
             % Returns:
             %   << numFilters (Scalar)
             %      The current number of filters in the set.

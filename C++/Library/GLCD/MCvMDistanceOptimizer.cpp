@@ -41,7 +41,7 @@ MCvMDistanceOptimizer::MCvMDistanceOptimizer()
 }
 
 MCvMDistanceOptimizer::~MCvMDistanceOptimizer()
-{    
+{
 
 }
 

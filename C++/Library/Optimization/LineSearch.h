@@ -38,7 +38,7 @@ class LineSearch {
         virtual ~LineSearch() { }
         
         virtual bool search(Function&               function,
-                            const Eigen::VectorXd&  lastParameters, 
+                            const Eigen::VectorXd&  lastParameters,
                             const Eigen::VectorXd&  lastGradient,
                             const Eigen::VectorXd&  direction,
                             Eigen::VectorXd&        parameters,
@@ -55,7 +55,7 @@ class LineSearchNocedal : public LineSearch {
         ~LineSearchNocedal();
         
         bool search(Function&               function,
-                    const Eigen::VectorXd&  lastParameters, 
+                    const Eigen::VectorXd&  lastParameters,
                     const Eigen::VectorXd&  lastGradient,
                     const Eigen::VectorXd&  direction,
                     Eigen::VectorXd&        parameters,
@@ -84,7 +84,7 @@ class LineSearchNocedal : public LineSearch {
         double getWolfeCoeff() const;
         
     private:
-        bool zoom(double           stepLengthLo, 
+        bool zoom(double           stepLengthLo,
                   double           funcValueLo,
                   double           stepLengthHi,
                   Eigen::VectorXd& parameters,
@@ -123,7 +123,7 @@ class LineSearchNocedal : public LineSearch {
         
         Function*               function;
         const Eigen::VectorXd*  initParameters;
-        const Eigen::VectorXd*  direction;        
+        const Eigen::VectorXd*  direction;
         double                  initFuncValue;
         unsigned int            numIterations;
         double                  testArmijo;

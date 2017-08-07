@@ -44,7 +44,7 @@ classdef SampleCacheGHQ < SampleCache
             
             % Construct path
             file = mfilename('fullpath');
-            path = fileparts(file); 
+            path = fileparts(file);
             
             sampleCachePath = [path '/' SampleCacheGHQ.sampleCacheDir];
             
@@ -72,7 +72,7 @@ classdef SampleCacheGHQ < SampleCache
             end
             
             if numPoints ~= obj.getNumQuadraturePoints()
-                switch (numPoints)   
+                switch (numPoints)
                     case 2
                         a = 1;
                         obj.oneDimSamples = [a -a];
@@ -139,7 +139,7 @@ classdef SampleCacheGHQ < SampleCache
             cartProd = zeros(dim, length(data)^dim);
             
             for i = 1:dim
-               cartProd(i, :) = g{i}(:)'; 
+               cartProd(i, :) = g{i}(:)';
             end
         end
     end

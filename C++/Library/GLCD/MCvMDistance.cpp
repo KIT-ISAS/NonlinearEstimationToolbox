@@ -130,9 +130,9 @@ void MCvMDistance::computeD1()
 
 double MCvMDistance::computeQuadD1(double b) const
 {
-    const double bSquared = b * b; 
+    const double bSquared = b * b;
     
-    return std::pow(bSquared / (1.0 + bSquared), halfDim) * b;   
+    return std::pow(bSquared / (1.0 + bSquared), halfDim) * b;
 }
 
 }   // namespace GLCD

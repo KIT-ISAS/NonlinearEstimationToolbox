@@ -57,13 +57,13 @@ classdef GaussianSamplingRnd < GaussianSampling
         
         function numSamples = getNumSamples(obj)
             % Get the number of samples used to approximate a Gaussian.
-            % 
+            %
             % Returns:
             %   >> numSamples (Positive scalar)
             %      The number of samples.
             
             numSamples = obj.numSamples;
-        end        
+        end
         
         function [samples, weights, numSamples] = getStdNormalSamples(obj, dimension)
             if ~Checks.isPosScalar(dimension)

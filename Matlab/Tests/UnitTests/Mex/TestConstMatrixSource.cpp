@@ -40,7 +40,7 @@ class TestConstMatrix {
             TestUtils::setArray<Scalar>(array, 105);
         }
         
-        ~TestConstMatrix() { 
+        ~TestConstMatrix() {
             mxDestroyArray(array);
         }
         

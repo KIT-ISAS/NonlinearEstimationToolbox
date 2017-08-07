@@ -143,7 +143,7 @@ void QAG::operator()(Function function,
     
     int roundoff_type1 = 0;
     int roundoff_type2 = 0;
-    int error_type     = 0; 
+    int error_type     = 0;
         
     size_t iteration = 1;
     
@@ -158,7 +158,7 @@ void QAG::operator()(Function function,
         
         workspace.retrieve(a_i, b_i, r_i, e_i);
         
-        const double a1 = a_i; 
+        const double a1 = a_i;
         const double b1 = 0.5 * (a_i + b_i);
         const double a2 = b1;
         const double b2 = b_i;

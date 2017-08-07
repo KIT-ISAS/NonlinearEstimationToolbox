@@ -136,8 +136,8 @@ class SliceRange {
 template<typename Scalar, int r, int c>
 class ConstMatrixXD {
     public:
-        template<bool ForceAlign> 
-        using ConstSliceBase = Eigen::Map<const Eigen::Matrix<Scalar, r, c>, 
+        template<bool ForceAlign>
+        using ConstSliceBase = Eigen::Map<const Eigen::Matrix<Scalar, r, c>,
                                           ForceAlign ? Eigen::Aligned : isEigenAligned>;
         
         typedef ConstSliceBase<false> ConstSlice;
@@ -271,14 +271,14 @@ class ConstMatrixXD {
 template<bool hasOwnership, typename Scalar, int r, int c>
 class MatrixBaseXD {
     public:
-        template< bool ForceAlign> 
-        using ConstSliceBase = Eigen::Map<const Eigen::Matrix<Scalar, r, c>, 
+        template< bool ForceAlign>
+        using ConstSliceBase = Eigen::Map<const Eigen::Matrix<Scalar, r, c>,
                                           ForceAlign ? Eigen::Aligned : isEigenAligned>;
         
         typedef ConstSliceBase<false> ConstSlice;
         
-        template<bool ForceAlign> 
-        using SliceBase = Eigen::Map<Eigen::Matrix<Scalar, r, c>, 
+        template<bool ForceAlign>
+        using SliceBase = Eigen::Map<Eigen::Matrix<Scalar, r, c>,
                                      ForceAlign ? Eigen::Aligned : isEigenAligned>;
         
         typedef SliceBase<false> Slice;

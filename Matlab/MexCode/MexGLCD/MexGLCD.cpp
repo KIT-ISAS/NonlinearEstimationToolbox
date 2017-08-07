@@ -192,7 +192,7 @@ void mexFunction(int numOutputs, mxArray *outputs[],
         Eigen::MatrixXd samples;
         double distCorrectedSamples;
         
-        computation(dimension, numSamples, 
+        computation(dimension, numSamples,
                     initialParameters, samples,
                     &distCorrectedSamples);
         

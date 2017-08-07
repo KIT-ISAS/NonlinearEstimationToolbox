@@ -31,7 +31,7 @@
 
 namespace GLCD {
 
-double Ei(double x);       
+double Ei(double x);
 
 }   // namespace GLCD
 

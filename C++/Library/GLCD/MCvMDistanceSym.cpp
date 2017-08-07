@@ -142,7 +142,7 @@ void MCvMDistanceSym::computeGrad2Base(Eigen::MatrixXd& grad2)
             minus = halfSamples.col(e) - halfSamples.col(i);
             plus  = halfSamples.col(e) + halfSamples.col(i);
             
-            const double csnMinus = coeffSquaredNorm * minus.squaredNorm();       
+            const double csnMinus = coeffSquaredNorm * minus.squaredNorm();
             const double csnPlus  = coeffSquaredNorm * plus.squaredNorm();
             
             grad2.col(e) += minus * expInt(csnMinus) + plus * expInt(csnPlus);

@@ -65,7 +65,7 @@ classdef AdditiveNoiseMeasurementModel < Likelihood
             
             dimNoise   = obj.noise.getDim();
             dimMeas    = size(measurement, 1);
-            numSamples = size(stateSamples, 2); 
+            numSamples = size(stateSamples, 2);
             
             if dimMeas ~= dimNoise
                 error('AdditiveNoiseMeasurementModel:InvalidMeasurementNoise', ...

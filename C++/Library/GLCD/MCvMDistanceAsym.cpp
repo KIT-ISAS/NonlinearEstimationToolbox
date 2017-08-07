@@ -107,7 +107,7 @@ void MCvMDistanceAsym::computeD3(double& D3)
 }
 
 void MCvMDistanceAsym::computeGrad1(Eigen::MatrixXd& grad1)
-{ 
+{
     grad1.resize(dim, numSamples);
     
     /* The numeric integration needs to be done for every sample individually */
