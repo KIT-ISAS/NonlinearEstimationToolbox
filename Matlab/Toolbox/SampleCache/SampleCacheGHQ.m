@@ -11,9 +11,9 @@ classdef SampleCacheGHQ < SampleCache
     %   getNumQuadraturePoints - Get the current number of quadrature points.
     
     % Literature:
-    %   Kazufumi Ito, Kaiqi Xiong,
+    %   Kazufumi Ito and Kaiqi Xiong,
     %   Gaussian Filters for Nonlinear Filtering Problems,
-    %   IEEE Transactions on Automatic Control, Vol. 45, Issue 5, Pages 910 - 927, May, 2000.
+    %   IEEE Transactions on Automatic Control, vol. 45, no. 5, pp. 910-927, May 2000.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

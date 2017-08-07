@@ -35,8 +35,11 @@ classdef RUKF < SampleBasedIterativeKalmanFilter & RandomizedUnscentedLinearGaus
     % Literature:
     %   Jindrich Dunik, Ondrej Straka, and Miroslav Simandl,
     %   The Development of a Randomised Unscented Kalman Filter,
-    %   Proceedings of the 18th IFAC World Congress,
-    %   Milano, Italy, Aug 2011, pp. 8-13.
+    %   Proceedings of the 18th IFAC World Congress, Milano, Italy, pp. 8-13, Aug. 2011.
+    %
+    %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
+    %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
+    %   IEEE Transactions on Signal Processing, vol. 63, no. 20, pp. 5561-5573, Oct. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

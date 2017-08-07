@@ -13,7 +13,7 @@ classdef GaussianSamplingGHQ < GaussianSampling
     % Literature:
     %   Kazufumi Ito and Kaiqi Xiong,
     %   Gaussian Filters for Nonlinear Filtering Problems,
-    %   IEEE Transactions on Automatic Control, Vol. 45, No. 5, May 2000, pp. 910-927.
+    %   IEEE Transactions on Automatic Control, vol. 45, no. 5, pp. 910-927, May 2000.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

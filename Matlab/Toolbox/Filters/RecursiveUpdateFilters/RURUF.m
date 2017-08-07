@@ -32,12 +32,11 @@ classdef RURUF < SampleBasedRecursiveUpdateFilter & RandomizedUnscentedLinearGau
     % Literature:
     %   Jindrich Dunik, Ondrej Straka, and Miroslav Simandl,
     %   The Development of a Randomised Unscented Kalman Filter,
-    %   Proceedings of the 18th IFAC World Congress,
-    %   Milano, Italy, Aug 2011, pp. 8-13.
+    %   Proceedings of the 18th IFAC World Congress, Milano, Italy, pp. 8-13, Aug. 2011.
     %
     %   Yulong Huang, Yonggang Zhang, Ning Li, and Lin Zhao,
     %   Design of Sigma-Point Kalman Filter with Recursive Updated Measurement,
-    %   Circuits, Systems, and Signal Processing, Aug 2015, pp. 1-16.
+    %   Circuits, Systems, and Signal Processing, pp. 1-16, Aug. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

@@ -35,7 +35,11 @@ classdef UKF < SampleBasedIterativeKalmanFilter & UnscentedLinearGaussianFilter
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
     %   Unscented Filtering and Nonlinear Estimation,
-    %   Proceedings of the IEEE, Vol. 92 No. 3, 2004, pp. 401-422.
+    %   Proceedings of the IEEE, vol. 92 no. 3, pp. 401-422, 2004.
+    %
+    %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
+    %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
+    %   IEEE Transactions on Signal Processing, vol. 63, no. 20, pp. 5561-5573, Oct. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

@@ -37,11 +37,15 @@ classdef S2KF < SampleBasedIterativeKalmanFilter & SmartSamplingLinearGaussianFi
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
-    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
+    %   Journal of Advances in Information Fusion, vol. 11, no. 1, pp. 71-90, Jun. 2016.
     %
     %   Jannik Steinbring and Uwe D. Hanebeck,
     %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
-    %   Journal of Advances in Information Fusion, Vol. 9, No. 2, Dec 2014, pp. 106-123.
+    %   Journal of Advances in Information Fusion, vol. 9, no. 2, pp. 106-123, Dec. 2014.
+    %
+    %   Ángel F. Garcı́a-Fernández, Lennart Svensson, Mark Morelande, and Simo Särkkä,
+    %   Posterior Linearisation Filter: Principles and Implementation Using Sigma Points,
+    %   IEEE Transactions on Signal Processing, vol. 63, no. 20, pp. 5561-5573, Oct. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

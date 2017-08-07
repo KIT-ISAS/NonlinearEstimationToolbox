@@ -29,7 +29,7 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
     % Literature:
     %   Michael Athans, Richard P. Wishner, and Anthony Bertolini,
     %   Suboptimal State Estimation for Continuous-Time Nonlinear Systems from Discrete Noisy Measurements,
-    %   IEEE Transactions on Automatic Control, Vol. 13, No. 5, Oct. 1968, pp. 504-514.
+    %   IEEE Transactions on Automatic Control, vol. 13, no. 5, pp. 504-514, Oct. 1968.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

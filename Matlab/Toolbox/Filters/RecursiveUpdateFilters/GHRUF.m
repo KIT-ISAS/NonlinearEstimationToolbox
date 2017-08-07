@@ -32,11 +32,11 @@ classdef GHRUF < SampleBasedRecursiveUpdateFilter & GaussHermiteLinearGaussianFi
     % Literature:
     %   Kazufumi Ito and Kaiqi Xiong,
     %   Gaussian Filters for Nonlinear Filtering Problems,
-    %   IEEE Transactions on Automatic Control, Vol. 45, No. 5, May 2000, pp. 910-927.
+    %   IEEE Transactions on Automatic Control, vol. 45, no. 5, pp. 910-927, May 2000.
     %
     %   Yulong Huang, Yonggang Zhang, Ning Li, and Lin Zhao,
     %   Design of Sigma-Point Kalman Filter with Recursive Updated Measurement,
-    %   Circuits, Systems, and Signal Processing, Aug 2015, pp. 1-16.
+    %   Circuits, Systems, and Signal Processing, pp. 1-16, Aug. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

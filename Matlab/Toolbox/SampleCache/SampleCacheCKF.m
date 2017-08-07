@@ -11,7 +11,7 @@ classdef SampleCacheCKF < SampleCache
     % Literature:
     %   Bin Jia, Ming Xin, and Yang Cheng,
     %   High-Degree Cubature Kalman Filter,
-    %   Automatica, Vol. 49, No. 2, Feb 2013, pp. 510-518.
+    %   Automatica, vol. 49, no. 2, pp. 510-518, Feb. 2013.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

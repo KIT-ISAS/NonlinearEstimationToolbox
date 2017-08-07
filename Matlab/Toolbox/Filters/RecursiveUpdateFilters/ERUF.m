@@ -30,7 +30,7 @@ classdef ERUF < TaylorBasedRecursiveUpdateFilter & FirstOrderTaylorLinearGaussia
     % Literature:
     %   Renato Zanetti,
     %   Recursive Update Filtering for Nonlinear Estimation,
-    %   IEEE Transactions on Automatic Control, Vol. 57, No. 6, Jun 2012, pp. 1481-1490.
+    %   IEEE Transactions on Automatic Control, vol. 57, no. 6, pp. 1481-1490, Jun. 2012.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

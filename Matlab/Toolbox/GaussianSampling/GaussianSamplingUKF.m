@@ -13,7 +13,7 @@ classdef GaussianSamplingUKF < GaussianSampling
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
     %   Unscented Filtering and Nonlinear Estimation,
-    %   Proceedings of the IEEE, Vol. 92 No. 3, 2004, pp. 401-422.
+    %   Proceedings of the IEEE, vol. 92 no. 3, pp. 401-422, 2004.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

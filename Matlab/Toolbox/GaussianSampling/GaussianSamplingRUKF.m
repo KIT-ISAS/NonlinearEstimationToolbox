@@ -13,8 +13,7 @@ classdef GaussianSamplingRUKF < GaussianSampling
     % Literature:
     %   Jindrich Dunik, Ondrej Straka, and Miroslav Simandl,
     %   The Development of a Randomised Unscented Kalman Filter,
-    %   Proceedings of the 18th IFAC World Congress,
-    %   Milano, Italy, Aug 2011, pp. 8-13.
+    %   Proceedings of the 18th IFAC World Congress, Milano, Italy, pp. 8-13, Aug. 2011.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

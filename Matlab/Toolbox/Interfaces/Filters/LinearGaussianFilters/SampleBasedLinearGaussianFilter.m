@@ -28,11 +28,11 @@ classdef SampleBasedLinearGaussianFilter < LinearGaussianFilter
     % Literature:
     %   Michael Roth, Gustaf Hendeby, and Fredrik Gustafsson,
     %   Nonlinear Kalman Filters Explained: A Tutorial on Moment Computations and Sigma Point Methods,
-    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 47-70.
+    %   Journal of Advances in Information Fusion, vol. 11, no. 1, pp. 47-70, Jun. 2016.
     %
     %   Jannik Steinbring and Uwe D. Hanebeck,
     %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
-    %   Journal of Advances in Information Fusion, Vol. 9, No. 2, Dec 2014, pp. 106-123.
+    %   Journal of Advances in Information Fusion, vol. 9, no. 2, pp. 106-123, Dec. 2014.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

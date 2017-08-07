@@ -55,7 +55,7 @@ classdef SampleBasedRecursiveUpdateFilter < RecursiveUpdateFilter
     % Literature:
     %   Yulong Huang, Yonggang Zhang, Ning Li, and Lin Zhao,
     %   Design of Sigma-Point Kalman Filter with Recursive Updated Measurement,
-    %   Circuits, Systems, and Signal Processing, Aug 2015, pp. 1-16.
+    %   Circuits, Systems, and Signal Processing, pp. 1-16, Aug. 2015.
     
     methods
         function obj = SampleBasedRecursiveUpdateFilter(name)

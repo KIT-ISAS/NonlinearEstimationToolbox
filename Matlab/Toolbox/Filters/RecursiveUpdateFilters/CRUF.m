@@ -30,11 +30,11 @@ classdef CRUF < SampleBasedRecursiveUpdateFilter & CubatureLinearGaussianFilter
     % Literature:
     %   Bin Jia, Ming Xin, and Yang Cheng,
     %   High-Degree Cubature Kalman Filter,
-    %   Automatica, Vol. 49, No. 2, Feb 2013, pp. 510-518.
+    %   Automatica, vol. 49, no. 2, pp. 510-518, Feb. 2013.
     %
     %   Yulong Huang, Yonggang Zhang, Ning Li, and Lin Zhao,
     %   Design of Sigma-Point Kalman Filter with Recursive Updated Measurement,
-    %   Circuits, Systems, and Signal Processing, Aug 2015, pp. 1-16.
+    %   Circuits, Systems, and Signal Processing, pp. 1-16, Aug. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

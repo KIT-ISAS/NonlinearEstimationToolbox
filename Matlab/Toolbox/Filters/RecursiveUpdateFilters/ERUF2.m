@@ -28,9 +28,13 @@ classdef ERUF2 < TaylorBasedRecursiveUpdateFilter & SecondOrderTaylorLinearGauss
     %   getNumIterations            - Get the number of iterations that will be performed by a measurement update.
     
     % Literature:
+    %   Michael Athans, Richard P. Wishner, and Anthony Bertolini,
+    %   Suboptimal State Estimation for Continuous-Time Nonlinear Systems from Discrete Noisy Measurements,
+    %   IEEE Transactions on Automatic Control, vol. 13, no. 5, pp. 504-514, Oct. 1968.
+    %
     %   Renato Zanetti,
     %   Recursive Update Filtering for Nonlinear Estimation,
-    %   IEEE Transactions on Automatic Control, Vol. 57, No. 6, Jun 2012, pp. 1481-1490.
+    %   IEEE Transactions on Automatic Control, vol. 57, no. 6, pp. 1481-1490, Jun. 2012.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

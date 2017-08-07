@@ -16,16 +16,15 @@ classdef GaussianSamplingLCD < GaussianSampling
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
-    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
+    %   Journal of Advances in Information Fusion, vol. 11, no. 1, pp. 71-90, Jun. 2016.
     %
     %   Jannik Steinbring and Uwe D. Hanebeck,
     %   LRKF Revisited: The Smart Sampling Kalman Filter (S²KF),
-    %   Journal of Advances in Information Fusion, Vol. 9, No. 2, Dec 2014, pp. 106-123.
+    %   Journal of Advances in Information Fusion, vol. 9, no. 2, pp. 106-123, Dec. 2014.
     %
     %   Uwe D. Hanebeck, Marco F. Huber, and Vesa Klumpp,
     %   Dirac Mixture Approximation of Multivariate Gaussian Densities,
-    %   Proceedings of the 2009 IEEE Conference on Decision and Control (CDC 2009),
-    %   Shanghai, China, Dec 2009.
+    %   Proceedings of the 2009 IEEE Conference on Decision and Control (CDC 2009), Shanghai, China, Dec. 2009.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

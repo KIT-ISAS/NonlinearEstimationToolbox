@@ -32,11 +32,11 @@ classdef URUF < SampleBasedRecursiveUpdateFilter & UnscentedLinearGaussianFilter
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
     %   Unscented Filtering and Nonlinear Estimation,
-    %   Proceedings of the IEEE, Vol. 92 No. 3, 2004, pp. 401-422.
+    %   Proceedings of the IEEE, vol. 92 no. 3, pp. 401-422, 2004.
     %
     %   Yulong Huang, Yonggang Zhang, Ning Li, and Lin Zhao,
     %   Design of Sigma-Point Kalman Filter with Recursive Updated Measurement,
-    %   Circuits, Systems, and Signal Processing, Aug 2015, pp. 1-16.
+    %   Circuits, Systems, and Signal Processing, pp. 1-16, Aug. 2015.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

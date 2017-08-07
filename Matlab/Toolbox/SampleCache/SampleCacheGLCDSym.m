@@ -11,7 +11,7 @@ classdef SampleCacheGLCDSym < SampleCache
     % Literature:
     %   Jannik Steinbring, Martin Pander, and Uwe D. Hanebeck,
     %   The Smart Sampling Kalman Filter with Symmetric Samples
-    %   Journal of Advances in Information Fusion, Vol. 11, No. 1, Jun 2016, pp. 71-90.
+    %   Journal of Advances in Information Fusion, vol. 11, no. 1, pp. 71-90, Jun. 2016.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
