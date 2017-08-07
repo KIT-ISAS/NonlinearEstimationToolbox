@@ -53,7 +53,7 @@ classdef TestASIRPF < TestSIRPF
             obj.defaultConstructorTests@TestFilter(f);
             
             % ASIRPF-related tests
-            obj.verifyEqual(f.getName(), 'Auxiliary SIRPF');
+            obj.verifyEqual(f.getName(), 'ASIRPF');
             obj.verifyEqual(f.getNumParticles(), 1000);
             obj.verifyEqual(f.getMinAllowedNormalizedESS(), 0.5);
         end
