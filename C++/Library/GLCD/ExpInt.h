@@ -3,13 +3,14 @@
  *
  *    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
  *
- *    Copyright (C) 2015  Jannik Steinbring <jannik.steinbring@kit.edu>
+ *    Copyright (C) 2015-2017  Jannik Steinbring <nonlinearestimation@gmail.com>
+ *                             Martin Pander
  *
- *                        Institute for Anthropomatics and Robotics
- *                        Chair for Intelligent Sensor-Actuator-Systems (ISAS)
- *                        Karlsruhe Institute of Technology (KIT), Germany
+ *    The original exponential integral code was taken from the GNU Scientific Library
+ *    (GSL) version 1.16, <http://www.gnu.org/software/gsl/>.
  *
- *                        http://isas.uka.de
+ *    Copyright (C) 2007 Brian Gough
+ *    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002 Gerard Jungman
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by

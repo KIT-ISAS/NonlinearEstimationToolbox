@@ -3,14 +3,8 @@
  *
  *    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
  *
- *    Copyright (C) 2015  Jannik Steinbring <jannik.steinbring@kit.edu>
- *                        Antonio Zea <antonio.zea@kit.edu>  
- *
- *                        Institute for Anthropomatics and Robotics
- *                        Chair for Intelligent Sensor-Actuator-Systems (ISAS)
- *                        Karlsruhe Institute of Technology (KIT), Germany
- *
- *                        http://isas.uka.de
+ *    Copyright (C) 2015-2017  Jannik Steinbring <nonlinearestimation@gmail.com>
+ *                             Antonio Zea <antonio.zea@kit.edu>
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -25,6 +19,5 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <Mex/Matrix.h>
 #include <Mex/MatrixXD.h>

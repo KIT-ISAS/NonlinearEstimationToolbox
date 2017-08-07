@@ -3,13 +3,13 @@
  *
  *    For more information, see https://bitbucket.org/nonlinearestimation/toolbox
  *
- *    Copyright (C) 2015  Jannik Steinbring <jannik.steinbring@kit.edu>
+ *    Copyright (C) 2015-2017  Jannik Steinbring <nonlinearestimation@gmail.com>
  *
- *                        Institute for Anthropomatics and Robotics
- *                        Chair for Intelligent Sensor-Actuator-Systems (ISAS)
- *                        Karlsruhe Institute of Technology (KIT), Germany
+ *    The original L-BFGS C code was taken from libLBFGS version 1.10,
+ *    <http://www.chokkan.org/software/liblbfgs/>, licensed under the MIT license.
  *
- *                        http://isas.uka.de
+ *    Copyright (C) 2007-2010 Naoaki Okazaki
+ *    Copyright (C) 1990 Jorge Nocedal
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
