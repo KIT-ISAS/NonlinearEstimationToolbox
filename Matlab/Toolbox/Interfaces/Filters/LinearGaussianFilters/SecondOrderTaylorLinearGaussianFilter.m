@@ -223,7 +223,7 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
             
             h = measModel.measurementEquation(stateMean) + stateHessMean + addNoiseMean;
             
-        	H = stateJacobian;
+            H = stateJacobian;
             
             R = stateHessCov + addNoiseCov;
         end

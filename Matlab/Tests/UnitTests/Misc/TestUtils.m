@@ -764,18 +764,18 @@ classdef TestUtils < matlab.unittest.TestCase
         end
         
         function stateJacobian = jacobianStateFunc(state)
-            stateJacobian = [2 * state(1) * state(2)^3        	3 * state(1)^2 * state(2)^2
-                             1                               	cos(state(2))
-                             exp(state(1)) * sqrt(state(2))   	0.5 * exp(state(1)) * state(2)^(-0.5)];
+            stateJacobian = [2 * state(1) * state(2)^3          3 * state(1)^2 * state(2)^2
+                             1                                  cos(state(2))
+                             exp(state(1)) * sqrt(state(2))     0.5 * exp(state(1)) * state(2)^(-0.5)];
         end
         
         function stateHessians = hessiansStateFunc(state)
             stateHessians(:, :, 1) = [2 * state(2)^3                6 * state(1) * state(2)^2
-                                      6 * state(1) * state(2)^2   	6 * state(1)^2 * state(2)];
+                                      6 * state(1) * state(2)^2     6 * state(1)^2 * state(2)];
             stateHessians(:, :, 2) = [0        0
                                       0        -sin(state(2))];
-            stateHessians(:, :, 3) = [exp(state(1)) * sqrt(state(2))        	0.5 * exp(state(1)) * state(2)^(-0.5)
-                                      0.5 * exp(state(1)) * state(2).^(-0.5)	-1/4 * exp(state(1)) * state(2)^(-1.5)];
+            stateHessians(:, :, 3) = [exp(state(1)) * sqrt(state(2))            0.5 * exp(state(1)) * state(2)^(-0.5)
+                                      0.5 * exp(state(1)) * state(2).^(-0.5)    -1/4 * exp(state(1)) * state(2)^(-1.5)];
         end
         
         function values = stateAndNoiseFunc(state, noise)
@@ -793,7 +793,7 @@ classdef TestUtils < matlab.unittest.TestCase
         
         function [stateHessians, noiseHessians] = hessiansStateAndNoiseFunc(state, noise)
             stateHessians(:, :, 1) = [2 * state(2)^3 * noise(2)^2               6 * state(1) * state(2)^2 * noise(2)^2
-                                      6 * state(1) * state(2)^2 * noise(2)^2   	6 * state(1)^2 * state(2) * noise(2)^2];
+                                      6 * state(1) * state(2)^2 * noise(2)^2    6 * state(1)^2 * state(2) * noise(2)^2];
             stateHessians(:, :, 2) = [0        0
                                       0        -sin(state(2)) * sqrt(noise(1))];
             

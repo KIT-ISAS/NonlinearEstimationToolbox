@@ -27,7 +27,7 @@ classdef TestUtilsStep
                   trueStateMean, trueStateCov] = getAdditiveNoiseSystemModelData()
             initState = Gaussian(TestUtilsStep.initMean, ...
                                  TestUtilsStep.initCov);
-          	
+            
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predAddNoiseSysModel();
             
@@ -41,7 +41,7 @@ classdef TestUtilsStep
                   trueStateMean, trueStateCov] = getSystemModelData()
             initState = Gaussian(TestUtilsStep.initMean, ...
                                  TestUtilsStep.initCov);
-          	
+            
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predSysModel();
             
@@ -55,7 +55,7 @@ classdef TestUtilsStep
                   trueStateMean, trueStateCov] = getMixedNoiseSystemModelData()
             initState = Gaussian(TestUtilsStep.initMean, ...
                                  TestUtilsStep.initCov);
-          	
+            
             % True prediction
             [sysModel, truePredMean, truePredCov] = TestUtilsStep.predMixedNoiseSysModel();
             
