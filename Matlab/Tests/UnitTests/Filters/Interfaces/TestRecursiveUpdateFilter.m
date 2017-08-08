@@ -22,12 +22,12 @@ classdef TestRecursiveUpdateFilter < TestLinearGaussianFilter
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testSetNumIterations(obj)
+        function testSetNumRecursionSteps(obj)
             f = obj.initFilter();
             
-            f.setNumIterations(5);
+            f.setNumRecursionSteps(5);
             
-            obj.verifyEqual(f.getNumIterations(),5);
+            obj.verifyEqual(f.getNumRecursionSteps(),5);
         end
         
         
@@ -56,7 +56,7 @@ classdef TestRecursiveUpdateFilter < TestLinearGaussianFilter
             obj.defaultConstructorTests@TestLinearGaussianFilter(f);
             
             % RecursiveUpdateFilter-related tests
-            obj.verifyEqual(f.getNumIterations(), 10);
+            obj.verifyEqual(f.getNumRecursionSteps(), 10);
         end
         
         function testUpdateNonlinearConfigruations(obj, getMeasModelData)

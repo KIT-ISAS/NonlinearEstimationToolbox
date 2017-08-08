@@ -24,8 +24,8 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
     %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
     %   setMeasGatingThreshold      - Set the measurement gating threshold.
     %   getMeasGatingThreshold      - Get the measurement gating threshold.
-    %   setNumIterations            - Set the number of iterations that will be performed by a measurement update.
-    %   getNumIterations            - Get the number of iterations that will be performed by a measurement update.
+    %   setNumRecursionSteps        - Set the number of recursion steps that are performed by a measurement update.
+    %   getNumRecursionSteps        - Get the number of recursion steps that are performed by a measurement update.
     
     % Literature:
     %   Renato Zanetti,
@@ -70,35 +70,35 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
             % Call superclass constructor
             obj = obj@LinearGaussianFilter(name);
             
-            % By default, 10 iterations are performed by a measurement update.
-            obj.numIterations = 10;
+            % By default, 10 recursion steps are performed by a measurement update.
+            obj.numRecursionSteps = 10;
         end
         
-        function setNumIterations(obj, numIterations)
-            % Set the number of iterations that will be performed by a measurement update.
+        function setNumRecursionSteps(obj, numRecursionSteps)
+            % Set the number of recursion steps that are performed by a measurement update.
             %
-            % By default, 10 iterations are performed by a measurement update.
+            % By default, 10 recursion steps are performed by a measurement update.
             %
             % Parameters:
-            %   >> numIterations (Positive scalar)
-            %      The new number of iterations that will be performed by a measurement update.
+            %   >> numRecursionSteps (Positive scalar)
+            %      The new number of recursion steps that are performed by a measurement update.
             
-            if ~Checks.isPosScalar(numIterations)
-                obj.error('InvalidNumberOfIterations', ...
-                          'numIterations must be a positive scalar.');
+            if ~Checks.isPosScalar(numRecursionSteps)
+                obj.error('InvalidNumberOfRecursionSteps', ...
+                          'numRecursionSteps must be a positive scalar.');
             end
             
-            obj.numIterations = ceil(numIterations);
+            obj.numRecursionSteps = ceil(numRecursionSteps);
         end
         
-        function numIterations = getNumIterations(obj)
-            % Get the number of iterations that will be performed by a measurement update.
+        function numRecursionSteps = getNumRecursionSteps(obj)
+            % Get the number of recursion steps that are performed by a measurement update.
             %
             % Returns:
-            %   << numIterations (Scalar)
-            %      The number of iterations that will be performed by a measurement update.
+            %   << numRecursionSteps (Scalar)
+            %      The number of recursion steps that are performed by a measurement update.
             
-            numIterations = obj.numIterations;
+            numRecursionSteps = obj.numRecursionSteps;
         end
     end
     
@@ -112,7 +112,7 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
             
             measCovSqrt = obj.checkCovUpdate(measCov, 'Measurement');
             
-            r = 1 / obj.numIterations;
+            r = 1 / obj.numRecursionSteps;
             A = stateMeasCrossCov / measCovSqrt';
             K = r * (A / measCovSqrt);
             
@@ -136,7 +136,7 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
             end
             
             % Next recursion steps
-            for i = 2:obj.numIterations
+            for i = 2:obj.numRecursionSteps
                 % Check if intermediate state covariance matrix is valid
                 updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
                 
@@ -150,7 +150,7 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
                 
                 measCovSqrt = obj.checkCovUpdate(measCov, 'Measurement');
                 
-                r = 1 / (obj.numIterations + 1 - i);
+                r = 1 / (obj.numRecursionSteps + 1 - i);
                 A = stateMeasCrossCov / measCovSqrt';
                 K = r * (A / measCovSqrt);
                 
@@ -168,7 +168,7 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
     end
     
     properties (Access = 'private')
-        % The number of iterations that will be performed by a measurement update.
-        numIterations;
+        % The number of recursion steps that are performed by a measurement update.
+        numRecursionSteps;
     end
 end

@@ -24,8 +24,8 @@ classdef URUF < SampleBasedRecursiveUpdateFilter & UnscentedLinearGaussianFilter
     %   getUpdatePostProcessing     - Get the post-processing method for the measurement update.
     %   setMeasGatingThreshold      - Set the measurement gating threshold.
     %   getMeasGatingThreshold      - Get the measurement gating threshold.
-    %   setNumIterations            - Set the number of iterations that will be performed by a measurement update.
-    %   getNumIterations            - Get the number of iterations that will be performed by a measurement update.
+    %   setNumRecursionSteps        - Set the number of recursion steps that are performed by a measurement update.
+    %   getNumRecursionSteps        - Get the number of recursion steps that are performed by a measurement update.
     %   setSampleScalings           - Set the sample scaling factors used for state prediction and measurement update.
     %   getSampleScalings           - Get the sample scaling factors used for state prediction and measurement update.
     
