@@ -118,8 +118,19 @@ function StandardKFExample()
     % Perform a prediction step
     filter.predict(sysModel);
     
-    % Show the predicted state estimate
-    printStateMeanAndCov(filter);
+    % Print predicted state mean and state covariance matrix by getting its
+    % Gaussian state estimate:
+    predState = filter.getState();
+    
+    [mean, cov] = predState.getMeanAndCov();
+    
+    fprintf('Predicted state mean:\n');
+    disp(mean);
+    
+    fprintf('Predicted state covariance:\n');
+    disp(cov);
+    
+    fprintf('\n');
     
     % Assume we receive the measurement
     measurement = 2.139;
@@ -127,6 +138,16 @@ function StandardKFExample()
     % Perform a measurement update
     filter.update(measModel, measurement);
     
-    % Show the filtered state estimate
-   printStateMeanAndCov(filter);
+    % Print the updated state estimate. However, instead of using a combination
+    % of getState() and getMeanAndCov() as above, we now simply use the
+    % Filter's getStateMeanAndCov() method:
+    [mean, cov] = filter.getStateMeanAndCov();
+    
+    fprintf('Updated state mean:\n');
+    disp(mean);
+    
+    fprintf('Updated state covariance:\n');
+    disp(cov);
+    
+    fprintf('\n');
 end
