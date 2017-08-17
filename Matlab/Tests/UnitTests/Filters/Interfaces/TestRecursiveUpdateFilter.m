@@ -60,8 +60,8 @@ classdef TestRecursiveUpdateFilter < TestLinearGaussianFilter
         end
         
         function testUpdateNonlinearConfigruations(obj, getMeasModelData)
-            configs    = logical(dec2bin(0:7) - '0');
-            numConfigs = 8;
+            configs    = logical(dec2bin(0:15) - '0');
+            numConfigs = 16;
             
             for i = 1:numConfigs
                 obj.testUpdateNonlinearConfiguration(configs(i, :), getMeasModelData);
@@ -69,9 +69,10 @@ classdef TestRecursiveUpdateFilter < TestLinearGaussianFilter
         end
         
         function testUpdateNonlinearConfiguration(obj, config, getMeasModelData)
-            stateDecomp    = config(1);
-            postProcessing = config(2);
-            measGating     = config(3);
+            singleRecursion = config(1);
+            stateDecomp     = config(2);
+            postProcessing  = config(3);
+            measGating      = config(4);
             
             [initState, measModel, ...
              measurement, stateDecompDim, ...
@@ -82,6 +83,10 @@ classdef TestRecursiveUpdateFilter < TestLinearGaussianFilter
             tol = sqrt(eps);
             
             f.setState(initState);
+            
+            if singleRecursion
+                f.setNumRecursionSteps(1);
+            end
             
             if stateDecomp
                 f.setStateDecompDim(stateDecompDim);
