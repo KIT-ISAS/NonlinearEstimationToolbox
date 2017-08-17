@@ -4,7 +4,6 @@ classdef Utils
     %
     % Utils Methods:
     %   getMeanAndCov             - Compute sample mean and sample covariance.
-    %   getMeanCovAndCrossCov     - Compute sample mean, covariance, and cross-covariance.
     %   getGMMeanAndCov           - Compute mean and covariance matrix of a Gaussian mixture.
     %   kalmanUpdate              - Perform a Kalman update.
     %   decomposedStateUpdate     - Perform an update for a system state decomposed into two parts A and B.
@@ -104,87 +103,6 @@ classdef Utils
                         
                         cov = cov - weightedZeroMeanSamples * weightedZeroMeanSamples';
                     end
-                end
-            end
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = getMeanCovAndCrossCov(stateMean, stateSamples, ...
-                                                             measSamples, weights)
-            % Compute sample mean, covariance, and cross-covariance.
-            %
-            % Parameters:
-            %   >> stateMean (Column vector)
-            %      State mean.
-            %
-            %   >> stateSamples (Matrix)
-            %      Column-wise arranged state samples.
-            %
-            %   >> measSamples (Matrix)
-            %      Column-wise arranged measurement samples.
-            %
-            %   >> weights (Row vector)
-            %      Column-wise arranged corresponding normalized sample weights.
-            %      If no weights are passed, all samples are assumed
-            %      to be equally weighted.
-            %
-            % Returns:
-            %   << measMean (Column vector)
-            %      The sample measurement mean.
-            %
-            %   << measCov (Positive definite matrix)
-            %      The sample measurement covariance matrix.
-            %
-            %   << stateMeasCrossCov (Matrix)
-            %      The sample state measurement cross-covariance matrix.
-            
-            if nargin < 4
-                numSamples = size(stateSamples, 2);
-                
-                % Compute measurement mean
-                measMean = sum(measSamples, 2) / numSamples;
-                
-                % Compute measurement covariance
-                diffMeasSamples = bsxfun(@minus, measSamples, measMean);
-                
-                measCov = (diffMeasSamples * diffMeasSamples') / numSamples;
-                
-                % Compute state measurement cross-covariance
-                diffStateSamples = bsxfun(@minus, stateSamples, stateMean);
-                
-                stateMeasCrossCov = (diffStateSamples * diffMeasSamples') / numSamples;
-            else
-                % Compute measurement mean
-                measMean = measSamples * weights';
-                
-                % Compute measurement covariance and state measurement cross-covariance
-                diffMeasSamples  = bsxfun(@minus, measSamples, measMean);
-                diffStateSamples = bsxfun(@minus, stateSamples, stateMean);
-                
-                % Weights can be negative => we have to treat them separately
-                
-                % Positive weights
-                idx = weights >= 0;
-                
-                sqrtWeights              = sqrt(weights(idx));
-                weightedDiffMeasSamples  = bsxfun(@times, diffMeasSamples(:, idx), sqrtWeights);
-                weightedDiffStateSamples = bsxfun(@times, diffStateSamples(:, idx), sqrtWeights);
-                
-                measCov = weightedDiffMeasSamples * weightedDiffMeasSamples';
-                
-                stateMeasCrossCov = weightedDiffStateSamples * weightedDiffMeasSamples';
-                
-                % Negative weights
-                if ~all(idx)
-                    idx = ~idx;
-                    
-                    sqrtWeights              = sqrt(abs(weights(idx)));
-                    weightedDiffMeasSamples  = bsxfun(@times, diffMeasSamples(:, idx), sqrtWeights);
-                    weightedDiffStateSamples = bsxfun(@times, diffStateSamples(:, idx), sqrtWeights);
-                    
-                    measCov = measCov - weightedDiffMeasSamples * weightedDiffMeasSamples';
-                    
-                    stateMeasCrossCov = stateMeasCrossCov - weightedDiffStateSamples * weightedDiffMeasSamples';
                 end
             end
         end
