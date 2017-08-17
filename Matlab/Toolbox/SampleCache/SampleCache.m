@@ -99,7 +99,10 @@ classdef SampleCache < handle & matlab.mixin.Copyable
             end
             
             samples = obj.data{dimension}{numSamples}.samples;
-            weights = obj.data{dimension}{numSamples}.weights;
+            
+            if nargout == 2
+                weights = obj.data{dimension}{numSamples}.weights;
+            end
         end
         
         function generateSamples(obj, dimension, numSamples, forceOverwrite)
