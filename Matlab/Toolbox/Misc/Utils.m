@@ -49,8 +49,9 @@ classdef Utils
             %      Column-wise arranged samples.
             %
             %   >> weights (Row vector)
-            %      Column-wise arranged corresponding normalized sample weights.
-            %      If no weights are passed, all samples are assumed
+            %      Either column-wise arranged corresponding normalized sample weights
+            %      or single scalar weight in case of equally weighted samples.
+            %      If no weights are passed, all samples are also assumed
             %      to be equally weighted.
             %
             % Returns:
@@ -61,16 +62,20 @@ classdef Utils
             %      The sample covariance matrix.
             
             if nargin < 2
+                % All samples are assumed to be equally weighted
                 numSamples = size(samples, 2);
-                
+                weights    = 1 / numSamples;
+            end
+            
+            if numel(weights) == 1
                 % Compute mean
-                mean = sum(samples, 2) / numSamples;
+                mean = sum(samples, 2) * weights;
                 
                 % Compute covariance
                 if nargout > 1
-                    diffSamples = bsxfun(@minus, samples, mean);
+                    zeroMeanSamples = bsxfun(@minus, samples, mean);
                     
-                    cov = (diffSamples * diffSamples') / numSamples;
+                    cov = (zeroMeanSamples * zeroMeanSamples') * weights;
                 end
             else
                 % Compute mean
@@ -78,26 +83,26 @@ classdef Utils
                 
                 % Compute covariance
                 if nargout > 1
-                    diffSamples = bsxfun(@minus, samples, mean);
+                    zeroMeanSamples = bsxfun(@minus, samples, mean);
                     
                     % Weights can be negative => we have to treat them separately
                     
                     % Positive weights
                     idx = weights >= 0;
                     
-                    sqrtWeights         = sqrt(weights(idx));
-                    weightedDiffSamples = bsxfun(@times, diffSamples(:, idx), sqrtWeights);
+                    sqrtWeights             = sqrt(weights(idx));
+                    weightedZeroMeanSamples = bsxfun(@times, zeroMeanSamples(:, idx), sqrtWeights);
                     
-                    cov = weightedDiffSamples * weightedDiffSamples';
+                    cov = weightedZeroMeanSamples * weightedZeroMeanSamples';
                     
                     % Negative weights
                     if ~all(idx)
                         idx = ~idx;
                         
-                        sqrtWeights         = sqrt(abs(weights(idx)));
-                        weightedDiffSamples = bsxfun(@times, diffSamples(:, idx), sqrtWeights);
+                        sqrtWeights             = sqrt(abs(weights(idx)));
+                        weightedZeroMeanSamples = bsxfun(@times, zeroMeanSamples(:, idx), sqrtWeights);
                         
-                        cov = cov - weightedDiffSamples * weightedDiffSamples';
+                        cov = cov - weightedZeroMeanSamples * weightedZeroMeanSamples';
                     end
                 end
             end

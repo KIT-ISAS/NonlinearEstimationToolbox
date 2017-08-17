@@ -23,7 +23,7 @@ classdef TestUtils < matlab.unittest.TestCase
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods (Test)
-        function testGetMeanAndCov(obj)
+        function testGetMeanAndCovNoWeights(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));
             
@@ -31,6 +31,21 @@ classdef TestUtils < matlab.unittest.TestCase
             trueCov  = diag(repmat(8 / 7, 1, 3));
             
             [mean, cov] = Utils.getMeanAndCov(samples);
+            
+            obj.verifyEqual(mean, trueMean);
+            obj.verifyEqual(cov, cov');
+            obj.verifyEqual(cov, trueCov);
+        end
+        
+        function testGetMeanAndCovWithSingleWeight(obj)
+            samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            weights = 1 / 7;
+            
+            trueMean = [-4 -4 -4]';
+            trueCov  = diag(repmat(8 / 7, 1, 3));
+            
+            [mean, cov] = Utils.getMeanAndCov(samples, weights);
             
             obj.verifyEqual(mean, trueMean);
             obj.verifyEqual(cov, cov');
