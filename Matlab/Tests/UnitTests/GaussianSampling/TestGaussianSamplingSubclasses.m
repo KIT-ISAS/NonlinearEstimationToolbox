@@ -36,6 +36,20 @@ classdef TestGaussianSamplingSubclasses < matlab.unittest.TestCase
             obj.verifyEqual(cov, eye(dim), 'AbsTol', tol);
         end
         
+        function testGetStdNormalSamplesEquallyWeighted(obj, g, dim, trueNumSamples, tol)
+            [samples, weights, numSamples] = g.getStdNormalSamples(dim);
+            
+            obj.verifyEqual(numSamples, trueNumSamples);
+            obj.verifyEqual(size(samples), [dim numSamples]);
+            obj.verifyEqual(weights, 1 / numSamples);
+            
+            [mean, cov] = Utils.getMeanAndCov(samples, weights);
+            
+            obj.verifyEqual(mean, zeros(dim, 1), 'AbsTol', tol);
+            obj.verifyEqual(cov, eye(dim), 'AbsTol', tol);
+        end
+        
+        
         function testGetSamples(obj, g, gaussian, trueNumSamples, tol)
             [trueMean, trueCov] = gaussian.getMeanAndCov();
             dim = gaussian.getDim();
@@ -46,6 +60,22 @@ classdef TestGaussianSamplingSubclasses < matlab.unittest.TestCase
             obj.verifyEqual(size(samples), [dim numSamples]);
             obj.verifyEqual(size(weights), [1 numSamples]);
             obj.verifyEqual(sum(weights), 1, 'AbsTol', 1e-8);
+            
+            [mean, cov] = Utils.getMeanAndCov(samples, weights);
+            
+            obj.verifyEqual(mean, trueMean, 'AbsTol', tol);
+            obj.verifyEqual(cov, trueCov, 'AbsTol', tol);
+        end
+        
+        function testGetSamplesEquallyWeighted(obj, g, gaussian, trueNumSamples, tol)
+            [trueMean, trueCov] = gaussian.getMeanAndCov();
+            dim = gaussian.getDim();
+            
+            [samples, weights, numSamples] = g.getSamples(gaussian);
+            
+            obj.verifyEqual(numSamples, trueNumSamples);
+            obj.verifyEqual(size(samples), [dim numSamples]);
+            obj.verifyEqual(weights, 1 / numSamples);
             
             [mean, cov] = Utils.getMeanAndCov(samples, weights);
             

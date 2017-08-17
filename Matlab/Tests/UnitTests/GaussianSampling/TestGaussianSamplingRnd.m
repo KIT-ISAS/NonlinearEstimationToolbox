@@ -44,12 +44,12 @@ classdef TestGaussianSamplingRnd < TestGaussianSamplingSubclasses
             
             g.setNumSamples(1e7);
             
-            obj.testGetStdNormalSamples(g,  1, 1e7, tol);
-            obj.testGetStdNormalSamples(g,  5, 1e7, tol);
-            obj.testGetStdNormalSamples(g, 10, 1e7, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1, 1e7, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 1e7, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 1e7, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D, 1e7, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 1e7, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D, 1e7, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 1e7, tol);
         end
     end
     

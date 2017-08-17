@@ -74,8 +74,7 @@ classdef GaussianSamplingRnd < GaussianSampling
             numSamples = obj.numSamples;
             
             samples = randn(dimension, obj.numSamples);
-            
-            weights = repmat(1 / obj.numSamples, 1, obj.numSamples);
+            weights = 1 / obj.numSamples;
         end
     end
     

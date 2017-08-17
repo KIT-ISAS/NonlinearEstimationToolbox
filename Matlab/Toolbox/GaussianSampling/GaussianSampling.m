@@ -42,7 +42,8 @@ classdef GaussianSampling < handle & matlab.mixin.Copyable
             %      Column-wise arranged sample positions approximating the Gaussian distribution.
             %
             %   << weights (Row vector)
-            %      Column-wise arranged corresponding sample weights.
+            %      Either column-wise arranged corresponding sample weights
+            %      or single scalar weight in case of equally weighted samples.
             %
             %   << numSamples (Positive scalar)
             %      Number of samples approximating the Gaussian distribution.
@@ -79,7 +80,8 @@ classdef GaussianSampling < handle & matlab.mixin.Copyable
         %      The column-wise arranged sample positions.
         %
         %   << weights (Row vector)
-        %      The column-wise arranged corresponding sample weights.
+        %      Either column-wise arranged corresponding sample weights
+        %      or single scalar weight in case of equally weighted samples.
         %
         %   << numSamples (Positive scalar)
         %      The number of samples.

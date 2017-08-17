@@ -95,12 +95,17 @@ classdef GaussianSamplingUKF < GaussianSampling
             
             numSamples = 2 * dimension + 1;
             
-            mat = sqrt(dimension + obj.scaling) * speye(dimension);
+            mat = sqrt(dimension + obj.scaling) * eye(dimension);
             
             samples = [zeros(dimension, 1) -mat mat];
             
-            weights = (1 / (2 * (dimension + obj.scaling))) * ...
-                      [2 * obj.scaling ones(1, numSamples - 1)];
+            if obj.scaling == 0.5
+                % Samples are equally weighted
+                weights = 1 / numSamples;
+            else
+                weights = (1 / (2 * (dimension + obj.scaling))) * ...
+                          [2 * obj.scaling ones(1, numSamples - 1)];
+            end
         end
     end
     

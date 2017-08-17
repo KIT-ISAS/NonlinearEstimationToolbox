@@ -42,12 +42,12 @@ classdef TestGaussianSamplingUKF < TestGaussianSamplingSubclasses
             g   = obj.initSampling();
             tol = 1e-12;
             
-            obj.testGetStdNormalSamples(g,  1,  3, tol);
-            obj.testGetStdNormalSamples(g,  5, 11, tol);
-            obj.testGetStdNormalSamples(g, 10, 21, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1,  3, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 11, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 21, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D, 3, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 7, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D, 3, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 7, tol);
         end
         
         function testSampleScalingOne(obj)

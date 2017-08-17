@@ -170,7 +170,8 @@ classdef GaussianSamplingLCD < GaussianSampling
             
             numSamples = obj.computeNumSamples(dimension);
             
-            [samples, weights] = obj.sampleCache.getSamples(dimension, numSamples);
+            samples = obj.sampleCache.getSamples(dimension, numSamples);
+            weights = 1 / numSamples;
         end
     end
     

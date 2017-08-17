@@ -72,12 +72,12 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g   = obj.initSampling();
             tol = 1e-12;
             
-            obj.testGetStdNormalSamples(g,  1,  11, tol);
-            obj.testGetStdNormalSamples(g,  5,  51, tol);
-            obj.testGetStdNormalSamples(g, 10, 101, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1,  11, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5,  51, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 101, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D, 11, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 31, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D, 11, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 31, tol);
         end
         
         function testNumSamplesAbsoluteSymmetric(obj)
@@ -87,12 +87,12 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamples(201);
             g.setSymmetricMode(true);
             
-            obj.testGetStdNormalSamples(g,  1, 201, tol);
-            obj.testGetStdNormalSamples(g,  5, 201, tol);
-            obj.testGetStdNormalSamples(g, 10, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 201, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D, 201, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 201, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D, 201, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 201, tol);
         end
         
         function testNumSamplesAbsoluteAsymmetric(obj)
@@ -102,12 +102,12 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamples(201);
             g.setSymmetricMode(false);
             
-            obj.testGetStdNormalSamples(g,  1, 201, tol);
-            obj.testGetStdNormalSamples(g,  5, 201, tol);
-            obj.testGetStdNormalSamples(g, 10, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 201, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 201, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D, 201, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 201, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D, 201, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 201, tol);
         end
         
         function testNumSamplesFactorSymmetric(obj)
@@ -117,12 +117,12 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamplesByFactor(5);
             g.setSymmetricMode(true);
             
-            obj.testGetStdNormalSamples(g,  1,  5, tol);
-            obj.testGetStdNormalSamples(g,  5, 25, tol);
-            obj.testGetStdNormalSamples(g, 10, 51, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1,  5, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 25, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 51, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D,  5, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 15, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D,  5, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 15, tol);
         end
         
         function testNumSamplesFactorAsymmetric(obj)
@@ -132,12 +132,12 @@ classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
             g.setNumSamplesByFactor(5);
             g.setSymmetricMode(false);
             
-            obj.testGetStdNormalSamples(g,  1,  5, tol);
-            obj.testGetStdNormalSamples(g,  5, 25, tol);
-            obj.testGetStdNormalSamples(g, 10, 51, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  1,  5, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g,  5, 25, tol);
+            obj.testGetStdNormalSamplesEquallyWeighted(g, 10, 51, tol);
             
-            obj.testGetSamples(g, obj.gaussian1D,  5, tol);
-            obj.testGetSamples(g, obj.gaussian3D, 15, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian1D,  5, tol);
+            obj.testGetSamplesEquallyWeighted(g, obj.gaussian3D, 15, tol);
         end
     end
     
