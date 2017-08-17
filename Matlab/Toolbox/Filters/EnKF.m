@@ -230,11 +230,7 @@ classdef EnKF < ParticleFilter
             
             ensembleMeasCrossCov = (zeroMeanEnsemble * zeroMeanMeasSamples') / obj.ensembleSize;
             
-            [~, isNonPosDef] = chol(measCov);
-            
-            if isNonPosDef
-                obj.ignoreMeas('Measurement covariance matrix is not positive definite.');
-            end
+            obj.checkCovUpdate(measCov, 'Measurement');
             
             % Compute Kalman gain
             kalmanGain = ensembleMeasCrossCov / measCov;
