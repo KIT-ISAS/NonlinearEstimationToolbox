@@ -72,6 +72,7 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
     end
     
     methods (Sealed, Access = 'protected')
+        % State prediction moment computation
         function [predictedStateMean, ...
                   predictedStateCov] = predictSysModel(obj, sysModel)
             [noiseMean, noiseCov, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
@@ -134,81 +135,10 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
             predictedStateCov = A * A' + stateHessCov + noiseCov;
         end
         
-        function setupMeasModel(obj, measModel, dimMeas)
-            [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            dimNoise = size(noiseMean, 1);
-            
-            obj.linearizedModelFuncHandle = @(stateMean, stateCov, stateCovSqrt) ...
-                                            obj.linearizedMeasModel(stateMean, stateCov, measModel, dimMeas, ...
-                                                                    dimNoise, noiseMean, noiseCov, noiseCovSqrt);
-        end
-        
-        function setupAddNoiseMeasModel(obj, measModel, dimMeas)
-            [addNoiseMean, addNoiseCov] = measModel.noise.getMeanAndCov();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
-            
-            obj.linearizedModelFuncHandle = @(stateMean, stateCov, stateCovSqrt) ...
-                                            obj.linearizedAddNoiseMeasModel(stateMean, stateCov, measModel, dimMeas, ...
-                                                                            addNoiseMean, addNoiseCov);
-        end
-        
-        function setupMixedNoiseMeasModel(obj, measModel, dimMeas)
-            [noiseMean, noiseCov, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
-            dimNoise    = size(noiseMean, 1);
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
-            
-            obj.linearizedModelFuncHandle = @(stateMean, stateCov, stateCovSqrt) ...
-                                            obj.linearizedMixedNoiseMeasModel(stateMean, stateCov, measModel, dimMeas, ...
-                                                                              dimNoise, noiseMean, noiseCov, noiseCovSqrt, ...
-                                                                              addNoiseMean, addNoiseCov);
-        end
-        
-        function [h, H, R] = linearizedModel(obj, stateMean, stateCov, stateCovSqrt)
-            % Note that obj.linearizedModelFuncHandle is set by the setup*() methods,
-            % which are called before the actual linear measurement update.
-            [h, H, R] = obj.linearizedModelFuncHandle(stateMean, stateCov, stateCovSqrt);
-        end
-    end
-    
-    methods (Access = 'private')
-        function [h, H, R] = linearizedMeasModel(obj, stateMean, stateCov, measModel, dimMeas, ...
-                                                 dimNoise, noiseMean, noiseCov, noiseCovSqrt)
-            dimState = size(stateMean, 1);
-            
-            % Compute measurement model derivatives around current state mean and noise mean
-            [stateJacobian, ...
-             noiseJacobian, ...
-             stateHessians, ...
-             noiseHessians] = measModel.derivative(stateMean, noiseMean);
-            
-            % Check computed derivatives
-            obj.checkStateJacobian(stateJacobian, dimMeas, dimState);
-            obj.checkStateHessians(stateHessians, dimMeas, dimState);
-            
-            obj.checkNoiseJacobian(noiseJacobian, dimMeas, dimNoise);
-            obj.checkNoiseHessians(noiseHessians, dimMeas, dimNoise);
-            
-            [stateHessMean, ...
-             stateHessCov, ...
-             noiseHessMean, ...
-             noiseHessCov] = obj.getHessianMomentsStateAndNoise(dimState, stateHessians, stateCov, ...
-                                                                dimNoise, noiseHessians, noiseCov, dimMeas);
-            
-            h = measModel.measurementEquation(stateMean, noiseMean) + stateHessMean + noiseHessMean;
-            
-            H = stateJacobian;
-            
-            A = noiseJacobian * noiseCovSqrt;
-            R = stateHessCov + A * A' + noiseHessCov;
-        end
-        
-        function [h, H, R] = linearizedAddNoiseMeasModel(obj, stateMean, stateCov, measModel, dimMeas, ...
-                                                         addNoiseMean, addNoiseCov)
+        % Helpers for the second-order Taylor-based linear measurement updates
+        function [h, stateJacobian, ...
+                  stateHessCov] = evaluateAddNoiseMeasModel(obj, measModel, dimMeas, ...
+                                                            stateMean, stateCov)
             dimState = size(stateMean, 1);
             
             % Compute measurement model derivatives around current state mean
@@ -221,16 +151,15 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
             [stateHessMean, ...
              stateHessCov] = obj.getHessianMomentsState(dimState, stateHessians, stateCov, dimMeas);
             
-            h = measModel.measurementEquation(stateMean) + stateHessMean + addNoiseMean;
-            
-            H = stateJacobian;
-            
-            R = stateHessCov + addNoiseCov;
+            h = measModel.measurementEquation(stateMean) + stateHessMean;
         end
         
-        function [h, H, R] = linearizedMixedNoiseMeasModel(obj, stateMean, stateCov, measModel, dimMeas, ...
-                                                           dimNoise, noiseMean, noiseCov, noiseCovSqrt, ...
-                                                           addNoiseMean, addNoiseCov)
+        function [h, stateJacobian, ...
+                  noiseJacobian, ...
+                  stateHessCov, ...
+                  noiseHessCov] = evaluateMeasModel(obj, measModel, dimMeas, dimNoise, ...
+                                                                  noiseMean, noiseCov, ...
+                                                                  stateMean, stateCov)
             dimState = size(stateMean, 1);
             
             % Compute measurement model derivatives around current state mean and noise mean
@@ -253,14 +182,11 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
                                                                 dimNoise, noiseHessians, noiseCov, dimMeas);
             
             h = measModel.measurementEquation(stateMean, noiseMean) + ...
-                stateHessMean + noiseHessMean + addNoiseMean;
-            
-            H = stateJacobian;
-            
-            A = noiseJacobian * noiseCovSqrt;
-            R = stateHessCov + A * A' + noiseHessCov + addNoiseCov;
+                stateHessMean + noiseHessMean;
         end
-        
+    end
+    
+    methods (Access = 'private')
         function [stateHessMean, ...
                   stateHessCov] = getHessianMomentsState(~, dimState, stateHessians, stateCov, dimOutput)
             stateHessProd = nan(dimState, dimState, dimState);
@@ -335,9 +261,5 @@ classdef SecondOrderTaylorLinearGaussianFilter < LinearGaussianFilter
             noiseHessMean = 0.5 * noiseHessMean;
             noiseHessCov  = 0.5 * noiseHessCov;
         end
-    end
-    
-    properties (Access = 'private')
-        linearizedModelFuncHandle;
     end
 end

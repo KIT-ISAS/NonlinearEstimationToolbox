@@ -66,10 +66,38 @@ classdef CubatureLinearGaussianFilter < SampleBasedLinearGaussianFilter
             %   << obj (CubatureLinearGaussianFilter)
             %      A new CubatureLinearGaussianFilter instance.
             
-            sampling = GaussianSamplingCKF();
-            
             % Call superclass constructor
-            obj = obj@SampleBasedLinearGaussianFilter(name, sampling);
+            obj = obj@SampleBasedLinearGaussianFilter(name);
+            
+            obj.sampling = GaussianSamplingCKF();
         end
+    end
+    
+    methods (Sealed, Access = 'protected')
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesPrediction(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.sampling.getStdNormalSamples(dim);
+        end
+        
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesUpdate(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.sampling.getStdNormalSamples(dim);
+        end
+    end
+    
+    methods (Access = 'protected')
+        % Copy Gaussian sampling technique correctly
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@SampleBasedLinearGaussianFilter();
+            
+            cpObj.sampling = obj.sampling.copy();
+        end
+    end
+    
+    properties (Access = 'private')
+        % Gaussian sampling technique used for the state prediction and measurement update.
+        sampling;
     end
 end

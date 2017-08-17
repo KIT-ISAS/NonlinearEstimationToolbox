@@ -52,7 +52,7 @@ classdef UnscentedLinearGaussianFilter < SampleBasedLinearGaussianFilter
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = UnscentedLinearGaussianFilter(name)
             % Class constructor.
             %
@@ -68,11 +68,11 @@ classdef UnscentedLinearGaussianFilter < SampleBasedLinearGaussianFilter
             %   << obj (UnscentedLinearGaussianFilter)
             %      A new UnscentedLinearGaussianFilter instance.
             
-            samplingPred = GaussianSamplingUKF();
-            samplingUp   = GaussianSamplingUKF();
-            
             % Call superclass constructor
-            obj = obj@SampleBasedLinearGaussianFilter(name, samplingPred, samplingUp);
+            obj = obj@SampleBasedLinearGaussianFilter(name);
+            
+            obj.samplingPrediction = GaussianSamplingUKF();
+            obj.samplingUpdate     = GaussianSamplingUKF();
             
             % By default, all samples are equally weighted for
             % state prediction and measurement update.
@@ -127,5 +127,37 @@ classdef UnscentedLinearGaussianFilter < SampleBasedLinearGaussianFilter
             scalingPrediction = obj.samplingPrediction.getSampleScaling();
             scalingUpdate     = obj.samplingUpdate.getSampleScaling();
         end
+    end
+    
+    methods (Sealed, Access = 'protected')
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesPrediction(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.samplingPrediction.getStdNormalSamples(dim);
+        end
+        
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesUpdate(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.samplingUpdate.getStdNormalSamples(dim);
+        end
+    end
+    
+    methods (Access = 'protected')
+        % Copy Gaussian sampling techniques correctly
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@SampleBasedLinearGaussianFilter();
+            
+            cpObj.samplingPrediction = obj.samplingPrediction.copy();
+            cpObj.samplingUpdate     = obj.samplingUpdate.copy();
+        end
+    end
+    
+    properties (Access = 'private')
+        % Gaussian sampling technique used for the state prediction.
+        samplingPrediction;
+        
+        % Gaussian sampling technique used for the measurement update.
+        samplingUpdate;
     end
 end

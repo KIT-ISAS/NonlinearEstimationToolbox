@@ -1,5 +1,5 @@
 
-classdef SampleBasedIterativeKalmanFilter < IterativeKalmanFilter
+classdef SampleBasedIterativeKalmanFilter < IterativeKalmanFilter & SampleBasedLinearGaussianFilter
     % Abstract base class for sample-based iterative Kalman filters.
     %
     % SampleBasedIterativeKalmanFilter Methods:
@@ -70,36 +70,173 @@ classdef SampleBasedIterativeKalmanFilter < IterativeKalmanFilter
             %   << obj (SampleBasedIterativeKalmanFilter)
             %      A new SampleBasedIterativeKalmanFilter instance.
             
-            % Call superclass constructor
+            % Call superclass constructors
             obj = obj@IterativeKalmanFilter(name);
+            obj = obj@SampleBasedLinearGaussianFilter(name);
         end
     end
     
     methods (Sealed, Access = 'protected')
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = getMeasMoments(obj, priorMean, ~, priorCovSqrt)
-            [measMean, measCov, ...
-             stateMeasCrossCov] = obj.measMomentFunc(priorMean, priorCovSqrt);
+        function setupMeasModel(obj, measModel, dimMeas)
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
+            
+            obj.momentFuncHandle = @(stateMean, stateCovSqrt) ...
+                                   obj.momentFuncMeasModel(measModel, dimMeas, ...
+                                                           noiseMean, noiseCovSqrt, ...
+                                                           stateMean, stateCovSqrt);
+        end
+        
+        function setupAddNoiseMeasModel(obj, measModel, dimMeas)
+            [addNoiseMean, addNoiseCov] = measModel.noise.getMeanAndCov();
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
+            
+            obj.momentFuncHandle = @(stateMean, stateCovSqrt) ...
+                                   obj.momentFuncAddNoiseMeasModel(measModel, dimMeas, ...
+                                                                   addNoiseMean, addNoiseCov, ...
+                                                                   stateMean, stateCovSqrt);
+        end
+        
+        function setupMixedNoiseMeasModel(obj, measModel, dimMeas)
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
+            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
+            
+            obj.momentFuncHandle = @(stateMean, stateCovSqrt) ...
+                                   obj.momentFuncMixedNoiseMeasModel(measModel, dimMeas, ...
+                                                                     noiseMean, noiseCovSqrt, ...
+                                                                     addNoiseMean, addNoiseCov, ...
+                                                                     stateMean, stateCovSqrt);
         end
         
         function [measMean, measCov, ...
-                  stateMeasCrossCov] = getIterationMeasMoments(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                               updatedMean, ~, updatedCovSqrt)
+                  stateMeasCrossCov] = getMeasMoments(obj, priorMean, ~, priorCovSqrt)
             [measMean, measCov, ...
-             stateMeasCrossCov] = obj.measMomentFunc(updatedMean, updatedCovSqrt);
+             stateMeasCrossCov] = obj.momentFuncHandle(priorMean, priorCovSqrt);
+        end
+        
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = getMeasMomentsIteration(obj, priorStateMean, priorStateCov, priorStateCovSqrt, ...
+                                                               updatedStateMean, ~, updatedStateCovSqrt)
+            [measMean, measCov, ...
+             stateMeasCrossCov] = obj.momentFuncHandle(updatedStateMean, updatedStateCovSqrt);
             
-            A = stateMeasCrossCov' / updatedCovSqrt';
-            H = A / updatedCovSqrt;
-            P = H * priorCovSqrt;
+            A = stateMeasCrossCov' / updatedStateCovSqrt';
+            H = A / updatedStateCovSqrt;
+            P = H * priorStateCovSqrt;
             
-            measMean          = measMean + H * (priorMean - updatedMean);
+            measMean          = measMean + H * (priorStateMean - updatedStateMean);
             measCov           = measCov + P * P' - A * A';
-            stateMeasCrossCov = priorCov * H';
+            stateMeasCrossCov = priorStateCov * H';
         end
     end
     
-    methods (Abstract, Access = 'protected')
-        [measMean, measCov, ...
-         stateMeasCrossCov] = measMomentFunc(obj, priorMean, priorCovSqrt);
+    methods (Access = 'private')
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentFuncMeasModel(obj, measModel, dimMeas, ...
+                                                           noiseMean, noiseCovSqrt, ...
+                                                           stateMean, stateCovSqrt)
+            [hSamples, weights, ...
+             zeroMeanStateSamples] = obj.evaluateMeasModelUncorr(measModel, dimMeas, ...
+                                                                 stateMean, stateCovSqrt, ...
+                                                                 noiseMean, noiseCovSqrt);
+            
+            % Compute moments:
+            %  - Measurement mean:
+            %    E[y] = E[h(x,v)]
+            %  - Measurement covariance matrix:
+            %    E[(y - E[y])*(y - E[y])'] = E[(h(x,v) - E[h(x,v)])*(h(x,v) - E[h(x,v)])']
+            %  - State--measurement cross-covariance matrix:
+            %    E[(x - E[x])*(y - E[y])'] = E[(x - E[x])*(h(x,v) - E[h(x,v)])']
+            [measMean, measCov, ...
+             stateMeasCrossCov] = obj.getMeasModelMomements(hSamples, weights, ...
+                                                            zeroMeanStateSamples);
+        end
+        
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentFuncAddNoiseMeasModel(obj, measModel, dimMeas, ...
+                                                                   addNoiseMean, addNoiseCov, ...
+                                                                   stateMean, stateCovSqrt)
+            [hSamples, weights, ...
+             zeroMeanStateSamples] = obj.evaluateAddNoiseMeasModel(measModel, dimMeas, ...
+                                                                   stateMean, stateCovSqrt);
+          	
+            % Compute moments:
+            %  - E[h(x)]
+            %  - E[(h(x) - E[h(x)])*(h(x) - E[h(x)])']
+            %  - E[(x - E[x])*(h(x) - E[h(x)])']
+            [hMean, hCov, ...
+             stateHCrossCov] = obj.getMeasModelMomements(hSamples, weights, ...
+                                                         zeroMeanStateSamples);
+            
+            % Measurement mean:
+            % E[y] = E[h(x)] + E[v]
+            measMean = hMean + addNoiseMean;
+            
+            % Measurement covariance matrix:
+            % E[(y - E[y])*(y - E[y])'] = E[(h(x) + v - E[h(x)] - E[v])*(h(x) + v - E[h(x)] - E[v])']
+            %                           = E[(h(x) - E[h(x)])*(h(x) - E[h(x)])']
+            %                           + E[(v - E[v])*(v - E[v])']
+            %                           + E[(h(x) - E[h(x)])*(v - E[v])']
+            %                           + E[(v - E[v])*(h(x) - E[h(x)])']
+            %                           = E[(h(x) - E[h(x)])*(h(x) - E[h(x)])']
+            %                           + E[(v - E[v])*(v - E[v])']
+            measCov = hCov + addNoiseCov;
+            
+            % State--measurement cross-covariance matrix
+            % E[(x - E[x])*(y - E[y])'] = E[(x - E[x])*(h(x) + v - E[h(x)] - E[v])']
+            %                           = E[(x - E[x])*(h(x) - E[h(x)])']
+            %                           + E[(x - E[x])*(v - E[v])']
+            %                           = E[(x - E[x])*(h(x) - E[h(x)])']
+            stateMeasCrossCov = stateHCrossCov;
+        end
+        
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = momentFuncMixedNoiseMeasModel(obj, measModel, dimMeas, ...
+                                                                     noiseMean, noiseCovSqrt, ...
+                                                                     addNoiseMean, addNoiseCov, ...
+                                                                     stateMean, stateCovSqrt)
+            [hSamples, weights, ...
+             zeroMeanStateSamples] = obj.evaluateMeasModelUncorr(measModel, dimMeas, ...
+                                                                 stateMean, stateCovSqrt, ...
+                                                                 noiseMean, noiseCovSqrt);
+            
+            % Compute moments:
+            %  - E[h(x,v)]
+            %  - E[(h(x,v) - E[h(x,v)])*(h(x,v) - E[h(x,v)])']
+            %  - E[(x - E[x])*(h(x,v) - E[h(x,v)])']
+            [hMean, hCov, ...
+             stateHCrossCov] = obj.getMeasModelMomements(hSamples, weights, ...
+                                                         zeroMeanStateSamples);
+            
+            % Measurement mean:
+            % E[y] = E[h(x,v)] + E[r]
+            measMean = hMean + addNoiseMean;
+            
+            % Measurement covariance matrix:
+            % E[(y - E[y])*(y - E[y])'] = E[(h(x,v) + r - E[h(x,v)] - E[r])*(h(x,v) + r - E[h(x,v)] - E[r])']
+            %                           = E[(h(x,v) - E[h(x,v)])*(h(x,v) - E[h(x,v)])']
+            %                           + E[(r - E[r])*(r - E[r])']
+            %                           + E[(h(x,v) - E[h(x,v)])*(r - E[r])']
+            %                           + E[(r - E[r])*(h(x,v) - E[h(x,v)])']
+            %                           = E[(h(x,v) - E[h(x,v)])*(h(x,v) - E[h(x,v)])']
+            %                           + E[(r - E[r])*(r - E[r])']
+            measCov = hCov + addNoiseCov;
+
+            % State--measurement cross-covariance matrix
+            % E[(x - E[x])*(y - E[y])'] = E[(x - E[x])*(h(x,v) + r - E[h(x,v)] - E[r])']
+            %                           = E[(x - E[x])*(h(x,v) - E[h(x,v)])']
+            %                           + E[(x - E[x])*(r - E[r])']
+            %                           = E[(x - E[x])*(h(x,v) - E[h(x,v)])']
+            stateMeasCrossCov = stateHCrossCov;
+        end
+    end
+    
+    properties (Access = 'private')
+        % Function handle to the currently used moment computation method.
+        momentFuncHandle;
     end
 end

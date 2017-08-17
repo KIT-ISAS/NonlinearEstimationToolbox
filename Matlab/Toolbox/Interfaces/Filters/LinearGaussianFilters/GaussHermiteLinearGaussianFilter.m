@@ -52,7 +52,7 @@ classdef GaussHermiteLinearGaussianFilter < SampleBasedLinearGaussianFilter
     %    You should have received a copy of the GNU General Public License
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-    methods
+    methods (Sealed)
         function obj = GaussHermiteLinearGaussianFilter(name)
             % Class constructor.
             %
@@ -68,11 +68,11 @@ classdef GaussHermiteLinearGaussianFilter < SampleBasedLinearGaussianFilter
             %   << obj (GaussHermiteLinearGaussianFilter)
             %      A new GaussHermiteLinearGaussianFilter instance.
             
-            samplingPred = GaussianSamplingGHQ();
-            samplingUp   = GaussianSamplingGHQ();
-            
             % Call superclass constructor
-            obj = obj@SampleBasedLinearGaussianFilter(name, samplingPred, samplingUp);
+            obj = obj@SampleBasedLinearGaussianFilter(name);
+            
+            obj.samplingPrediction = GaussianSamplingGHQ();
+            obj.samplingUpdate     = GaussianSamplingGHQ();
             
             % By default, 2 quadrature points are used.
             obj.samplingPrediction.setNumQuadraturePoints(2);
@@ -117,5 +117,37 @@ classdef GaussHermiteLinearGaussianFilter < SampleBasedLinearGaussianFilter
             numPointsPrediction = obj.samplingPrediction.getNumQuadraturePoints();
             numPointsUpdate     = obj.samplingUpdate.getNumQuadraturePoints();
         end
+    end
+    
+    methods (Sealed, Access = 'protected')
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesPrediction(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.samplingPrediction.getStdNormalSamples(dim);
+        end
+        
+        function [stdNormalSamples, ...
+                  weights, numSamples] = getStdNormalSamplesUpdate(obj, dim)
+            [stdNormalSamples, ...
+             weights, numSamples] = obj.samplingUpdate.getStdNormalSamples(dim);
+        end
+    end
+    
+    methods (Access = 'protected')
+        % Copy Gaussian sampling techniques correctly
+        function cpObj = copyElement(obj)
+            cpObj = obj.copyElement@SampleBasedLinearGaussianFilter();
+            
+            cpObj.samplingPrediction = obj.samplingPrediction.copy();
+            cpObj.samplingUpdate     = obj.samplingUpdate.copy();
+        end
+    end
+    
+    properties (Access = 'private')
+        % Gaussian sampling technique used for the state prediction.
+        samplingPrediction;
+        
+        % Gaussian sampling technique used for the measurement update.
+        samplingUpdate;
     end
 end

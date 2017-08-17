@@ -54,7 +54,7 @@ classdef SampleBasedLinearGaussianFilter < LinearGaussianFilter
     %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     methods
-        function obj = SampleBasedLinearGaussianFilter(name, samplingPrediction, samplingUpdate)
+        function obj = SampleBasedLinearGaussianFilter(name)
             % Class constructor.
             %
             % Parameters:
@@ -65,104 +65,47 @@ classdef SampleBasedLinearGaussianFilter < LinearGaussianFilter
             %      or the user should specify an appropriate name (e.g.,
             %      'PF (10k Particles)').
             %
-            %   >> samplingPrediction (Subclass of GaussianSampling)
-            %      The Gaussian sampling method used by the filter to perform a state prediction.
-            %
-            %   >> samplingUpdate (Subclass of GaussianSampling)
-            %      The Gaussian sampling method used by the filter to perform a measurement update.
-            %      If no sampling is passed, the sampling for the prediction is also used for the update.
-            %
             % Returns:
             %   << obj (SampleBasedLinearGaussianFilter)
             %      A new SampleBasedLinearGaussianFilter instance.
             
             % Call superclass constructor
             obj = obj@LinearGaussianFilter(name);
-            
-            if ~Checks.isClass(samplingPrediction, 'GaussianSampling')
-                obj.error('InvalidGaussianSampling', ...
-                          'samplingPrediction must be a subclass of GaussianSampling.');
-            end
-            
-            obj.samplingPrediction = samplingPrediction;
-            
-            if nargin == 3
-                if ~Checks.isClass(samplingUpdate, 'GaussianSampling')
-                    obj.error('InvalidGaussianSampling', ...
-                              'samplingUpdate must be a subclass of GaussianSampling.');
-                end
-                
-                obj.samplingUpdate = samplingUpdate;
-            else
-                % Use the same samplings for both prediction and update
-                obj.samplingUpdate = samplingPrediction;
-            end
         end
     end
     
     methods (Sealed, Access = 'protected')
-        function setupMeasModel(obj, measModel, dimMeas)
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            
-            obj.measMomentFuncHandle = @(stateMean, stateCovSqrt) ...
-                                       obj.momentFuncMeasModel(stateMean, stateCovSqrt, measModel, dimMeas, ...
-                                                               noiseMean, noiseCovSqrt);
-        end
-        
-        function setupAddNoiseMeasModel(obj, measModel, dimMeas)
-            [addNoiseMean, addNoiseCov] = measModel.noise.getMeanAndCov();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
-            
-            obj.measMomentFuncHandle = @(stateMean, stateCovSqrt) ...
-                                       obj.momentFuncAddNoiseMeasModel(stateMean, stateCovSqrt, measModel, dimMeas, ...
-                                                                       addNoiseMean, addNoiseCov);
-        end
-        
-        function setupMixedNoiseMeasModel(obj, measModel, dimMeas)
-            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
-            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
-            dimAddNoise = size(addNoiseMean, 1);
-            
-            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
-            
-            obj.measMomentFuncHandle = @(stateMean, stateCovSqrt) ...
-                                       obj.momentFuncMixedNoiseMeasModel(stateMean, stateCovSqrt, measModel, dimMeas, ...
-                                                                         noiseMean, noiseCovSqrt, addNoiseMean, addNoiseCov);
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = measMomentFunc(obj, priorMean, priorCovSqrt)
-            % Note that obj.measMomentFuncHandle is set by the setup*() methods,
-            % which are called before the actual linear measurement update.
-            [measMean, measCov, ...
-             stateMeasCrossCov] = obj.measMomentFuncHandle(priorMean, priorCovSqrt);
-        end
-    end
-    
-    methods (Access = 'protected')
+        % State prediction moment computation
         function [predictedStateMean, ...
                   predictedStateCov] = predictSysModel(obj, sysModel)
             [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
+            dimNoise    = size(noiseMean, 1);
+            dimAugState = obj.dimState + dimNoise;
             
-            % Generate state and noise samples
-            [stateSamples, ...
-             noiseSamples, ...
-             weights, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingPrediction, ...
-                                                      obj.stateMean, obj.stateCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamplesPrediction(dimAugState);
             
-            % Propagate samples through system equation
-            predictedStates = sysModel.systemEquation(stateSamples, noiseSamples);
+            % Generate state samples
+            zeroMeanStateSamples = obj.stateCovSqrt * stdNormalSamples(1:obj.dimState, :);
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, obj.stateMean);
+            
+            % Generate noise samples
+            zeroMeanNoiseSamples = noiseCovSqrt * stdNormalSamples(obj.dimState+1:end, :);
+            noiseSamples         = bsxfun(@plus, zeroMeanNoiseSamples, noiseMean);
+            
+            % Propagate samples through system equation a(x, w)
+            aSamples = sysModel.systemEquation(stateSamples, noiseSamples);
             
             % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            obj.checkPredictedStateSamples(aSamples, numSamples);
             
-            % Compute predicted state mean and covariance
+            % Compute moments:
+            %  - Predicted state mean:
+            %    E[xp] = E[a(x,w)]
+            %  - Predicted state covariance matrix:
+            %    E[(xp - E[xp])*(xp - E[xp])'] = E[(a(x,w) - E[a(x,w)])*(a(x,w) - E[a(x,w)])']
             [predictedStateMean, ...
-             predictedStateCov] = Utils.getMeanAndCov(predictedStates, weights);
+             predictedStateCov] = Utils.getMeanAndCov(aSamples, weights);
         end
         
         function [predictedStateMean, ...
@@ -172,126 +115,188 @@ classdef SampleBasedLinearGaussianFilter < LinearGaussianFilter
             
             obj.checkAdditiveSysNoise(dimNoise);
             
-            % Generate state samples
-            [stateSamples, ...
-             weights, ...
-             numSamples] = Utils.getStateSamples(obj.samplingPrediction, ...
-                                                 obj.stateMean, obj.stateCovSqrt);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamplesPrediction(obj.dimState);
             
-            % Propagate samples through deterministic system equation
-            predictedStates = sysModel.systemEquation(stateSamples);
+            % Generate state samples
+            zeroMeanStateSamples = obj.stateCovSqrt * stdNormalSamples;
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, obj.stateMean);
+            
+            % Propagate samples through system equation a(x)
+            aSamples = sysModel.systemEquation(stateSamples);
             
             % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            obj.checkPredictedStateSamples(aSamples, numSamples);
             
-            [mean, cov] = Utils.getMeanAndCov(predictedStates, weights);
+            % Compute moments:
+            %  - E[a(x)]
+            %  - E[(a(x) - E[a(x)])*(a(x) - E[a(x)])']
+            [mean, cov] = Utils.getMeanAndCov(aSamples, weights);
             
-            % Compute predicted state mean
+            % Predicted state mean:
+            % E[xp] = E[a(x)] + E[w]
             predictedStateMean = mean + noiseMean;
             
-            % Compute predicted state covariance
+            % Predicted state covariance matrix:
+            % E[(xp - E[xp])*(xp - E[xp])'] = E[(a(x) + w - E[a(x)] - E[w])*(a(x) + w - E[a(x)] - E[w])']
+            %                               = E[(a(x) - E[a(x)])*(a(x) - E[a(x)])']
+            %                               + E[(w - E[w])(w - E[w])']
             predictedStateCov = cov + noiseCov;
         end
         
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMeasModel(obj, stateMean, stateCovSqrt, measModel, dimMeas, ...
-                                                           noiseMean, noiseCovSqrt)
-            % Generate state and noise samples
-            [stateSamples, ...
-             noiseSamples, ...
-             weights, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingUpdate, ...
-                                                      stateMean, stateCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
+        % Helpers for the sample-based linear measurement updates
+        function [hSamples, weights, ...
+                  zeroMeanStateSamples] = evaluateAddNoiseMeasModel(obj, measModel, dimMeas, ...
+                                                                    stateMean, stateCovSqrt)
+            dimState = size(stateMean, 1);
             
-            % Propagate samples through measurement equation
-            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamplesUpdate(dimState);
             
-            % Check computed measurements
-            obj.checkComputedMeasurements(measSamples , dimMeas, numSamples);
-            
-            % Compute moments
-            [measMean, measCov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
-                                                              measSamples, weights);
-        end
-        
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncAddNoiseMeasModel(obj, stateMean, stateCovSqrt, measModel, dimMeas, ...
-                                                                   addNoiseMean, addNoiseCov)
             % Generate state samples
-            [stateSamples, ...
-             weights, ...
-             numSamples] = Utils.getStateSamples(obj.samplingUpdate, ...
-                                                 stateMean, stateCovSqrt);
+            zeroMeanStateSamples = stateCovSqrt * stdNormalSamples;
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, stateMean);
             
-            % Propagate samples through deterministic measurement equation
-            measSamples = measModel.measurementEquation(stateSamples);
+            % Propagate samples through measurement equation h(x)
+            hSamples = measModel.measurementEquation(stateSamples);
             
             % Check computed measurements
-            obj.checkComputedMeasurements(measSamples, dimMeas, numSamples);
-            
-            % Compute moments
-            [mean, cov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
-                                                              measSamples, weights);
-            
-            measMean = mean + addNoiseMean;
-            
-            measCov = cov + addNoiseCov;
+            obj.checkComputedMeasurements(hSamples, dimMeas, numSamples);
         end
         
-        function [measMean, measCov, ...
-                  stateMeasCrossCov] = momentFuncMixedNoiseMeasModel(obj, stateMean,stateCovSqrt, measModel, dimMeas, ...
-                                                                     noiseMean, noiseCovSqrt, addNoiseMean, addNoiseCov)
-            % Generate state and noise samples
-            [stateSamples, ...
-             noiseSamples, ...
-             weights, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingUpdate, ...
-                                                      stateMean, stateCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
+        function [hSamples, weights, ...
+                  zeroMeanStateSamples, ...
+                  zeroMeanNoiseSamples] = evaluateMeasModelUncorr(obj, measModel, dimMeas, ...
+                                                                  stateMean, stateCovSqrt, ...
+                                                                  noiseMean, noiseCovSqrt)
+            dimState    = size(stateMean, 1);
+            dimNoise    = size(noiseMean, 1);
+            dimAugState = dimState + dimNoise;
             
-            % Propagate samples through measurement equation
-            measSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamplesUpdate(dimAugState);
+            
+            % Generate state samples
+            zeroMeanStateSamples = stateCovSqrt * stdNormalSamples(1:dimState, :);
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, stateMean);
+            
+            % Generate noise samples
+            zeroMeanNoiseSamples = noiseCovSqrt * stdNormalSamples(dimState+1:end, :);
+            noiseSamples         = bsxfun(@plus, zeroMeanNoiseSamples, noiseMean);
+            
+            % Propagate samples through measurement equation h(x,v)
+            hSamples = measModel.measurementEquation(stateSamples, noiseSamples);
             
             % Check computed measurements
-            obj.checkComputedMeasurements(measSamples , dimMeas, numSamples);
-            
-            % Compute moments
-            [mean, cov, ...
-             stateMeasCrossCov] = Utils.getMeanCovAndCrossCov(stateMean, stateSamples, ...
-                                                              measSamples, weights);
-            
-            measMean = mean + addNoiseMean;
-            
-            measCov = cov + addNoiseCov;
+            obj.checkComputedMeasurements(hSamples, dimMeas, numSamples);
         end
         
-        function cpObj = copyElement(obj)
-            cpObj = obj.copyElement@LinearGaussianFilter();
+        function [hSamples, weights, ...
+                  zeroMeanStateSamples, ...
+                  zeroMeanNoiseSamples, ...
+                  stateNoiseCov] = evaluateMeasModelCorr(obj, measModel, dimMeas, ...
+                                                         stateMean, stateCov, ...
+                                                         noiseMean, noiseCov, ...
+                                                         stateNoiseCrossCov)
+            dimState    = size(stateMean, 1);
+            dimNoise    = size(noiseMean, 1);
+            dimAugState = dimState + dimNoise;
             
-            cpObj.samplingPrediction = obj.samplingPrediction.copy();
+            stateNoiseCov = [stateCov            stateNoiseCrossCov
+                             stateNoiseCrossCov' noiseCov          ];
             
-            if obj.samplingPrediction == obj.samplingUpdate
-                % Still use the same samplings for both prediction and update
-                cpObj.samplingUpdate = cpObj.samplingPrediction;
+            stateNoiseCovSqrt = obj.checkCovUpdate(stateNoiseCov, 'System state and measurement noise joint');
+            
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.getStdNormalSamplesUpdate(dimAugState);
+            
+            % Generate state samples
+            zeroMeanStateSamples = stateNoiseCovSqrt(1:dimState, :) * stdNormalSamples;
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, stateMean);
+            
+            % Generate noise samples
+            zeroMeanNoiseSamples = stateNoiseCovSqrt(dimState+1:end, :) * stdNormalSamples;
+            noiseSamples         = bsxfun(@plus, zeroMeanNoiseSamples, noiseMean);
+            
+            % Propagate samples through measurement equation h(x,v)
+            hSamples = measModel.measurementEquation(stateSamples, noiseSamples);
+            
+            % Check computed measurements
+            obj.checkComputedMeasurements(hSamples, dimMeas, numSamples);
+        end
+        
+        function [hMean, hCov, ...
+                  stateHCrossCov, ...
+                  hNoiseCrossCov] = getMeasModelMomements(~, hSamples, weights, ...
+                                                          zeroMeanStateSamples, ...
+                                                          zeroMeanNoiseSamples)
+            if numel(weights) == 1
+                % Equally weighted samples
+                
+                hMean = sum(hSamples, 2) * weights;
+                
+                zeroMeanHSamples = bsxfun(@minus, hSamples, hMean);
+                
+                hCov = (zeroMeanHSamples * zeroMeanHSamples') * weights;
+                
+                stateHCrossCov = (zeroMeanStateSamples * zeroMeanHSamples') * weights;
+                
+                if nargin == 5
+                    hNoiseCrossCov = (zeroMeanHSamples * zeroMeanNoiseSamples') * weights;
+                end
             else
-                cpObj.samplingUpdate = obj.samplingUpdate.copy();
+                % Samples are not equally weighted
+                
+                hMean = hSamples * weights';
+                
+                zeroMeanHSamples = bsxfun(@minus, hSamples, hMean);
+                
+                % Weights can be negative => we have to treat them separately
+                
+                % Positive weights
+                idx = weights >= 0;
+                
+                sqrtWeights                  = sqrt(weights(idx));
+                weightedZeroMeanHSamples     = bsxfun(@times, zeroMeanHSamples(:, idx), sqrtWeights);
+                weightedZeroMeanStateSamples = bsxfun(@times, zeroMeanStateSamples(:, idx), sqrtWeights);
+                
+                hCov = weightedZeroMeanHSamples * weightedZeroMeanHSamples';
+                
+                stateHCrossCov = weightedZeroMeanStateSamples * weightedZeroMeanHSamples';
+                
+                if nargin == 5
+                    weightedZeroMeanNoiseSamples = bsxfun(@times, zeroMeanNoiseSamples(:, idx), sqrtWeights);
+                    
+                    hNoiseCrossCov = weightedZeroMeanHSamples * weightedZeroMeanNoiseSamples';
+                end
+                
+                % Negative weights
+                if ~all(idx)
+                    idx = ~idx;
+                    
+                    sqrtWeights                  = sqrt(abs(weights(idx)));
+                    weightedZeroMeanHSamples     = bsxfun(@times, zeroMeanHSamples(:, idx), sqrtWeights);
+                    weightedZeroMeanStateSamples = bsxfun(@times, zeroMeanStateSamples(:, idx), sqrtWeights);
+                    
+                    hCov = hCov - weightedZeroMeanHSamples * weightedZeroMeanHSamples';
+                    
+                    stateHCrossCov = stateHCrossCov - weightedZeroMeanStateSamples * weightedZeroMeanHSamples';
+                    
+                    if nargin == 5
+                        weightedZeroMeanNoiseSamples = bsxfun(@times, zeroMeanNoiseSamples(:, idx), sqrtWeights);
+                        
+                        hNoiseCrossCov = hNoiseCrossCov - weightedZeroMeanHSamples * weightedZeroMeanNoiseSamples';
+                    end
+                end
             end
         end
     end
     
-    properties (SetAccess = 'private', GetAccess = 'protected')
-        % Gaussian sampling technique used for the state prediction.
-        samplingPrediction;
+    methods (Abstract, Access = 'protected')
+        [stdNormalSamples, ...
+         weights, numSamples] = getStdNormalSamplesPrediction(obj, dim);
         
-        % Gaussian sampling technique used for the measurement update.
-        samplingUpdate;
-    end
-    
-    properties (Access = 'private')
-        % Function handle to the currently used moment computation method.
-        measMomentFuncHandle;
+        [stdNormalSamples, ...
+         weights, numSamples] = getStdNormalSamplesUpdate(obj, dim);
     end
 end

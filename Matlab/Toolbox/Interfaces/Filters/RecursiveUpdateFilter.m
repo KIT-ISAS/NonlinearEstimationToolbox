@@ -103,12 +103,13 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
     end
     
     methods (Sealed, Access = 'protected')
-        function [updatedMean, ...
-                  updatedCov] = updateNonlinear(obj, measurement, ...
-                                                priorMean, priorCov, priorCovSqrt)
+        function [updatedStateMean, ...
+                  updatedStateCov] = updateNonlinear(obj, measurement, ...
+                                                     priorStateMean, priorStateCov, priorStateCovSqrt)
             % First recursion step
             [measMean, measCov, ...
-             stateMeasCrossCov, R] = obj.getRecursionData(priorMean, priorCov, priorCovSqrt);
+             stateMeasCrossCov, ...
+             measNoiseCrossCov] = obj.getMeasMoments(priorStateMean, priorStateCov, priorStateCovSqrt);
             
             measCovSqrt = obj.checkCovUpdate(measCov, 'Measurement');
             
@@ -116,10 +117,10 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
             A = stateMeasCrossCov / measCovSqrt';
             K = r * (A / measCovSqrt);
             
-            innovation      = measurement - measMean;
-            updatedMean     = priorMean + K * innovation;
-            updatedCov      = priorCov + ((r - 2) * r) * (A * A');
-            updatedCrossCov = -K * R;
+            innovation                = measurement - measMean;
+            updatedStateMean          = priorStateMean + K * innovation;
+            updatedStateCov           = priorStateCov + ((r - 2) * r) * (A * A');
+            updatedStateNoiseCrossCov = -K * measNoiseCrossCov;
             
             if obj.isMeasGatingEnabled()
                 % Perform measurement gating before any measurement information is processed
@@ -138,15 +139,12 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
             % Next recursion steps
             for i = 2:obj.numRecursionSteps
                 % Check if intermediate state covariance matrix is valid
-                updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
+                updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, 'Intermediate state');
                 
                 [measMean, measCov, ...
-                 stateMeasCrossCov, R, H] = obj.getRecursionData(updatedMean, updatedCov, updatedCovSqrt);
-                
-                M = H * updatedCrossCov;
-                
-                measCov           = measCov + (M + M');
-                stateMeasCrossCov = stateMeasCrossCov + updatedCrossCov;
+                 stateMeasCrossCov, ...
+                 measNoiseCrossCov] = obj.getMeasMomentsCorr(updatedStateMean, updatedStateCov, updatedStateCovSqrt, ...
+                                                             updatedStateNoiseCrossCov);
                 
                 measCovSqrt = obj.checkCovUpdate(measCov, 'Measurement');
                 
@@ -154,17 +152,23 @@ classdef RecursiveUpdateFilter < LinearGaussianFilter
                 A = stateMeasCrossCov / measCovSqrt';
                 K = r * (A / measCovSqrt);
                 
-                innovation      = measurement - measMean;
-                updatedMean     = updatedMean + K * innovation;
-                updatedCov      = updatedCov + ((r - 2) * r) * (A * A');
-                updatedCrossCov = updatedCrossCov - K * (R + M);
+                innovation                 = measurement - measMean;
+                updatedStateMean          = updatedStateMean + K * innovation;
+                updatedStateCov           = updatedStateCov + ((r - 2) * r) * (A * A');
+                updatedStateNoiseCrossCov = updatedStateNoiseCrossCov - K * measNoiseCrossCov;
             end
         end
     end
     
     methods (Abstract, Access = 'protected')
         [measMean, measCov, ...
-         stateMeasCrossCov, R, H] = getRecursionData(obj, stateMean, stateCov, stateCovSqrt);
+         stateMeasCrossCov, ...
+         measNoiseCrossCov] = getMeasMoments(obj, priorStateMean, priorStateCov, priorStateCovSqrt);
+        
+        [measMean, measCov, ...
+         stateMeasCrossCov, ...
+         measNoiseCrossCov] = getMeasMomentsCorr(obj, updatedStateMean, updatedStateCov, updatedStateCovSqrt, ...
+                                                 updatedStateNoiseCrossCov);
     end
     
     properties (Access = 'private')

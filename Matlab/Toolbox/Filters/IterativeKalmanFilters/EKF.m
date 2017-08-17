@@ -1,5 +1,5 @@
 
-classdef EKF < TaylorBasedIterativeKalmanFilter & FirstOrderTaylorLinearGaussianFilter
+classdef EKF < IterativeKalmanFilter & FirstOrderTaylorLinearGaussianFilter
     % The extended Kalman filter (EKF).
     %
     % EKF Methods:
@@ -78,8 +78,109 @@ classdef EKF < TaylorBasedIterativeKalmanFilter & FirstOrderTaylorLinearGaussian
             end
             
             % Call superclass constructors
-            obj = obj@TaylorBasedIterativeKalmanFilter(name);
+            obj = obj@IterativeKalmanFilter(name);
             obj = obj@FirstOrderTaylorLinearGaussianFilter(name);
         end
+    end
+    
+    methods (Sealed, Access = 'protected')
+        function setupMeasModel(obj, measModel, dimMeas)
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
+            dimNoise = size(noiseMean, 1);
+            
+            obj.linearizedModel = @(stateMean) ...
+                                  obj.linearizedMeasModel(measModel, dimMeas, dimNoise, ...
+                                                          noiseMean, noiseCovSqrt, ...
+                                                          stateMean);
+        end
+        
+        function setupAddNoiseMeasModel(obj, measModel, dimMeas)
+            [addNoiseMean, addNoiseCov] = measModel.noise.getMeanAndCov();
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
+            
+            obj.linearizedModel = @(stateMean) ...
+                                  obj.linearizedAddNoiseMeasModel(measModel, dimMeas, ...
+                                                                  addNoiseMean, addNoiseCov, ...
+                                                                  stateMean);
+        end
+        
+        function setupMixedNoiseMeasModel(obj, measModel, dimMeas)
+            [noiseMean, ~, noiseCovSqrt] = measModel.noise.getMeanAndCov();
+            [addNoiseMean, addNoiseCov]  = measModel.additiveNoise.getMeanAndCov();
+            dimNoise    = size(noiseMean, 1);
+            dimAddNoise = size(addNoiseMean, 1);
+            
+            obj.checkAdditiveMeasNoise(dimMeas, dimAddNoise);
+            
+            obj.linearizedModel = @(stateMean) ...
+                                  obj.linearizedMixedNoiseMeasModel(measModel, dimMeas, dimNoise, ...
+                                                                    noiseMean, noiseCovSqrt, ...
+                                                                    addNoiseMean, addNoiseCov, ...
+                                                                    stateMean);
+        end
+        
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = getMeasMoments(obj, priorStateMean, priorStateCov, priorStateCovSqrt)
+            [measMean, H, R] = obj.linearizedModel(priorStateMean);
+            
+            Px = H * priorStateCovSqrt;
+            
+            measCov           = Px * Px' + R;
+            stateMeasCrossCov = priorStateCov * H';
+        end
+        
+        function [measMean, measCov, ...
+                  stateMeasCrossCov] = getMeasMomentsIteration(obj, priorStateMean, priorStateCov, priorStateCovSqrt, ...
+                                                               updatedStateMean, ~, ~)
+            [h, H, R] = obj.linearizedModel(updatedStateMean);
+            
+            Px = H * priorStateCovSqrt;
+            
+            measMean          = h + H * (priorStateMean - updatedStateMean);
+            measCov           = Px * Px' + R;
+            stateMeasCrossCov = priorStateCov * H';
+        end
+    end
+    
+    methods (Access = 'private')
+        function [h, H, R] = linearizedMeasModel(obj, measModel, dimMeas, dimNoise, ...
+                                                 noiseMean, noiseCovSqrt, ...
+                                                 stateMean)
+            [h, H, noiseJacobian] = obj.evaluateMeasModel(measModel, dimMeas, dimNoise, ...
+                                                          noiseMean, stateMean);
+            
+            Pv = noiseJacobian * noiseCovSqrt;
+            R  = Pv * Pv';
+        end
+        
+        function [h, H, R] = linearizedAddNoiseMeasModel(obj, measModel, dimMeas, ...
+                                                         addNoiseMean, addNoiseCov, ...
+                                                         stateMean)
+            [h, H] = obj.evaluateAddNoiseMeasModel(measModel, dimMeas, stateMean);
+            
+            h = h + addNoiseMean;
+            
+            R = addNoiseCov;
+        end
+        
+        function [h, H, R] = linearizedMixedNoiseMeasModel(obj, measModel, dimMeas, dimNoise, ...
+                                                           noiseMean, noiseCovSqrt, ...
+                                                           addNoiseMean, addNoiseCov, ...
+                                                           stateMean)
+            [h, H, noiseJacobian] = obj.evaluateMeasModel(measModel, dimMeas, dimNoise, ...
+                                                          noiseMean, stateMean);
+            
+            h = h + addNoiseMean;
+            
+            Pv = noiseJacobian * noiseCovSqrt;
+            R  = Pv * Pv' + addNoiseCov;
+        end
+    end
+    
+    properties (Access = 'private')
+        % Function handle to the currently used model linearization method
+        linearizedModel;
     end
 end

@@ -122,8 +122,8 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
             % The convergence check is executed after each iteration and has
             % to be of the form
             %
-            %   convReached = convergenceCheck(lastMean, lastCov, lastCovSqrt, ...
-            %                                  updatedMean, updatedCov, updatedCovSqrt)
+            %   convReached = convergenceCheck(lastStateMean, lastStateCov, lastStateCovSqrt, ...
+            %                                  updatedStateMean, updatedStateCov, updatedStateCovSqrt)
             %
             % For example, a convergence check can be based on the Kulback-Leibler
             % divergence (see Utils.getGaussianKLD()) or the L2 distance
@@ -159,31 +159,31 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
     end
     
     methods (Sealed, Access = 'protected')
-        function [updatedMean, ...
-                  updatedCov] = updateNonlinear(obj, measurement, ...
-                                                priorMean, priorCov, priorCovSqrt)
+        function [updatedStateMean, ...
+                  updatedStateCov] = updateNonlinear(obj, measurement, ...
+                                                     priorStateMean, priorStateCov, priorStateCovSqrt)
             % Initialize iteration counter
             obj.numIterations = 1;
             
             % Perform first measurement update
             [measMean, measCov, ...
-             stateMeasCrossCov] = obj.getMeasMoments(priorMean, priorCov, priorCovSqrt);
+             stateMeasCrossCov] = obj.getMeasMoments(priorStateMean, priorStateCov, priorStateCovSqrt);
             
             try
                 if obj.isMeasGatingEnabled()
                     % Perform measurement gating before any measurement information is processed
                     dimMeas = size(measurement, 1);
                     
-                    [updatedMean, ...
-                     updatedCov, ...
-                     sqMeasMahalDist] = Utils.kalmanUpdate(priorMean, priorCov, measurement, ...
+                    [updatedStateMean, ...
+                     updatedStateCov, ...
+                     sqMeasMahalDist] = Utils.kalmanUpdate(priorStateMean, priorStateCov, measurement, ...
                                                            measMean, measCov, stateMeasCrossCov);
                     
                     obj.measurementGating(dimMeas, sqMeasMahalDist);
                 else
-                    [updatedMean, ...
-                     updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, measurement, ...
-                                                      measMean, measCov, stateMeasCrossCov);
+                    [updatedStateMean, ...
+                     updatedStateCov] = Utils.kalmanUpdate(priorStateMean, priorStateCov, measurement, ...
+                                                           measMean, measCov, stateMeasCrossCov);
                 end
             catch ex
                 obj.ignoreMeas(ex.message);
@@ -192,39 +192,39 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
             % More updates to perform (iterative update)?
             if obj.maxNumIterations > 1
                 % Initially, the last estimate is the prior one.
-                lastMean    = priorMean;
-                lastCov     = priorCov;
-                lastCovSqrt = priorCovSqrt;
+                lastStateMean    = priorStateMean;
+                lastStateCov     = priorStateCov;
+                lastStateCovSqrt = priorStateCovSqrt;
                 
                 while obj.numIterations < obj.maxNumIterations
                     % Check if intermediate state covariance matrix is valid
-                    updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
+                    updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, 'Intermediate state');
                     
                     % Check for convergence
-                    if obj.isConvergenceReached(lastMean, lastCov, lastCovSqrt, ...
-                                                updatedMean, updatedCov, updatedCovSqrt)
+                    if obj.isConvergenceReached(lastStateMean, lastStateCov, lastStateCovSqrt, ...
+                                                updatedStateMean, updatedStateCov, updatedStateCovSqrt)
                         % No more iteration is required according to a
                         % possibly set convergence check
                         return;
                     end
                     
                     % Save estimate from last iteration
-                    lastMean    = updatedMean;
-                    lastCov     = updatedCov;
-                    lastCovSqrt = updatedCovSqrt;
+                    lastStateMean    = updatedStateMean;
+                    lastStateCov     = updatedStateCov;
+                    lastStateCovSqrt = updatedStateCovSqrt;
                     
                     % Increment iteration counter
                     obj.numIterations = obj.numIterations + 1;
                     
                     % % Perform measurement update for the current iteration
                     [measMean, measCov, ...
-                     stateMeasCrossCov] = obj.getIterationMeasMoments(priorMean, priorCov, priorCovSqrt, ...
-                                                                      lastMean, lastCov, lastCovSqrt);
+                     stateMeasCrossCov] = obj.getMeasMomentsIteration(priorStateMean, priorStateCov, priorStateCovSqrt, ...
+                                                                      updatedStateMean, updatedStateCov, updatedStateCovSqrt);
                     
                     try
-                        [updatedMean, ...
-                         updatedCov] = Utils.kalmanUpdate(priorMean, priorCov, measurement, ...
-                                                          measMean, measCov, stateMeasCrossCov);
+                        [updatedStateMean, ...
+                         updatedStateCov] = Utils.kalmanUpdate(priorStateMean, priorStateCov, measurement, ...
+                                                               measMean, measCov, stateMeasCrossCov);
                     catch ex
                         obj.ignoreMeas(ex.message);
                     end
@@ -235,19 +235,19 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
     
     methods (Abstract, Access = 'protected')
         [measMean, measCov, ...
-         stateMeasCrossCov] = getMeasMoments(obj, priorMean, priorCov, priorCovSqrt);
+         stateMeasCrossCov] = getMeasMoments(obj, priorStateMean, priorStateCov, priorStateCovSqrt);
         
         [measMean, measCov, ...
-         stateMeasCrossCov] = getIterationMeasMoments(obj, priorMean, priorCov, priorCovSqrt, ...
-                                                      updatedMean, updatedCov, updatedCovSqrt);
+         stateMeasCrossCov] = getMeasMomentsIteration(obj, priorStateMean, priorStateCov, priorStateCovSqrt, ...
+                                                      updatedStateMean, updatedStateCov, updatedStateCovSqrt);
     end
     
     methods (Access = 'private')
-        function convReached = isConvergenceReached(obj, lastMean, lastCov, lastCovSqrt, ...
-                                                    updatedMean, updatedCov, updatedCovSqrt)
+        function convReached = isConvergenceReached(obj, lastStateMean, lastStateCov, lastStateCovSqrt, ...
+                                                    updatedStateMean, updatedStateCov, updatedStateCovSqrt)
             if ~isempty(obj.convergenceCheck)
-                convReached = obj.convergenceCheck(lastMean, lastCov, lastCovSqrt, ...
-                                                   updatedMean, updatedCov, updatedCovSqrt);
+                convReached = obj.convergenceCheck(lastStateMean, lastStateCov, lastStateCovSqrt, ...
+                                                   updatedStateMean, updatedStateCov, updatedStateCovSqrt);
                 
                 if ~Checks.isFlag(convReached)
                     obj.error('InvalidConvergenceResult', ...
