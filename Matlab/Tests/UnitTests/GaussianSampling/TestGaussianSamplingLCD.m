@@ -1,5 +1,5 @@
 
-classdef TestGaussianSamplingLCD < TestGaussianSamplingSubclasses
+classdef TestGaussianSamplingLCD < TestGaussianSampling
     % Provides unit tests for the GaussianSamplingLCD class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

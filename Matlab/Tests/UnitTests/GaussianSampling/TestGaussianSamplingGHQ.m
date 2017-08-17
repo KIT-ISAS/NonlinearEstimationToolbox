@@ -1,5 +1,5 @@
 
-classdef TestGaussianSamplingGHQ < TestGaussianSamplingSubclasses
+classdef TestGaussianSamplingGHQ < TestGaussianSampling
     % Provides unit tests for the GaussianSamplingGHQ class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

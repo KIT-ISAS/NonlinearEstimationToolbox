@@ -1,6 +1,6 @@
 
-classdef TestGaussianSamplingSubclasses < matlab.unittest.TestCase
-    % Provides unit tests for subclasses of the GaussianSampling class.
+classdef TestGaussianSampling < matlab.unittest.TestCase
+    % Provides unit tests for the GaussianSampling class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %

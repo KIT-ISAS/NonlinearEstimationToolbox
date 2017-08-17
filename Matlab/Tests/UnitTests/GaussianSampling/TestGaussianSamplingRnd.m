@@ -1,5 +1,5 @@
 
-classdef TestGaussianSamplingRnd < TestGaussianSamplingSubclasses
+classdef TestGaussianSamplingRnd < TestGaussianSampling
     % Provides unit tests for the GaussianSamplingRnd class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox

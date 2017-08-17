@@ -1,5 +1,5 @@
 
-classdef TestGaussianSamplingRUKF < TestGaussianSamplingSubclasses
+classdef TestGaussianSamplingRUKF < TestGaussianSampling
     % Provides unit tests for the GaussianSamplingRUKF class.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
