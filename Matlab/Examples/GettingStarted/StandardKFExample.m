@@ -139,7 +139,7 @@ function StandardKFExample()
     filter.update(measModel, measurement);
     
     % Print the updated state estimate. However, instead of using a combination
-    % of getState() and getMeanAndCov() as above, we now simply use the
+    % of getState() and getMeanAndCov() as above, we now use the handy
     % Filter's getStateMeanAndCov() method:
     [mean, cov] = filter.getStateMeanAndCov();
     
