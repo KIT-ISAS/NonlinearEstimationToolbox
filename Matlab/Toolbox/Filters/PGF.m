@@ -265,28 +265,37 @@ classdef PGF < GaussianFilter
     end
     
     methods (Access = 'protected')
+        % State prediction related methods
         function [predictedStateMean, ...
                   predictedStateCov] = predictSysModel(obj, sysModel)
             [noiseMean, ~, noiseCovSqrt] = sysModel.noise.getMeanAndCov();
+            dimNoise    = size(noiseMean, 1);
+            dimAugState = obj.dimState + dimNoise;
             
-            % Generate state and noise samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             noiseSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateNoiseSamples(obj.samplingPrediction, ...
-                                                      obj.stateMean, obj.stateCovSqrt, ...
-                                                      noiseMean, noiseCovSqrt);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.samplingPrediction.getStdNormalSamples(dimAugState);
             
-            % Propagate samples through system equation
-            predictedStates = sysModel.systemEquation(stateSamples, noiseSamples);
+            % Generate state samples
+            zeroMeanStateSamples = obj.stateCovSqrt * stdNormalSamples(1:obj.dimState, :);
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, obj.stateMean);
+            
+            % Generate noise samples
+            zeroMeanNoiseSamples = noiseCovSqrt * stdNormalSamples(obj.dimState+1:end, :);
+            noiseSamples         = bsxfun(@plus, zeroMeanNoiseSamples, noiseMean);
+            
+            % Propagate samples through system equation a(x, w)
+            aSamples = sysModel.systemEquation(stateSamples, noiseSamples);
             
             % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            obj.checkPredictedStateSamples(aSamples, numSamples);
             
-            % Compute predicted state mean and covariance
+            % Compute moments:
+            %  - Predicted state mean:
+            %    E[xp] = E[a(x,w)]
+            %  - Predicted state covariance matrix:
+            %    E[(xp - E[xp])*(xp - E[xp])'] = E[(a(x,w) - E[a(x,w)])*(a(x,w) - E[a(x,w)])']
             [predictedStateMean, ...
-             predictedStateCov] = Utils.getMeanAndCov(predictedStates);
+             predictedStateCov] = Utils.getMeanAndCov(aSamples, weights);
         end
         
         function [predictedStateMean, ...
@@ -296,49 +305,57 @@ classdef PGF < GaussianFilter
             
             obj.checkAdditiveSysNoise(dimNoise);
             
-            % Generate state samples
-            % Keep in mind that we know that all samples are equally weighted
-            [stateSamples, ...
-             ~, ...
-             numSamples] = Utils.getStateSamples(obj.samplingPrediction, ...
-                                                 obj.stateMean, obj.stateCovSqrt);
+            % Get standard normal approximation
+            [stdNormalSamples, weights, numSamples] = obj.samplingPrediction.getStdNormalSamples(obj.dimState);
             
-            % Propagate samples through deterministic system equation
-            predictedStates = sysModel.systemEquation(stateSamples);
+            % Generate state samples
+            zeroMeanStateSamples = obj.stateCovSqrt * stdNormalSamples;
+            stateSamples         = bsxfun(@plus, zeroMeanStateSamples, obj.stateMean);
+            
+            % Propagate samples through system equation a(x)
+            aSamples = sysModel.systemEquation(stateSamples);
             
             % Check predicted state samples
-            obj.checkPredictedStateSamples(predictedStates, numSamples);
+            obj.checkPredictedStateSamples(aSamples, numSamples);
             
-            [mean, cov] = Utils.getMeanAndCov(predictedStates);
+            % Compute moments:
+            %  - E[a(x)]
+            %  - E[(a(x) - E[a(x)])*(a(x) - E[a(x)])']
+            [mean, cov] = Utils.getMeanAndCov(aSamples, weights);
             
-            % Compute predicted state mean
+            % Predicted state mean:
+            % E[xp] = E[a(x)] + E[w]
             predictedStateMean = mean + noiseMean;
             
-            % Compute predicted state covariance
+            % Predicted state covariance matrix:
+            % E[(xp - E[xp])*(xp - E[xp])'] = E[(a(x) + w - E[a(x)] - E[w])*(a(x) + w - E[a(x)] - E[w])']
+            %                               = E[(a(x) - E[a(x)])*(a(x) - E[a(x)])']
+            %                               + E[(w - E[w])(w - E[w])']
             predictedStateCov = cov + noiseCov;
         end
         
-        function [updatedMean, ...
-                  updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
-                                                        priorMean, ~, priorCovSqrt)
+        % Measurement update related methods
+        function [updatedStateMean, ...
+                  updatedStateCov] = performUpdateObservable(obj, measModel, measurement, ...
+                                                             priorStateMean, ~, priorStateCovSqrt)
             if Checks.isClass(measModel, 'Likelihood')
-                [updatedMean, ...
-                 updatedCov] = obj.updateLikelihood(measModel, measurement, ...
-                                                    priorMean, priorCovSqrt);
+                [updatedStateMean, ...
+                 updatedStateCov] = obj.updateLikelihood(measModel, measurement, ...
+                                                         priorStateMean, priorStateCovSqrt);
             else
                 obj.errorMeasModel('Likelihood');
             end
         end
         
-        function [updatedMean, ...
-                  updatedCov] = updateLikelihood(obj, measModel, measurement, ...
-                                                 priorMean, priorCovSqrt)
+        function [updatedStateMean, ...
+                  updatedStateCov] = updateLikelihood(obj, measModel, measurement, ...
+                                                      priorStateMean, priorStateCovSqrt)
             % Initialize progression
-            dimState         = size(priorMean, 1);
-            updatedMean      = priorMean;
-            updatedCovSqrt   = priorCovSqrt;
-            gamma            = 0;
-            obj.numProgSteps = 0;
+            dimState            = size(priorStateMean, 1);
+            updatedStateMean    = priorStateMean;
+            updatedStateCovSqrt = priorStateCovSqrt;
+            gamma               = 0;
+            obj.numProgSteps    = 0;
             
             % Get standard normal approximation
             [stdNormalSamples, ~, numSamples] = obj.samplingUpdate.getStdNormalSamples(dimState);
@@ -352,8 +369,8 @@ classdef PGF < GaussianFilter
                 obj.numProgSteps = obj.numProgSteps + 1;
                 
                 % Sample intermediate Gaussian approximation
-                samples = updatedCovSqrt * stdNormalSamples;
-                samples = bsxfun(@plus, samples, updatedMean);
+                samples = updatedStateCovSqrt * stdNormalSamples;
+                samples = bsxfun(@plus, samples, updatedStateMean);
                 
                 % Evaluate log likelihood
                 logValues = measModel.logLikelihood(samples, measurement);
@@ -402,11 +419,12 @@ classdef PGF < GaussianFilter
                 weights = weights / sumWeights;
                 
                 % Compute new intermediate mean and covariance
-                [updatedMean, updatedCov] = Utils.getMeanAndCov(samples, weights);
+                [updatedStateMean, ...
+                 updatedStateCov] = Utils.getMeanAndCov(samples, weights);
                 
                 if gamma ~= 1
                     % Check if intermediate state covariance matrix is valid
-                    updatedCovSqrt = obj.checkCovUpdate(updatedCov, 'Intermediate state');
+                    updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, 'Intermediate state');
                 end
             end
         end
@@ -424,10 +442,10 @@ classdef PGF < GaussianFilter
     end
     
     properties (Access = 'private')
-        % Gaussian LCD-based sampling technique used for prediction.
+        % Gaussian LCD-based sampling technique used for state prediction.
         samplingPrediction;
         
-        % Gaussian LCD-based sampling technique used for the update.
+        % Gaussian LCD-based sampling technique used for the measurement update.
         samplingUpdate;
         
         % The maximum number of allowed progression steps.
