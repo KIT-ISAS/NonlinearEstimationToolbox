@@ -216,11 +216,19 @@ classdef EnKF < ParticleFilter
         end
         
         function updateEnsemble(obj, measurement, measSamples)
-            ensembleMean = sum(obj.ensemble, 2) / obj.ensembleSize;
+            % Compute measurement mean
+            measMean = sum(measSamples, 2) / obj.ensembleSize;
             
-            [~, measCov, ensembleMeasCrossCov] = Utils.getMeanCovAndCrossCov(ensembleMean, ...
-                                                                             obj.ensemble, ...
-                                                                             measSamples);
+            % Compute measurement covariance
+            zeroMeanMeasSamples = bsxfun(@minus, measSamples, measMean);
+            
+            measCov = (zeroMeanMeasSamples * zeroMeanMeasSamples') / obj.ensembleSize;
+            
+            % Compute ensemble--measurement cross-covariance
+            ensembleMean     = sum(obj.ensemble, 2) / obj.ensembleSize;
+            zeroMeanEnsemble = bsxfun(@minus, obj.ensemble, ensembleMean);
+            
+            ensembleMeasCrossCov = (zeroMeanEnsemble * zeroMeanMeasSamples') / obj.ensembleSize;
             
             [~, isNonPosDef] = chol(measCov);
             
