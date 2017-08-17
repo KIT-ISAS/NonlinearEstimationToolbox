@@ -166,7 +166,7 @@ classdef TestUtils < matlab.unittest.TestCase
         end
         
         
-        function testGetGMMeanAndCovSingleComponent(obj)
+        function testGetGMMeanAndCovSingleComponentNoWeights(obj)
             means   = [1 -2]';
             covs    = [2 0.5; 0.5 1.2];
             
@@ -195,7 +195,7 @@ classdef TestUtils < matlab.unittest.TestCase
             obj.verifyEqual(cov, trueCov, 'AbsTol', 1e-12);
         end
         
-        function testGetGMMeanAndCov(obj)
+        function testGetGMMeanAndCovNoWeights(obj)
             m1 = [1 0.4]';
             m2 = [-2 3.4]';
             c1 = diag([0.1 3]);
