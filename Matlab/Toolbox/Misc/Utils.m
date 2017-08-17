@@ -14,8 +14,6 @@ classdef Utils
     %   getGaussianKLD            - Compute Kullback-Leibler divergence (KLD) between two Gaussian distributions.
     %   getGaussianL2Distance     - Compute L2 distance between two Gaussian distributions.
     %   rndOrthogonalMatrix       - Creates a random orthogonal matrix of the specified dimension.
-    %   getStateSamples           - Get a set of samples approximating a Gaussian distributed system state.
-    %   getStateNoiseSamples      - Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
     %   diffQuotientState         - Compute first-order and second-order difference quotients of a function at the given nominal system state.
     %   diffQuotientStateAndNoise - Compute first-order and second-order difference quotients of a function at the given nominal system state and nominal noise.
     
@@ -503,101 +501,6 @@ classdef Utils
             D = diag(sign(diag(R)));
             
             rndMat = Q * D;
-        end
-        
-        function [stateSamples, ...
-                  weights, ...
-                  numSamples] = getStateSamples(sampling, stateMean, stateCovSqrt)
-            % Get a set of samples approximating a Gaussian distributed system state.
-            %
-            % The number of samples, their positions, and their weights are determined (and
-            % controlled) by the respective Gaussian sampling technique.
-            %
-            % Parameters:
-            %   >> sampling (Subclass of GaussianSampling)
-            %      Gaussian sampling technique that controls the sample generation.
-            %
-            %   >> stateMean (Column vector)
-            %      State mean.
-            %
-            %   >> stateCovSqrt (Square matrix)
-            %      Square root of the state covariance, e.g., the lower matrix of a Cholesky decomposition.
-            %
-            % Returns:
-            %   << stateSamples (Matrix)
-            %      Column-wise arranged sample positions approximating the Gaussian system state.
-            %
-            %   << weights (Row vector)
-            %      Column-wise arranged corresponding sample weights.
-            %
-            %   << numSamples (Positive scalar)
-            %      Number of samples approximating the Gaussian system state.
-            
-            dimState = size(stateMean, 1);
-            
-            % Get standard normal approximation
-            [stdNormalSamples, weights, numSamples] = sampling.getStdNormalSamples(dimState);
-            
-            % Generate state samples
-            stateSamples = stateCovSqrt * stdNormalSamples;
-            stateSamples = bsxfun(@plus, stateSamples, stateMean);
-        end
-        
-        function [stateSamples, ...
-                  noiseSamples, ...
-                  weights, ...
-                  numSamples] = getStateNoiseSamples(sampling, stateMean, stateCovSqrt, ...
-                                                     noiseMean, noiseCovSqrt)
-            % Get a set of samples approximating a jointly Gaussian distributed system state and (system/measurement) noise.
-            %
-            % It is assumed that state and noise are mutually independent.
-            %
-            % The number of samples, their positions, and their weights are determined (and
-            % controlled) by the respective Gaussian sampling technique.
-            %
-            % Parameters:
-            %   >> sampling (Subclass of GaussianSampling)
-            %      Gaussian sampling technique that controls the sample generation.
-            %
-            %   >> stateMean (Column vector)
-            %      State mean.
-            %
-            %   >> stateCovSqrt (Square matrix)
-            %      Square root of the state covariance, e.g., the lower matrix of a Cholesky decomposition.
-            %
-            %   >> noiseMean (Column vector)
-            %      Noise mean.
-            %
-            %   >> noiseCovSqrt (Square matrix)
-            %      Square root of the noise covariance, e.g., the lower matrix of a Cholesky decomposition.
-            %
-            % Returns:
-            %   << stateSamples (Matrix)
-            %      Column-wise arranged sample positions approximating the system state.
-            %
-            %   << noiseSamples (Matrix)
-            %      Column-wise arranged samples approximating the noise.
-            %
-            %   << weights (Row vector)
-            %      Column-wise arranged corresponding sample weights.
-            %
-            %   << numSamples (Positive scalar)
-            %      Number of samples approximating the Gaussian joint distribution.
-            
-            dimState    = size(stateMean, 1);
-            dimNoise    = size(noiseMean, 1);
-            dimAugState = dimState + dimNoise;
-            
-            % Get standard normal approximation
-            [stdNormalSamples, weights, numSamples] = sampling.getStdNormalSamples(dimAugState);
-            
-            % Generate state samples
-            stateSamples = stateCovSqrt * stdNormalSamples(1:dimState, :);
-            stateSamples = bsxfun(@plus, stateSamples, stateMean);
-            
-            % Generate noise samples
-            noiseSamples = noiseCovSqrt * stdNormalSamples(dimState+1:end, :);
-            noiseSamples = bsxfun(@plus, noiseSamples, noiseMean);
         end
         
         function [stateJacobian, stateHessians] = diffQuotientState(func, nominalState, step)
