@@ -29,8 +29,8 @@ classdef UKF < SampleBasedIterativeKalmanFilter & UnscentedLinearGaussianFilter
     %   getNumIterations            - Get number of iterations performed by the last measurement update.
     %   setConvergenceCheck         - Set a convergence check to determine if no further iterations are required.
     %   getConvergenceCheck         - Get the convergence check.
-    %   setSampleScalings             - Set the sample scaling factors used for state prediction and measurement update.
-    %   getSampleScalings             - Get the sample scaling factors used for state prediction and measurement update.
+    %   setSampleScalings           - Set the sample scaling factors used for state prediction and measurement update.
+    %   getSampleScalings           - Get the sample scaling factors used for state prediction and measurement update.
     
     % Literature:
     %   Simon J. Julier and Jeffrey K. Uhlmann,
