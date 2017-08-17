@@ -107,6 +107,13 @@ classdef GPF < GaussianFilter & ParticleFilter
     end
     
     methods (Access = 'protected')
+        function particles = getStateParticles(obj)
+            particles = Utils.drawGaussianRndSamples(obj.stateMean, ...
+                                                     obj.stateCovSqrt, ...
+                                                     obj.numParticles);
+        end
+        
+        % State prediction related methods
         function [predictedStateMean, ...
                   predictedStateCov] = predictSysModel(obj, sysModel)
             % Sample system noise
@@ -153,24 +160,25 @@ classdef GPF < GaussianFilter & ParticleFilter
             predictedStateCov = cov + noiseCov;
         end
         
-        function [updatedMean, ...
-                  updatedCov] = performUpdateObservable(obj, measModel, measurement, ...
-                                                        priorMean, ~, priorCovSqrt)
+        % Measurement update related methods
+        function [updatedStateMean, ...
+                  updatedStateCov] = performUpdateObservable(obj, measModel, measurement, ...
+                                                             priorStateMean, ~, priorStateCovSqrt)
             if Checks.isClass(measModel, 'Likelihood')
                 % Generate random samples
-                particles = Utils.drawGaussianRndSamples(priorMean, ...
-                                                         priorCovSqrt, ...
+                particles = Utils.drawGaussianRndSamples(priorStateMean, ...
+                                                         priorStateCovSqrt, ...
                                                          obj.numParticles);
                 
-                [updatedMean, ...
-                 updatedCov] = obj.updateLikelihood(measModel, measurement, particles);
+                [updatedStateMean, ...
+                 updatedStateCov] = obj.updateLikelihood(measModel, measurement, particles);
             else
                 obj.errorMeasModel('Likelihood');
             end
         end
         
-        function [updatedMean, ...
-                  updatedCov] = updateLikelihood(obj, measModel, measurement, particles)
+        function [updatedStateMean, ...
+                  updatedStateCov] = updateLikelihood(obj, measModel, measurement, particles)
             % Evaluate likelihood
             values = obj.evaluateLikelihood(measModel, measurement, particles, obj.numParticles);
             
@@ -184,15 +192,8 @@ classdef GPF < GaussianFilter & ParticleFilter
             weights = values / sumWeights;
             
             % Compute updated state mean and covariance
-            [updatedMean, ...
-             updatedCov] = Utils.getMeanAndCov(particles, weights);
-        end
-        
-        function particles = getStateParticles(obj)
-            % Generate Gaussian random samples
-            particles = Utils.drawGaussianRndSamples(obj.stateMean, ...
-                                                     obj.stateCovSqrt, ...
-                                                     obj.numParticles);
+            [updatedStateMean, ...
+             updatedStateCov] = Utils.getMeanAndCov(particles, weights);
         end
     end
     
