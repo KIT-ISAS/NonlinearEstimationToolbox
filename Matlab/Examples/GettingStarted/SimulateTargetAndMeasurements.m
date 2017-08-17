@@ -1,31 +1,18 @@
 
 function SimulateTargetAndMeasurements()
     % Instantiate system model
-    sysModel = TargetSysModelB();
-    
-    % Set Delta T (discrete time step size)
-    sysModel.deltaT = 0.01;
-    
-    % Set time-invariant, zero-mean Gaussian system noise
-    sysNoise = Gaussian(zeros(5, 1), [1e-3 1e-3 1e-5 1e-3 1e-5]);
-    
-    sysModel.setNoise(sysNoise);
+    sysModel = TargetSysModel();
     
     % Instantiate measurement Model
-    measModel = PolarMeasModelB();
-    
-    % Set time-invariant, zero-mean Gaussian measurement noise
-    measNoise = Gaussian(zeros(2, 1), [1e-2 1e-4]);
-    
-    measModel.setNoise(measNoise);
+    measModel = PolarMeasModel();
     
     % Initial state estimate
-    initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1]);
+    initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1e-1]);
     
     sysState = initialState.drawRndSamples(1);
     
     % Simulate system state trajectory and noisy measurements
-    numTimeSteps = 200;
+    numTimeSteps = 100;
     
     sysStates    = nan(5, numTimeSteps);
     measurements = nan(2, numTimeSteps);

@@ -1,36 +1,22 @@
 
 function NonlinearEstimationExample()
     % Instantiate system model
-    sysModel = TargetSysModelA();
-%     sysModel = TargetSysModelB();
-    
-    % Set Delta T (discrete time step size)
-    sysModel.deltaT = 0.01;
-    
-    % Set time-invariant, zero-mean Gaussian system noise
-    sysNoise = Gaussian(zeros(5, 1), [1e-3 1e-3 1e-5 1e-3 1e-5]);
-    
-    sysModel.setNoise(sysNoise);
+    sysModel = TargetSysModel();
     
     % Instantiate measurement Model
-    measModel = PolarMeasModelA();
-%     measModel = PolarMeasModelB();
+%     measModel = PolarMeasModelNaive();
+    measModel = PolarMeasModel();
 %     measModel = PolarMeasLikelihood();
-    
-    % Set time-invariant, zero-mean Gaussian measurement noise
-    measNoise = Gaussian(zeros(2, 1), [1e-2 1e-4]);
-    
-    measModel.setNoise(measNoise);
     
     % The estimator
     filter = UKF();
-%     filter = S2KF();
 %     filter = EKF();
 %     filter = SIRPF();
-%     filter = PGF();
+%     filter = RPF();
+%     filter.setNumParticles(10^5);
     
     % Initial state estimate
-    initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1]);
+    initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1e-1]);
     
     filter.setState(initialState);
     
@@ -38,6 +24,7 @@ function NonlinearEstimationExample()
     filter.predict(sysModel);
     
     % Show the predicted state estimate
+    fprintf('Predicted state estimate:\n\n');
     printStateMeanAndCov(filter);
     
     % Assume we receive the measurement
@@ -46,6 +33,19 @@ function NonlinearEstimationExample()
     % Perform a measurement update
     filter.update(measModel, measurement);
     
-    % Show the filtered state estimate
+    % Show the updated state estimate
+    fprintf('Updated state estimate:\n\n');
     printStateMeanAndCov(filter);
+end
+
+function printStateMeanAndCov(filter)
+    [mean, cov] = filter.getStateMeanAndCov();
+    
+    fprintf('State mean:\n');
+    disp(mean);
+    
+    fprintf('State covariance matrix:\n');
+    disp(cov);
+    
+    fprintf('\n');
 end
