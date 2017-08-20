@@ -165,6 +165,21 @@ classdef TestGaussianFilter < TestFilter
             
             obj.testPredictNonlinearConfigruations(getSysModelData);
         end
+        
+        
+        function testInvalidStateDecompDim(obj)
+            f = obj.initFilter();
+            
+            f.setState(Gaussian(zeros(3, 1), 2 * eye(3)));
+            
+            f.setStateDecompDim(3);
+            
+            measModel   = [];
+            measurement = [];
+            
+            obj.verifyError(@() f.update(measModel, measurement), ...
+                            'Filter:InvalidUnobservableStateDimension');
+        end
     end
     
     methods (Static)
