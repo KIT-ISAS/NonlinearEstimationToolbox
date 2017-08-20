@@ -159,6 +159,27 @@ classdef TestEnKF < TestFilter
             
             obj.testUpdateNonlinear(getMeasModelData);
         end
+        
+        
+        function testUpdateInvalidMeasurement(obj)
+            f = obj.initFilter();
+            
+            f.setState(Gaussian(0, 1));
+            
+            measModel = [];
+            
+            invalidMeas = ones(2, 4);
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+            
+            invalidMeas = { 1, 3 };
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+            
+            invalidMeas = Gaussian(0, 1);
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+        end
     end
     
     methods (Access = 'protected')
