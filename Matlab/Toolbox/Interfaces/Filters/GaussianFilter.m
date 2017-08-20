@@ -283,7 +283,8 @@ classdef GaussianFilter < Filter
         
         function checkAndSavePrediction(obj, predictedStateMean, predictedStateCov)
             % Check if predicted state covariance is valid
-            predictedStateCovSqrt = obj.checkCovPrediction(predictedStateCov, 'Predicted state');
+            predictedStateCovSqrt = obj.checkCovPrediction(predictedStateCov, ...
+                                                           'Predicted state');
             
             if ~isempty(obj.predictionPostProcessing)
                 % Perform post-processing
@@ -307,10 +308,11 @@ classdef GaussianFilter < Filter
                 end
                 
                 % Check if post-processed state covariance is valid
-                predictedStateCovSqrt = obj.checkCovUpdate(predictedStateCov, 'Post-processed predicted state');
+                predictedStateCovSqrt = obj.checkCovPrediction(predictedStateCov, ...
+                                                               'Post-processed predicted state');
             end
             
-            % Save new state estimate
+            % Save predicted state estimate
             obj.stateMean    = predictedStateMean;
             obj.stateCov     = predictedStateCov;
             obj.stateCovSqrt = predictedStateCovSqrt;
@@ -318,7 +320,8 @@ classdef GaussianFilter < Filter
         
         function checkAndSaveUpdate(obj, updatedStateMean, updatedStateCov)
             % Check if updated state covariance is valid
-            updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, 'Updated state');
+            updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, ...
+                                                     'Updated state');
             
             if ~isempty(obj.updatePostProcessing)
                 % Perform post-processing
@@ -342,10 +345,11 @@ classdef GaussianFilter < Filter
                 end
                 
                 % Check if post-processed state covariance is valid
-                updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, 'Post-processed updated state');
+                updatedStateCovSqrt = obj.checkCovUpdate(updatedStateCov, ...
+                                                         'Post-processed updated state');
             end
             
-            % Save new state estimate
+            % Save updated state estimate
             obj.stateMean    = updatedStateMean;
             obj.stateCov     = updatedStateCov;
             obj.stateCovSqrt = updatedStateCovSqrt;
