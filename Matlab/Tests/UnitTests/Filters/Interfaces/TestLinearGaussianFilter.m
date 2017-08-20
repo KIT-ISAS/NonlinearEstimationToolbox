@@ -39,6 +39,27 @@ classdef TestLinearGaussianFilter < TestGaussianFilter
                 obj.testUpdateLinearMeasurementModelConfiguration(configs(i, :));
             end
         end
+        
+        
+        function testUpdateInvalidMeasurement(obj)
+            f = obj.initFilter();
+            
+            f.setState(Gaussian(0, 1));
+            
+            measModel = [];
+            
+            invalidMeas = ones(2, 4);
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+            
+            invalidMeas = { 1, 3 };
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+            
+            invalidMeas = Gaussian(0, 1);
+            obj.verifyError(@() f.update(measModel, invalidMeas), ...
+                            'Filter:InvalidMeasurement');
+        end
     end
     
     methods (Access = 'protected')
@@ -48,6 +69,11 @@ classdef TestLinearGaussianFilter < TestGaussianFilter
             
             % LinearGaussianFilter-related tests
             obj.verifyEqual(f.getMeasGatingThreshold(), 1);
+        end
+        
+        function [f, tol] = setupNonlinarPrediction(obj)
+            f   = obj.initFilter();
+            tol = sqrt(eps);
         end
         
         function testUpdateLinearMeasurementModelConfiguration(obj, config)
@@ -108,11 +134,6 @@ classdef TestLinearGaussianFilter < TestGaussianFilter
                 obj.verifyEqual(stateCov, stateCov');
                 obj.verifyEqual(stateCov, trueStateCov, 'RelTol', tol);
             end
-        end
-        
-        function [f, tol] = setupNonlinarPrediction(obj)
-            f   = obj.initFilter();
-            tol = sqrt(eps);
         end
     end
 end
