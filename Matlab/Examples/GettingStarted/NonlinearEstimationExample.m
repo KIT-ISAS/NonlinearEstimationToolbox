@@ -4,15 +4,16 @@ function NonlinearEstimationExample()
     sysModel = TargetSysModel();
     
     % Instantiate measurement Model
-%     measModel = PolarMeasModelNaive();
-    measModel = PolarMeasModel();
+    measModel = PolarMeasModelNaive();
+%     measModel = PolarMeasModel();
 %     measModel = PolarMeasLikelihood();
     
     % The estimator
     filter = UKF();
+%     filter = GHKF();
 %     filter = EKF();
 %     filter = SIRPF();
-%     filter = RPF();
+%     filter = GPF();
 %     filter.setNumParticles(10^5);
     
     % Initial state estimate

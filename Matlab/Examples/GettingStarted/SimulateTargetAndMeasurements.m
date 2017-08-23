@@ -6,7 +6,7 @@ function SimulateTargetAndMeasurements()
     % Instantiate measurement Model
     measModel = PolarMeasModel();
     
-    % Initial state estimate
+    % Draw initial system state from the prior state distribution
     initialState = Gaussian([1 1 0 0 0]', [10, 10, 1e-1, 1, 1e-1]);
     
     sysState = initialState.drawRndSamples(1);
@@ -41,7 +41,7 @@ function SimulateTargetAndMeasurements()
     % Plot measurements
     cartMeas = polarToCart(measurements);
     
-    plot(cartMeas(1, :), cartMeas(2, :), 'ro', 'LineWidth', 1, 'DisplayName', 'Measurements');
+    plot(cartMeas(1, :), cartMeas(2, :), 'ro', 'LineWidth', 2, 'DisplayName', 'Measurements');
     
     legend show;
 end

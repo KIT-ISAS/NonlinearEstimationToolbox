@@ -95,9 +95,13 @@ function CompleteEstimationExample()
              'DisplayName', sprintf('Prediction %s', name));
     end
     
+    set(gca, 'yscale', 'log');
+    
     legend show;
     
     % Plot state estimates
+    figure();
+    
     for i = 1:numFilters
         subplot(2, 2, i);
         

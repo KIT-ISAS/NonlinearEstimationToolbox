@@ -20,8 +20,9 @@ classdef PolarMeasModel < AdditiveNoiseMeasurementModel
                             atan2(py, px)      ];
         end
         
-        % Override the derviate() method inherited
-        % from AdditiveNoiseMeasurementModel
+        % Override the derviate() method inherited from
+        % AdditiveNoiseMeasurementModel in order to
+        % implement the analytic derivative
         function stateJacobian = derivative(obj, nominalState)
             px = nominalState(1);
             py = nominalState(2);

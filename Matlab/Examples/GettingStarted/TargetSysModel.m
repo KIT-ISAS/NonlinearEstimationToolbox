@@ -13,7 +13,7 @@ classdef TargetSysModel < SystemModel
             obj.setNoise(sysNoise);
         end
         
-        % Implement the abstract systemEquation() method inheritedfrom SystemModel
+        % Implement the abstract systemEquation() method inherited from SystemModel
         function predictedStates = systemEquation(obj, stateSamples, noiseSamples)
             numSamples = size(stateSamples, 2);
             
@@ -56,22 +56,24 @@ classdef TargetSysModel < SystemModel
             predTurnRate = turnRate + turnRateNoise;
             predDir      = dir + t * predTurnRate;
             
-            a = -sin(predDir) * t * predSpeed;
-            b =  cos(predDir) * t * predSpeed;
-            c =  cos(predDir) * t;
-            d =  sin(predDir) * t;
+            a =  cos(predDir) * t;
+            b =  sin(predDir) * t;
+            c = -b * predSpeed;
+            d =  a * predSpeed;
+            e =  c * t;
+            f =  d * t;
             
-            stateJacobian = [1 0 a c a * t
-                             0 1 b d b * t
+            stateJacobian = [1 0 c a e
+                             0 1 d b f
                              0 0 1 0 t
                              0 0 0 1 0
-                             0 0 0 0 1    ];
+                             0 0 0 0 1];
             
-            noiseJacobian = [c a * t
-                             d b * t
+            noiseJacobian = [a e
+                             b f
                              0 t
                              1 0
-                             0 1    ];
+                             0 1];
         end
     end
     

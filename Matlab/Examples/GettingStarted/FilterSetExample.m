@@ -18,11 +18,11 @@ function FilterSetExample()
     filter = EKF();
     filters.add(filter);
     
-    filter = SIRPF('SIRPF 10^4');
-    filter.setNumParticles(10^4);
+    filter = EKF('Iterative EKF');
+    filter.setMaxNumIterations(10);
     filters.add(filter);
     
-    filter = SIRPF('SIRPF 10^5');
+    filter = SIRPF();
     filter.setNumParticles(10^5);
     filters.add(filter);
     
