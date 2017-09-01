@@ -30,9 +30,10 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getNames(), cell(1, 0));
             obj.verifyEqual(set.getStates(), cell(1, 0));
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifyEmpty(stateMeans);
             obj.verifyEmpty(stateCovs);
+            obj.verifyEmpty(stateCovSqrts);
         end
         
         
@@ -46,7 +47,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getStateDim(), 0);
             obj.verifyEqual(set.getNames(), { 'KF' });
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             obj.verifyEmpty(stateMeans);
             obj.verifyEmpty(stateCovs);
         end
@@ -66,7 +67,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(set.getStateDim(), 0);
             obj.verifyEqual(set.getNames(), { 'A', 'B' });
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             obj.verifyEmpty(stateMeans);
             obj.verifyEmpty(stateCovs);
         end
@@ -297,7 +298,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(stateMean, mean);
             obj.verifyEqual(stateCov, cov);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifyEqual(stateMeans, mean);
             obj.verifyEqual(stateCovs, cov);
             obj.verifyEqual(stateCovSqrts, covSqrt);
@@ -341,7 +342,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             covs     = cat(3, stateCov1, stateCov2);
             covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifySize(stateMeans, [4 2]);
             obj.verifySize(stateCovs, [4 4 2]);
             obj.verifySize(stateCovSqrts, [4 4 2]);
@@ -378,7 +379,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(stateMean, mean);
             obj.verifyEqual(stateCov, cov);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifyEqual(stateMeans, mean);
             obj.verifyEqual(stateCovs, cov);
             obj.verifyEqual(stateCovSqrts, covSqrt);
@@ -410,7 +411,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifyEqual(stateMean, mean);
             obj.verifyEqual(stateCov, cov);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifyEqual(stateMeans, mean);
             obj.verifyEqual(stateCovs, cov);
             obj.verifyEqual(stateCovSqrts, covSqrt);
@@ -455,7 +456,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             covs     = cat(3, stateCov1, stateCov2);
             covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifySize(stateMeans, [4 2]);
             obj.verifySize(stateCovs, [4 4 2]);
             obj.verifySize(stateCovSqrts, [4 4 2]);
@@ -503,7 +504,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             covs     = cat(3, stateCov1, stateCov2);
             covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
             
-            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStatesMeanAndCov();
             obj.verifySize(stateMeans, [4 2]);
             obj.verifySize(stateCovs, [4 4 2]);
             obj.verifySize(stateCovSqrts, [4 4 2]);
@@ -529,7 +530,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -562,7 +563,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt1 = EKF('GT1');
             gt1.setState(initState1);
@@ -597,7 +598,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -626,7 +627,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -724,7 +725,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -758,7 +759,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt1 = EKF('GT1');
             gt1.setState(initState1);
@@ -794,7 +795,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -824,7 +825,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -929,7 +930,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 1]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -967,7 +968,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtimes, [1 2]);
             obj.verifyGreaterThan(runtimes, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt1 = EKF('GT1');
             gt1.setState(initState1);
@@ -1008,7 +1009,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);
@@ -1042,7 +1043,7 @@ classdef TestFilterSet < matlab.unittest.TestCase
             obj.verifySize(runtime, [1 1]);
             obj.verifyGreaterThan(runtime, 0);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            [stateMeans, stateCovs] = set.getStatesMeanAndCov();
             
             gt = EKF('GT');
             gt.setState(initState);

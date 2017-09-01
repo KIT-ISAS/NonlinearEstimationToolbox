@@ -60,7 +60,7 @@ function CompleteEstimationExample()
         runtimesUpdate(:, k) = filters.update(measModel, measurement);
         
         [updatedStateMeans(:, :, k), ...
-         updatedStateCovs(:, :, :, k)] = filters.getStateMeansAndCovs();
+         updatedStateCovs(:, :, :, k)] = filters.getStatesMeanAndCov();
         
         % Simulate next system state
         sysState = sysModel.simulate(sysState);
@@ -69,7 +69,7 @@ function CompleteEstimationExample()
         runtimesPrediction(:, k) = filters.predict(sysModel);
         
         [predStateMeans(:, :, k), ...
-         predStateCovs(:, :, :, k)] = filters.getStateMeansAndCovs();
+         predStateCovs(:, :, :, k)] = filters.getStatesMeanAndCov();
     end
     
     close all;

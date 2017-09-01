@@ -3,24 +3,24 @@ classdef FilterSet < handle
     % A set of filters.
     %
     % FilterSet Methods:
-    %   FilterSet            - Class constructor.
-    %   add                  - Add a filter to the set.
-    %   remove               - Remove a filter from the set
-    %   get                  - Get a filter from the set.
-    %   getIndex             - Get the index of a filter from the set.
-    %   getNumFilters        - Get the number of filters in the set.
-    %   getNames             - Get the names of all filters.
-    %   setStates            - Set the system states of all filters.
-    %   getStates            - Get the system states of all filters.
-    %   setStatesMeanAndCov  - Set the system states of all filters by means of mean and covariance matrix.
-    %   getStateMeansAndCovs - Get state means and state covariance matrices of all filters.
-    %   getStateDim          - Get the dimension of the system state.
-    %   predict              - Perform a state prediction for all filters.
-    %   predictSingle        - Perform a state prediction for a particular filter.
-    %   update               - Perform a measurement update for all filters.
-    %   updateSingle         - Perform a measurement update for a particular filter.
-    %   step                 - Perform a combined state prediction and measurement update for all filters.
-    %   stepSingle           - Perform a combined state prediction and measurement update for a particular filter.
+    %   FilterSet           - Class constructor.
+    %   add                 - Add a filter to the set.
+    %   remove              - Remove a filter from the set
+    %   get                 - Get a filter from the set.
+    %   getIndex            - Get the index of a filter from the set.
+    %   getNumFilters       - Get the number of filters in the set.
+    %   getNames            - Get the names of all filters.
+    %   setStates           - Set the system states of all filters.
+    %   getStates           - Get the system states of all filters.
+    %   setStatesMeanAndCov - Set the system states of all filters by means of mean and covariance matrix.
+    %   getStatesMeanAndCov - Get state means and state covariance matrices of all filters.
+    %   getStateDim         - Get the dimension of the system state.
+    %   predict             - Perform a state prediction for all filters.
+    %   predictSingle       - Perform a state prediction for a particular filter.
+    %   update              - Perform a measurement update for all filters.
+    %   updateSingle        - Perform a measurement update for a particular filter.
+    %   step                - Perform a combined state prediction and measurement update for all filters.
+    %   stepSingle          - Perform a combined state prediction and measurement update for a particular filter.
     
     % >> This function/class is part of the Nonlinear Estimation Toolbox
     %
@@ -248,7 +248,7 @@ classdef FilterSet < handle
             obj.dimState = size(stateMean, 1);
         end
         
-        function [stateMeans, stateCovs, stateCovSqrts] = getStateMeansAndCovs(obj)
+        function [stateMeans, stateCovs, stateCovSqrts] = getStatesMeanAndCov(obj)
             % Get state means and state covariance matrices of all filters.
             %
             % Returns:

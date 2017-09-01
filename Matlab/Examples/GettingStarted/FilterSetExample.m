@@ -79,7 +79,7 @@ function printStateMeansAndCovs(filters)
     numFilters = filters.getNumFilters();
     names      = filters.getNames();
     
-    [stateMeans, stateCovs] = filters.getStateMeansAndCovs();
+    [stateMeans, stateCovs] = filters.getStatesMeanAndCov();
     
     for i = 1:numFilters
         fprintf('\nFilter: %s\n', names{i});
