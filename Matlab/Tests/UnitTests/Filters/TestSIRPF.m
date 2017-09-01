@@ -138,10 +138,11 @@ classdef TestSIRPF < TestFilter
         function testGetStateMeanAndCov(obj)
             f = obj.initFilter();
             
-            s = cat(2, zeros(3, 1), ones(3, 1), [-2 5 0.7]');
-            w = [1 2 3];
+            samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
+            samples = bsxfun(@plus, samples, -4 * ones(3, 1));
+            weights = [2 1 1 1 1 1 1] / 8;
             
-            d = DiracMixture(s, w);
+            d = DiracMixture(samples, weights);
             
             f.setState(d);
             
