@@ -26,8 +26,8 @@ function GaussianSamplingExample()
     samplings{1}.sampling = GaussianSamplingUKF();
     samplings{1}.sampling.setSampleScaling(1);
     
-    % Sampling from the 5-Degree Cubature KF
-    samplings{2}.name = '5-Degree CKF';
+    % Sampling from the 5th-Degree Cubature KF
+    samplings{2}.name = '5th-Degree CKF';
     samplings{2}.sampling = GaussianSamplingCKF();
     
     % Symmetric Gaussian LCD sampling (from the S2KF / PGF) with 21 samples
@@ -118,6 +118,13 @@ function plotSamplings(samplings, gaussian)
         % By changing the view of each plot one can see the different
         % sample weightings for different sampling techniques.
         weights = 5 * weights / max(abs(weights));
+        
+        if numel(weights) == 1
+            % Gaussian sampling techniques only return a single scalar
+            % weight in case of equally weighted samples. Hence, for the
+            % visualization we have to repmat the weight
+            weights = repmat(weights, 1, numSamples);
+        end
         
         % Plot weighted samples from sampling #i
         stem3(samples(1, :), samples(2, :), weights, ...
