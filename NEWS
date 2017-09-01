@@ -1,4 +1,159 @@
 
+Changes in Nonlinear Estimation Toolbox 2.0
+=============================================
+
+This is a major toolbox release for cleaning up its API (more consistent method naming and removal of rather unnecessary
+functionalities) to allow for a better API understanding and better implementation of new features. This release also
+includes new estimators.
+
+* General changes:
+  - Filters now only handle the case of a single measurement. For example, Kalman filters now only accept a measurement vector,
+    not a matrix of multiple measurements. However, processing multiple measurements can still be done by stacking measurements
+    to a vector.
+  - Measurement models can now only generate a single measurement with the simulate() method.
+  - Likelihood-based filters now accept any type of measurement data, not only real-valued measurement vectors as it is the case
+    for Kalman filters. That is, you can pass, for example, a cell array of data that is required by the likelihood function.
+  - Various class methods are now sealed to prevent unintended overwriting.
+  - Added new subfolders for a better structuring toolbox files. You may have to update your Matlab PATH accordingly.
+
+* Filters:
+  - Renamed getPointEstimate() to getStateMeanAndCov().
+  - In addition to getPointEstimate(), getStateMeanAndCov() now also returns the square root of the system state covariance
+    matrix (the lower Cholesky decomposition) analogous to the getMeanAndCov() methods of probability distributions.
+  - Added setStateMeanAndCov() method for fastly setting the system state without creating a temporary Gaussian distribution,
+    e.g., in order to assign the Gaussian state estimate of a filter to another one. Note that this method does not perform
+    input validation like setState()!
+  - Gaussian filters:
+    * Users can now specify custom state estimate post processing via the {set,get}PredictionPostProcessing()
+      and {set,get}setUpdatePostProcessing() methods, e.g., to implement constrained state estimation. The set post processing
+      methods are then executed after each state prediction and measurement update, respectively.
+  - Added several recursive update filter (RUF) variants:
+    * ERUF: extended recursive update filter  (the originally proposed RUF).
+    * CRUF: the fifth-degree cubature recursive update filter.
+    * GHRUF: the Gauss-Hermite recursive update filter.
+    * RURUF: the randomized unscented recursive update filter.
+    * S2RUF: the smart sampling recursive update filter.
+    * URUF: the unscented recursive update filter.
+  - Iterative Kalman filters:
+    * Dropped the analytic moment computation models used by Kalman filters and moved the analytic moment computation for the
+      linear cases directly into LinearMeasurementModel and LinearSystemModel by introducing the getAnalyticMoments() methods.
+    * Users can now specify a custom convergence check via the {set,get}ConvergenceCheck() methods, e.g., based on the
+      Kullback-Leibler divergence (KLD) using the new Utils.getGaussianKLD() method.
+    * Added getNumIterations().
+    * Renamed setMeasValidationThreshold() to setMeasGatingThreshold().
+    * Renamed getMeasValidationThreshold() to getMeasGatingThreshold().
+    * Removed getLastUpdateData().
+    * Removed the now obsolete AnalyticKF filter.
+    * The implementation of a sample-based Kalman filter now handles the special case of equally weighted samples efficiently.
+      That is, there is no need for a specialized implementation, e.g., for the S2KF or the UKF with equally weighted samples.
+      This also holds for the new sample-based recursive update filters.
+    * RUKF:
+      - Renamed setNumIterations() to setNumSamplesFactors.
+      - Renamed getNumIterations() to getNumSamplesFactors.
+    * S2KF:
+      - The used LCD-based Gaussian sampling technique can now be configured completely independently for state prediction and
+        measurement update.
+      - Added getNumSamplesConfigPrediction().
+      - Added getNumSamplesConfigUpdate().
+      - Renamed setNumSamplesByFactor() to setNumSamplesByFactors().
+      - Removed online computation mode including the setOnlineMode() method.
+      - Removed asymmetric LCD-based sampling mode including the setSymmetricMode() method.
+    * UKF:
+      - Renamed setSampleScaling() to setSampleScalings().
+      - Renamed getSampleScaling() to getSampleScalings().
+  - Particle filters:
+    * Changed default name of SIRPF from "SIR-PF" to "SIRPF".
+    * Changed default name of ASIRPF from "Auxiliary SIR-PF" to "ASIRPF".
+    * Merged the PF interface into the SIRPF.
+  - PGF:
+    * The used LCD-based Gaussian sampling technique can now be configured completely independently for state prediction and
+      measurement update.
+    * Added getNumSamplesConfigPrediction().
+    * Added getNumSamplesConfigUpdate().
+    * Renamed setNumSamplesByFactor() to setNumSamplesByFactors().
+    * Renamed getLastUpdateData() to getNumProgSteps().
+
+* Distributions:
+  - All probability distributions now have a set() method. That is, a distribution can be modified after its creation.
+  - All default constructors now return an uninitialized distribution.
+  - Renamed getDimension() to getDim().
+  - Renamed getMeanAndCovariance() to getMeanAndCov().
+  - Removed the JointDistribution.
+  - DiracMixture:
+    * Added check for invalid covariance matrix when trying to compute its square root in getMeanAndCov().
+
+* Gaussian sampling techniques:
+  - The getStdNormalSamples() and getSamples() methods of all Gaussian sampling techniques now return a single scalar weight in
+    case of equally weighted samples in order to efficiently handle the computation of sample-based moments, e.g., means or
+    covariance matrices in Kalman filtering.
+  - GaussianSamplingRnd:
+    * Now uses a default number of 1,000 particles instead of only 100.
+  - GaussianSamplingLCD:
+    * Added getSymmetricMode().
+    * Added getNumSamplesConfig().
+    * Removed online computation mode including the setOnlineMode() method.
+
+* Misc:
+  - FilterSet:
+    * Renamed getPointEstimates() to getStatesMeanAndCov().
+    * In addition to getPointEstimates(), getStatesMeanAndCov() now also returns the square roots of the system state covariance
+      matrices (the lower Cholesky decomposition) analogous to the Filter's getStateMeanAndCov() method.
+    * Added setStatesMeanAndCov() method for fastly setting the system state of all filters without creating a temporary Gaussian 
+      distribution, e.g., in order to assign the Gaussian state estimate of a filter to another one. Note that this method does 
+      not perform input validation like setStates()!
+  - Utilities:
+    * Utils.getMeanAndCov() now handles the case of a single scalar weight in case of equally weighted samples (in order to
+      smoothly work with the changed weights of the Gaussian sampling techniques).
+    * Utils.kalmanUpdate() now additionally returns the squared Mahalanobis distance of the measurement vector.
+    * Added Utils.getGMMeanAndCov() for computing mean and covariance matrix of a Gaussian mixture distribution.
+    * Added Utils.getGaussianKLD() for computing the Gaussian Kullback-Leibler divergence (KLD).
+    * Added Utils.getGaussianL2Distance() for computing the Gaussian L2 distance.
+    * Removed Utils.baseBlockDiag().
+    * Removed Utils.getMeanCovAndCrossCov().
+    * Removed Utils.getStateSamples().
+    * Removed Utils.getStateNoiseSamples().
+  - Updated Eigen linear algebra library to version 3.3.4.
+
+* Interfaces:
+  - Added LinearGaussianFilter.
+  - Added FirstOrderTaylorLinearGaussianFilter.
+  - Added SecondOrderTaylorLinearGaussianFilter.
+  - Added SampleBasedLinearGaussianFilter.
+  - Added CubatureLinearGaussianFilter.
+  - Added GaussHermiteLinearGaussianFilter.
+  - Added RandomizedUnscentedLinearGaussianFilter.
+  - Added SmartSamplingLinearGaussianFilter.
+  - Added UnscentedLinearGaussianFilter.
+  - Added IterativeKalmanFilter.
+  - Added TaylorBasedIterativeKalmanFilter.
+  - Added SampleBasedIterativeKalmanFilter.
+  - Added RecursiveUpdateFilter.
+  - Added TaylorBasedRecursiveUpdateFilter.
+  - Added SampleBasedRecursiveUpdateFilter.
+  - Renamed BasePF to ParticleFilter.
+  - Removed AnalyticMeasurementModel.
+  - Removed AnalyticSystemModel.
+  - Removed FOTaylorBasedJointlyGaussianPrediction.
+  - Removed SOTaylorBasedJointlyGaussianPrediction.
+  - Removed SampleBasedJointlyGaussianPrediction.
+  - Removed KF.
+  - Removed LRKF.
+
+* Examples:
+  - Updated all "getting started" examples to the new API, changed the used nonlinear system model, and introduced more detailed
+    evaluation plots in the "complete estimation example".
+  - Added examples for all probability distributions.
+  - Added examples for all measurement models.
+  - Added examples for all system models.
+
+* Tests:
+  - Added unit tests for all Gaussian sampling techniques.
+  - Added unit tests for nearly all existing filters.
+  - Added unit tests for all new recursive update filter variants.
+  - Added unit tests for all probability distributions.
+  - The general structure for filter unit tests was overhauled.
+
+
 Changes in Nonlinear Estimation Toolbox 1.5.1
 =============================================
 
@@ -154,7 +309,7 @@ Changes in Nonlinear Estimation Toolbox 1.0.1
   - Utils.getStateNoiseSamples()
   
 * Bugs fixed
-  - #1    SIRPF cannot handle DiracMixture distributions when setting the system state 
+  - #1    SIRPF cannot handle DiracMixture distributions when setting the system state
   - #2    Inconsistent behavior when creating DiracMixture distributions
 
 
