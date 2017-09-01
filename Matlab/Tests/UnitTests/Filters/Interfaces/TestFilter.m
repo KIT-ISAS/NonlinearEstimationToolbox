@@ -61,6 +61,12 @@ classdef TestFilter < matlab.unittest.TestCase
     methods (Access = 'protected')
         function defaultConstructorTests(obj, f)
             obj.verifyEqual(f.getStateDim(), 0);
+            
+            [stateMean,  stateCov, stateCovSqrt] = f.getStateMeanAndCov();
+            
+            obj.verifyEmpty(stateMean);
+            obj.verifyEmpty(stateCov);
+            obj.verifyEmpty(stateCovSqrt);
         end
     end
     
