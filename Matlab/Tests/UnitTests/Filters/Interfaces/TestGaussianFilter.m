@@ -97,6 +97,30 @@ classdef TestGaussianFilter < TestFilter
         end
         
         
+        function testSetStateMeanAndCov(obj)
+            f = obj.initFilter();
+            
+            mean    = [-0.75, 4]';
+            cov     = diag([0.25 4] / 12);
+            covSqrt = sqrt(cov);
+            
+            f.setStateMeanAndCov(mean, cov, covSqrt);
+            
+            obj.checkState(f, mean, cov, 2);
+        end
+        
+        function testSetStateMeanAndCovNoCovSqrt(obj)
+            f = obj.initFilter();
+            
+            mean = [-0.75, 4]';
+            cov  = diag([0.25 4] / 12);
+            
+            f.setStateMeanAndCov(mean, cov);
+            
+            obj.checkState(f, mean, cov, 2);
+        end
+        
+        
         function testGetStateMeanAndCov(obj)
             f = obj.initFilter();
             

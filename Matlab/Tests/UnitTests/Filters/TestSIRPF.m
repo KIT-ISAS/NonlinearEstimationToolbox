@@ -74,6 +74,30 @@ classdef TestSIRPF < TestFilter
         end
         
         
+        function testSetStateMeanAndCov(obj)
+            f = obj.initFilter();
+            
+            mean    = [-0.75, 4]';
+            cov     = diag([0.25 4] / 12);
+            covSqrt = sqrt(cov);
+            
+            f.setStateMeanAndCov(mean, cov, covSqrt);
+            
+            obj.checkState(f, 2, 1000);
+        end
+        
+        function testSetStateMeanAndCovNoCovSqrt(obj)
+            f = obj.initFilter();
+            
+            mean = [-0.75, 4]';
+            cov  = diag([0.25 4] / 12);
+            
+            f.setStateMeanAndCov(mean, cov);
+            
+            obj.checkState(f, 2, 1000);
+        end
+        
+        
         function testSetNumParticles(obj)
             f = obj.initFilter();
             
