@@ -101,7 +101,7 @@ classdef RPF < SIRPF
             % Assumption: Particle weights are always normalized
             cumWeights = cumsum(obj.weights);
             
-            % First, standard SIR-PF resampling is performed
+            % First, standard SIRPF resampling is performed
             obj.particles = Utils.systematicResampling(obj.particles, cumWeights, numParticles);
             
             % Second, additional resampling part of the regularized PF
@@ -110,7 +110,7 @@ classdef RPF < SIRPF
             if ~isNonPos
                 % We can only use the resampling of the regularized PF if
                 % we have a valid sample covariance matrix. If not, we
-                % fall back to the standard SIR-PF resampling.
+                % fall back to the standard SIRPF resampling.
                 
                 % Optimal kernel bandwidth (note that we use a Gaussian kernel for the regularization)
                 hOpt = (4 / (obj.numParticles * (obj.dimState + 2)))^(1 / (obj.dimState + 4));
