@@ -175,13 +175,13 @@ classdef Filter < handle & matlab.mixin.Copyable
             %
             % Parameters:
             %   >> stateMean (Column vector)
-            %      Mean vector of the system state.
+            %      The new mean vector of the system state.
             %
             %   >> stateCov (Positive definite matrix)
-            %      Covariance matrix of the system state.
+            %      The new covariance matrix of the system state.
             %
             %   >> stateCovSqrt (Square matrix)
-            %      Lower Cholesky decomposition of the system state covariance matrix.
+            %      Lower Cholesky decomposition of the new system state covariance matrix.
             %      If no square root is passed, it will be computed.
             
             if nargin < 4
