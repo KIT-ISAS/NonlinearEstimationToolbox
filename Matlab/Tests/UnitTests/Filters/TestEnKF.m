@@ -97,12 +97,13 @@ classdef TestEnKF < TestFilter
             
             f.setState(d);
             
-            [stateMean, stateCov] = f.getStateMeanAndCov();
+            [stateMean, stateCov, stateCovSqrt] = f.getStateMeanAndCov();
             
-            [mean, cov] = d.getMeanAndCov();
+            [mean, cov, covSqrt] = d.getMeanAndCov();
             
             obj.verifyEqual(stateMean, mean, 'AbsTol', 1e-1);
             obj.verifyEqual(stateCov, cov, 'AbsTol', 1e-1);
+            obj.verifyEqual(stateCovSqrt, covSqrt, 'AbsTol', 1e-1);
         end
         
         

@@ -121,12 +121,13 @@ classdef TestSIRPF < TestFilter
             
             f.setState(d);
             
-            [stateMean, stateCov] = f.getStateMeanAndCov();
+            [stateMean, stateCov, stateCovSqrt] = f.getStateMeanAndCov();
             
-            [mean, cov] = d.getMeanAndCov();
+            [mean, cov, covSqrt] = d.getMeanAndCov();
             
             obj.verifyEqual(stateMean, mean);
             obj.verifyEqual(stateCov, cov);
+            obj.verifyEqual(stateCovSqrt, covSqrt);
         end
         
         

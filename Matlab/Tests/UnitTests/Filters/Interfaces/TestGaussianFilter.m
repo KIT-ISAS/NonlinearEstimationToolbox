@@ -104,16 +104,18 @@ classdef TestGaussianFilter < TestFilter
             b = [-0.5, 5]';
             d = Uniform(a, b);
             
-            mean = [-0.75, 4]';
-            cov  = diag([0.25 4] / 12);
+            mean    = [-0.75, 4]';
+            cov     = diag([0.25 4] / 12);
+            covSqrt = sqrt(cov);
             
             f.setState(d);
             
-            [stateMean, stateCov] = f.getStateMeanAndCov();
+            [stateMean, stateCov, stateCovSqrt] = f.getStateMeanAndCov();
             
             obj.verifyEqual(stateMean, mean);
             obj.verifyEqual(stateCov, stateCov');
             obj.verifyEqual(stateCov, cov);
+            obj.verifyEqual(stateCovSqrt, covSqrt);
         end
         
         
