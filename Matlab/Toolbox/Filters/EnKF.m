@@ -124,7 +124,8 @@ classdef EnKF < ParticleFilter
                     [stateCovSqrt, isNonPos] = chol(stateCov, 'Lower');
                     
                     if isNonPos
-                        obj.error('State covariance matrix is not positive definite.');
+                        obj.error('InvalidStateCovariance', ...
+                                  'State covariance matrix is not positive definite.');
                     end
                 end
             end
