@@ -11,8 +11,9 @@ classdef Filter < handle & matlab.mixin.Copyable
     %   getColor           - Get the filter color/plotting properties.
     %   setState           - Set the system state.
     %   getState           - Get the system state.
-    %   getStateDim        - Get the dimension of the system state.
+    %   setStateMeanAndCov - Set the system state by means of mean and covariance matrix.
     %   getStateMeanAndCov - Get mean and covariance matrix of the system state.
+    %   getStateDim        - Get the dimension of the system state.
     %   predict            - Perform a state prediction.
     %   update             - Perform a measurement update.
     %   step               - Perform a combined state prediction and measurement update.
@@ -160,8 +161,37 @@ classdef Filter < handle & matlab.mixin.Copyable
             
             obj.performSetState(state);
             
-            % Save state dimension
+            % Set system state dimension
             obj.dimState = state.getDim();
+        end
+        
+        function setStateMeanAndCov(obj, stateMean, stateCov, stateCovSqrt)
+            % Set the system state by means of mean and covariance matrix.
+            %
+            % Note: this method does not perform input validation like setState()!
+            % It is intended for fastly setting the system state without creating
+            % a temporary Gaussian distribution, e.g., in order to assign the
+            % Gaussian state estimate of a filter to another one.
+            %
+            % Parameters:
+            %   >> stateMean (Column vector)
+            %      Mean vector of the system state.
+            %
+            %   >> stateCov (Positive definite matrix)
+            %      Covariance matrix of the system state.
+            %
+            %   >> stateCovSqrt (Square matrix)
+            %      Lower Cholesky decomposition of the system state covariance matrix.
+            %      If no square root is passed, it will be computed.
+            
+            if nargin < 4
+                stateCovSqrt = chol(stateCov, 'Lower');
+            end
+            
+            obj.performSetStateMeanAndCov(stateMean, stateCov, stateCovSqrt);
+            
+            % Set system state dimension
+            obj.dimState = size(stateMean, 1);
         end
         
         function runtime = predict(obj, sysModel)
@@ -292,6 +322,8 @@ classdef Filter < handle & matlab.mixin.Copyable
     
     methods (Abstract, Access = 'protected')
         performSetState(obj, state);
+        
+        performSetStateMeanAndCov(obj, stateMean, stateCov, stateCovSqrt);
         
         performPrediction(obj, sysModel);
         

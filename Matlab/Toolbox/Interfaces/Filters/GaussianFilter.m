@@ -11,8 +11,9 @@ classdef GaussianFilter < Filter
     %   getColor                    - Get the filter color/plotting properties.
     %   setState                    - Set the system state.
     %   getState                    - Get the system state.
-    %   getStateDim                 - Get the dimension of the system state.
+    %   setStateMeanAndCov          - Set the system state by means of mean and covariance matrix.
     %   getStateMeanAndCov          - Get mean and covariance matrix of the system state.
+    %   getStateDim                 - Get the dimension of the system state.
     %   predict                     - Perform a state prediction.
     %   update                      - Perform a measurement update.
     %   step                        - Perform a combined state prediction and measurement update.
@@ -224,6 +225,12 @@ classdef GaussianFilter < Filter
     methods (Sealed, Access = 'protected')
         function performSetState(obj, state)
             [obj.stateMean, obj.stateCov, obj.stateCovSqrt] = state.getMeanAndCov();
+        end
+        
+        function performSetStateMeanAndCov(obj, stateMean, stateCov, stateCovSqrt)
+            obj.stateMean    = stateMean;
+            obj.stateCov     = stateCov;
+            obj.stateCovSqrt = stateCovSqrt;
         end
         
         function performPrediction(obj, sysModel)

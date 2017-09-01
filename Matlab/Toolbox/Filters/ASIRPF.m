@@ -21,8 +21,9 @@ classdef ASIRPF < SIRPF
     %   getColor                   - Get the filter color/plotting properties.
     %   setState                   - Set the system state.
     %   getState                   - Get the system state.
-    %   getStateDim                - Get the dimension of the system state.
+    %   setStateMeanAndCov         - Set the system state by means of mean and covariance matrix.
     %   getStateMeanAndCov         - Get mean and covariance matrix of the system state.
+    %   getStateDim                - Get the dimension of the system state.
     %   predict                    - Perform a state prediction.
     %   update                     - Perform a measurement update.
     %   step                       - Perform a combined state prediction and measurement update.

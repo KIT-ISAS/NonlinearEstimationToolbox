@@ -11,8 +11,9 @@ classdef SIRPF < ParticleFilter
     %   getColor                   - Get the filter color/plotting properties.
     %   setState                   - Set the system state.
     %   getState                   - Get the system state.
-    %   getStateDim                - Get the dimension of the system state.
+    %   setStateMeanAndCov         - Set the system state by means of mean and covariance matrix.
     %   getStateMeanAndCov         - Get mean and covariance matrix of the system state.
+    %   getStateDim                - Get the dimension of the system state.
     %   predict                    - Perform a state prediction.
     %   update                     - Perform a measurement update.
     %   step                       - Perform a combined state prediction and measurement update.
@@ -177,6 +178,15 @@ classdef SIRPF < ParticleFilter
                 % Particles are equally weighted
                 obj.weights = repmat(1 / obj.numParticles, 1, obj.numParticles);
             end
+        end
+        
+        function performSetStateMeanAndCov(obj, stateMean, ~, stateCovSqrt)
+            obj.particles = Utils.drawGaussianRndSamples(stateMean, ...
+                                                         stateCovSqrt, ...
+                                                         obj.numParticles);
+            
+            % Particles are equally weighted
+            obj.weights = repmat(1 / obj.numParticles, 1, obj.numParticles);
         end
         
         function performPrediction(obj, sysModel)
