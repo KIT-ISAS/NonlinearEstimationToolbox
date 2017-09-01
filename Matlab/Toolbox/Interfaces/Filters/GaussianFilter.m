@@ -84,9 +84,10 @@ classdef GaussianFilter < Filter
             state = Gaussian(obj.stateMean, obj.stateCov);
         end
         
-        function [stateMean, stateCov] = getStateMeanAndCov(obj)
-            stateMean = obj.stateMean;
-            stateCov  = obj.stateCov;
+        function [stateMean, stateCov, stateCovSqrt] = getStateMeanAndCov(obj)
+            stateMean    = obj.stateMean;
+            stateCov     = obj.stateCov;
+            stateCovSqrt = obj.stateCovSqrt;
         end
         
         function setStateDecompDim(obj, dim)

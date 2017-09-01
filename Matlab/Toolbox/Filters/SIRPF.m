@@ -81,11 +81,19 @@ classdef SIRPF < ParticleFilter
             state = DiracMixture(obj.particles, obj.weights);
         end
         
-        function [stateMean, stateCov] = getStateMeanAndCov(obj)
+        function [stateMean, stateCov, stateCovSqrt] = getStateMeanAndCov(obj)
             if nargout == 1
                 stateMean = Utils.getMeanAndCov(obj.particles, obj.weights);
             else
                 [stateMean, stateCov] = Utils.getMeanAndCov(obj.particles, obj.weights);
+                
+                if nargout == 3
+                    [stateCovSqrt, isNonPos] = chol(stateCov, 'Lower');
+                    
+                    if isNonPos
+                        obj.error('State covariance matrix is not positive definite.');
+                    end
+                end
             end
         end
         

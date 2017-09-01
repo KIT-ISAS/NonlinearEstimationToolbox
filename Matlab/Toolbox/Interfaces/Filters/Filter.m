@@ -279,12 +279,15 @@ classdef Filter < handle & matlab.mixin.Copyable
         % Get mean and covariance matrix of the system state.
         %
         % Returns:
-        %   << mean (Column vector)
+        %   << stateMean (Column vector)
         %      Mean vector of the system state.
         %
-        %   << covariance (Positive definite matrix)
+        %   << stateCov (Positive definite matrix)
         %      Covariance matrix of the system state.
-        [mean, covariance] = getStateMeanAndCov(obj);
+        %
+        %   << stateCovSqrt (Square matrix)
+        %      Lower Cholesky decomposition of the system state covariance matrix.
+        [stateMean,  stateCov, stateCovSqrt] = getStateMeanAndCov(obj);
     end
     
     methods (Abstract, Access = 'protected')
