@@ -12,8 +12,9 @@ classdef FilterSet < handle
     %   getNames             - Get the names of all filters.
     %   setStates            - Set the system states of all filters.
     %   getStates            - Get the system states of all filters.
-    %   getStateDim          - Get the dimension of the system state.
+    %   setStatesMeanAndCov  - Set the system states of all filters by means of mean and covariance matrix.
     %   getStateMeansAndCovs - Get state means and state covariance matrices of all filters.
+    %   getStateDim          - Get the dimension of the system state.
     %   predict              - Perform a state prediction for all filters.
     %   predictSingle        - Perform a state prediction for a particular filter.
     %   update               - Perform a measurement update for all filters.
@@ -198,7 +199,7 @@ classdef FilterSet < handle
             %
             % Parameters:
             %   >> state (Subclass of Distribution)
-            %      The new system state for all filters.
+            %      The new system state.
             
             obj.forAllFilters(@setState, state);
             
@@ -219,6 +220,72 @@ classdef FilterSet < handle
             end
         end
         
+        function setStatesMeanAndCov(obj, stateMean, stateCov, stateCovSqrt)
+            % Set the system states of all filters by means of mean and covariance matrix.
+            %
+            % Note: this method does not perform input validation like setStates()!
+            % It is intended for fastly setting the system state without creating
+            % a temporary Gaussian distribution, e.g., in order to assign the
+            % Gaussian state estimate of a filter to another one.
+            %
+            % Parameters:
+            %   >> stateMean (Column vector)
+            %      The new mean vector of the system state.
+            %
+            %   >> stateCov (Positive definite matrix)
+            %      The new covariance matrix of the system state.
+            %
+            %   >> stateCovSqrt (Square matrix)
+            %      Lower Cholesky decomposition of the new system state covariance matrix.
+            %      If no square root is passed, it will be computed.
+            
+            if nargin < 4
+                stateCovSqrt = chol(stateCov, 'Lower');
+            end
+            
+            obj.forAllFilters(@setStateMeanAndCov, stateMean, stateCov, stateCovSqrt);
+            
+            obj.dimState = size(stateMean, 1);
+        end
+        
+        function [stateMeans, stateCovs, stateCovSqrts] = getStateMeansAndCovs(obj)
+            % Get state means and state covariance matrices of all filters.
+            %
+            % Returns:
+            %   << stateMeans (Matrix)
+            %      Column-wise arranged state means.
+            %
+            %   << stateCovs (3D matrix of positive definite matrices)
+            %      State covariance matrices arranged along the 3rd dimension.
+            %
+            %   << stateCovSqrts (3D matrix)
+            %      Lower Cholesky decompositions of the system state covariance matrices
+            %      arranged along the 3rd dimension.
+            
+            if nargout == 1
+                stateMeans = nan(obj.dimState, obj.numFilters);
+                
+                for i = 1:obj.numFilters
+                    stateMeans(:, i) = obj.filters{i}.getStateMeanAndCov();
+                end
+            elseif nargout == 2
+                stateMeans = nan(obj.dimState, obj.numFilters);
+                stateCovs  = nan(obj.dimState, obj.dimState, obj.numFilters);
+                
+                for i = 1:obj.numFilters
+                    [stateMeans(:, i), stateCovs(:, :, i)] = obj.filters{i}.getStateMeanAndCov();
+                end
+            else
+                stateMeans    = nan(obj.dimState, obj.numFilters);
+                stateCovs     = nan(obj.dimState, obj.dimState, obj.numFilters);
+                stateCovSqrts = nan(obj.dimState, obj.dimState, obj.numFilters);
+                
+                for i = 1:obj.numFilters
+                    [stateMeans(:, i), stateCovs(:, :, i), stateCovSqrts(:, :, i)] = obj.filters{i}.getStateMeanAndCov();
+                end
+            end
+        end
+        
         function dim = getStateDim(obj)
             % Get the dimension of the system state.
             %
@@ -227,32 +294,6 @@ classdef FilterSet < handle
             %      The dimension of the system state.
             
             dim = obj.dimState;
-        end
-        
-        function [stateMeans, stateCovs] = getStateMeansAndCovs(obj)
-            % Get state means and state covariance matrices of all filters.
-            %
-            % Returns:
-            %   << stateMeans (Matrix)
-            %      Column-wise arranged state means of all filters.
-            %
-            %   << stateCovs (3D matrix of positive definite matrices)
-            %      State covariance matrices of all filters arranged along the 3rd dimension.
-            
-            if nargout == 1
-                stateMeans = nan(obj.dimState, obj.numFilters);
-                
-                for i = 1:obj.numFilters
-                    stateMeans(:, i) = obj.filters{i}.getStateMeanAndCov();
-                end
-            else
-                stateMeans = nan(obj.dimState, obj.numFilters);
-                stateCovs  = nan(obj.dimState, obj.dimState, obj.numFilters);
-                
-                for i = 1:obj.numFilters
-                    [stateMeans(:, i), stateCovs(:, :, i)] = obj.filters{i}.getStateMeanAndCov();
-                end
-            end
         end
         
         function runtimes = predict(obj, sysModel)

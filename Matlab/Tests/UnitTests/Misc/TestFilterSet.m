@@ -271,13 +271,17 @@ classdef TestFilterSet < matlab.unittest.TestCase
         end
         
         
-        function testSetGetStates(obj)
+        function testSetStates(obj)
             set = FilterSet();
             f   = EKF('KF');
             
             set.add(f);
             
-            set.setStates(Gaussian(ones(2, 1), 2*eye(2)));
+            mean    = ones(2, 1);
+            cov     = 2 * eye(2);
+            covSqrt = sqrt(cov);
+            
+            set.setStates(Gaussian(mean, cov));
             
             obj.verifyEqual(set.getStateDim(), 2);
             
@@ -289,16 +293,17 @@ classdef TestFilterSet < matlab.unittest.TestCase
             state = states{1};
             obj.verifyInstanceOf(state, 'Gaussian');
             
-            [mean, cov] = state.getMeanAndCov();
-            obj.verifyEqual(mean, ones(2, 1));
-            obj.verifyEqual(cov, 2 * eye(2));
+            [stateMean, stateCov] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean, mean);
+            obj.verifyEqual(stateCov, cov);
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
-            obj.verifyEqual(stateMeans, ones(2, 1));
-            obj.verifyEqual(stateCovs, 2 * eye(2));
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            obj.verifyEqual(stateMeans, mean);
+            obj.verifyEqual(stateCovs, cov);
+            obj.verifyEqual(stateCovSqrts, covSqrt);
         end
         
-        function testSetGetStatesMultiple(obj)
+        function testSetStatesMultiple(obj)
             set = FilterSet();
             f   = EKF('KF');
             f2  = SIRPF('SIRPF');
@@ -306,7 +311,10 @@ classdef TestFilterSet < matlab.unittest.TestCase
             set.add(f);
             set.add(f2);
             
-            set.setStates(Gaussian(ones(4, 1), 2*eye(4)));
+            mean = ones(4, 1);
+            cov  = 2 * eye(4);
+            
+            set.setStates(Gaussian(mean, cov));
             
             obj.verifyEqual(set.getStateDim(), 4);
             
@@ -318,23 +326,191 @@ classdef TestFilterSet < matlab.unittest.TestCase
             state = states{1};
             obj.verifyInstanceOf(state, 'Gaussian');
             
-            [mean1, cov1] = state.getMeanAndCov();
-            obj.verifyEqual(mean1, ones(4, 1));
-            obj.verifyEqual(cov1, 2 * eye(4));
+            [stateMean1, stateCov1, stateCovSqrt1] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean1, mean);
+            obj.verifyEqual(stateCov1, cov);
             
             state2 = states{2};
             obj.verifyInstanceOf(state2, 'DiracMixture');
             obj.verifyEqual(state2.getDim(), 4);
             obj.verifyEqual(state2.getNumComponents(), f2.getNumParticles());
             
-            [mean2, cov2] = state2.getMeanAndCov();
+            [stateMean2, stateCov2, stateCovSqrt2] = state2.getMeanAndCov();
             
-            [stateMeans, stateCovs] = set.getStateMeansAndCovs();
+            means    = [stateMean1 stateMean2];
+            covs     = cat(3, stateCov1, stateCov2);
+            covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
+            
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
             obj.verifySize(stateMeans, [4 2]);
             obj.verifySize(stateCovs, [4 4 2]);
+            obj.verifySize(stateCovSqrts, [4 4 2]);
             
-            obj.verifyEqual(stateMeans, [mean1 mean2], 'AbsTol', 1e-12);
-            obj.verifyEqual(stateCovs, cat(3, cov1, cov2), 'AbsTol', 1e-12);
+            obj.verifyEqual(stateMeans, means, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovs, covs, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovSqrts, covSqrts, 'AbsTol', 1e-12);
+        end
+        
+        
+        function testSetStatesMeanAndCov(obj)
+            set = FilterSet();
+            f   = EKF('KF');
+            
+            set.add(f);
+            
+            mean    = ones(2, 1);
+            cov     = 2 * eye(2);
+            covSqrt = sqrt(cov);
+            
+            set.setStatesMeanAndCov(mean, cov, covSqrt);
+            
+            obj.verifyEqual(set.getStateDim(), 2);
+            
+            states = set.getStates();
+            
+            obj.verifyInstanceOf(states, 'cell');
+            obj.verifySize(states, [1 1]);
+            
+            state = states{1};
+            obj.verifyInstanceOf(state, 'Gaussian');
+            
+            [stateMean, stateCov] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean, mean);
+            obj.verifyEqual(stateCov, cov);
+            
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            obj.verifyEqual(stateMeans, mean);
+            obj.verifyEqual(stateCovs, cov);
+            obj.verifyEqual(stateCovSqrts, covSqrt);
+        end
+        
+        function testSetStatesMeanAndCovNoCovSqrt(obj)
+            set = FilterSet();
+            f   = EKF('KF');
+            
+            set.add(f);
+            
+            mean    = ones(2, 1);
+            cov     = 2 * eye(2);
+            covSqrt = sqrt(cov);
+            
+            set.setStatesMeanAndCov(mean, cov);
+            
+            obj.verifyEqual(set.getStateDim(), 2);
+            
+            states = set.getStates();
+            
+            obj.verifyInstanceOf(states, 'cell');
+            obj.verifySize(states, [1 1]);
+            
+            state = states{1};
+            obj.verifyInstanceOf(state, 'Gaussian');
+            
+            [stateMean, stateCov] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean, mean);
+            obj.verifyEqual(stateCov, cov);
+            
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            obj.verifyEqual(stateMeans, mean);
+            obj.verifyEqual(stateCovs, cov);
+            obj.verifyEqual(stateCovSqrts, covSqrt);
+        end
+        
+        function testSetStatesMeanAndCovMultiple(obj)
+            set = FilterSet();
+            f   = EKF('KF');
+            f2  = SIRPF('SIRPF');
+            
+            set.add(f);
+            set.add(f2);
+            
+            mean    = ones(4, 1);
+            cov     = 2 * eye(4);
+            covSqrt = sqrt(cov);
+            
+            set.setStatesMeanAndCov(mean, cov, covSqrt);
+            
+            obj.verifyEqual(set.getStateDim(), 4);
+            
+            states = set.getStates();
+            
+            obj.verifyInstanceOf(states, 'cell');
+            obj.verifySize(states, [1 2]);
+            
+            state = states{1};
+            obj.verifyInstanceOf(state, 'Gaussian');
+            
+            [stateMean1, stateCov1, stateCovSqrt1] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean1, mean);
+            obj.verifyEqual(stateCov1, cov);
+            
+            state2 = states{2};
+            obj.verifyInstanceOf(state2, 'DiracMixture');
+            obj.verifyEqual(state2.getDim(), 4);
+            obj.verifyEqual(state2.getNumComponents(), f2.getNumParticles());
+            
+            [stateMean2, stateCov2, stateCovSqrt2] = state2.getMeanAndCov();
+            
+            means    = [stateMean1 stateMean2];
+            covs     = cat(3, stateCov1, stateCov2);
+            covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
+            
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            obj.verifySize(stateMeans, [4 2]);
+            obj.verifySize(stateCovs, [4 4 2]);
+            obj.verifySize(stateCovSqrts, [4 4 2]);
+            
+            obj.verifyEqual(stateMeans, means, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovs, covs, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovSqrts, covSqrts, 'AbsTol', 1e-12);
+        end
+        
+        function testSetStatesMeanAndCovMultipleNoCovSqrt(obj)
+            set = FilterSet();
+            f   = EKF('KF');
+            f2  = SIRPF('SIRPF');
+            
+            set.add(f);
+            set.add(f2);
+            
+            mean = ones(4, 1);
+            cov  = 2 * eye(4);
+            
+            set.setStatesMeanAndCov(mean, cov);
+            
+            obj.verifyEqual(set.getStateDim(), 4);
+            
+            states = set.getStates();
+            
+            obj.verifyInstanceOf(states, 'cell');
+            obj.verifySize(states, [1 2]);
+            
+            state = states{1};
+            obj.verifyInstanceOf(state, 'Gaussian');
+            
+            [stateMean1, stateCov1, stateCovSqrt1] = state.getMeanAndCov();
+            obj.verifyEqual(stateMean1, mean);
+            obj.verifyEqual(stateCov1, cov);
+            
+            state2 = states{2};
+            obj.verifyInstanceOf(state2, 'DiracMixture');
+            obj.verifyEqual(state2.getDim(), 4);
+            obj.verifyEqual(state2.getNumComponents(), f2.getNumParticles());
+            
+            [stateMean2, stateCov2, stateCovSqrt2] = state2.getMeanAndCov();
+            
+            means    = [stateMean1 stateMean2];
+            covs     = cat(3, stateCov1, stateCov2);
+            covSqrts = cat(3, stateCovSqrt1, stateCovSqrt2);
+            
+            [stateMeans, stateCovs, stateCovSqrts] = set.getStateMeansAndCovs();
+            obj.verifySize(stateMeans, [4 2]);
+            obj.verifySize(stateCovs, [4 4 2]);
+            obj.verifySize(stateCovSqrts, [4 4 2]);
+            
+            obj.verifyEqual(stateMeans, means, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovs, covs, 'AbsTol', 1e-12);
+            obj.verifyEqual(stateCovSqrts, covSqrts, 'AbsTol', 1e-12);
         end
         
         
