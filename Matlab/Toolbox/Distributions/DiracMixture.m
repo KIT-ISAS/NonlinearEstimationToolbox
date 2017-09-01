@@ -135,7 +135,12 @@ classdef DiracMixture < Distribution
             
             if nargout >= 3
                 if isempty(obj.covSqrt)
-                    obj.covSqrt = chol(obj.cov, 'Lower');
+                    [obj.covSqrt, isNonPos] = chol(obj.cov, 'Lower');
+                    
+                    if isNonPos
+                        error('DiracMixture:InvalidCovariance', ...
+                              'Covariance matrix is not positive definite.');
+                    end
                 end
                 
                 covSqrt = obj.covSqrt;

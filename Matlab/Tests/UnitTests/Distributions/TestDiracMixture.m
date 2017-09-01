@@ -186,6 +186,17 @@ classdef TestDiracMixture < matlab.unittest.TestCase
         end
         
         
+        function testGetMeanAndCovInvalidCov(obj)
+            samples = [-1 1
+                        0 0];
+            
+            dm = DiracMixture(samples);
+            
+            obj.verifyError(@() obj.testInvalidCov(dm), ...
+                            'DiracMixture:InvalidCovariance');
+        end
+        
+        
         function testDrawRndSamples(obj)
             samples = [zeros(3, 1) 2 * eye(3) -2 * eye(3)];
             samples = bsxfun(@plus, samples, -4 * ones(3, 1));
@@ -259,6 +270,10 @@ classdef TestDiracMixture < matlab.unittest.TestCase
         
         function verifyResetDM(obj, dm)
             obj.verifyDM(dm, 0, 0, [], [], [], [], []);
+        end
+        
+        function testInvalidCov(~, dm)
+            [~, ~, ~] = dm.getMeanAndCov();
         end
     end
 end
