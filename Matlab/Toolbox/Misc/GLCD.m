@@ -40,8 +40,15 @@ function varargout = GLCD(varargin)
             else
                 [varargout{:}] = GLCD_R2014a(varargin{:});
             end
+        case 'MACI64'
+            if verLessThan('matlab', '9.2')
+                error('GLCD:UnsupportedMatlabVersion', ...
+                      'At least Matlab R2017a is required.');
+            else
+                [varargout{:}] = GLCD_R2017a(varargin{:});
+            end
         otherwise
             error('GLCD:UnsupportedPlatform', ...
-                  'Only Windows 64-bit and Linux are supported.');
+                  'Only Windows 64-bit, Linux 64-bit, and MacOS X 64-bit are supported.');
     end
 end
