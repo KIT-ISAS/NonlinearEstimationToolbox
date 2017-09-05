@@ -25,21 +25,21 @@ function compileMexOpenMP(varargin)
     if ispc()
         % On Windows
         options = { 'OPTIMFLAGS=$OPTIMFLAGS /openmp' };
-    elseif isunix()
-        % On Linux
-        options = { 'CXXFLAGS=$CXXFLAGS -fopenmp', ...
-                    'LDFLAGS=$LDFLAGS -fopenmp' };
     elseif ismac()
-        % On Mac OS, OpenMP does not seem to be available in clang/Xcode
+        % On Mac OS X, OpenMP does not seem to be available in clang/Xcode
         % (at least for some versions). Hence, we do not enable it by default.
         
-        warning('OpenMP is disabled by default on Mac OS! You can enable it by editing Mex/compileMexOpenMP.m.');
+        warning('OpenMP is disabled by default on Mac OS X! You can enable it by editing Mex/compileMexOpenMP.m.');
         
         options = { };
         
         % To enable OpenMP, uncomment the following options:
 %         options = { 'CXXFLAGS=$CXXFLAGS -fopenmp', ...
 %                     'LDFLAGS=$LDFLAGS -fopenmp' };
+    elseif isunix()
+        % On Linux
+        options = { 'CXXFLAGS=$CXXFLAGS -fopenmp', ...
+                    'LDFLAGS=$LDFLAGS -fopenmp' };
     else
         error('Unsupported platform.');
     end

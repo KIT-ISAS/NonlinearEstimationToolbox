@@ -25,7 +25,7 @@ function compileMex(varargin)
         % Windows specific compiler flags
         options = {  };
     else
-        % Linux and Mac OS specific compiler flags
+        % Linux and Mac OS X specific compiler flags
         cxxFlags = '-std=c++11 -Wall -Wfatal-errors';
         ldFlags  = '';
         
