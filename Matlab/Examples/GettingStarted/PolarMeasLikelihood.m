@@ -7,7 +7,7 @@ classdef PolarMeasLikelihood < Likelihood
         end
         
         % Implement the abstract logLikelihood() method inherited from Likelihood
-        function logValues = logLikelihood(obj, stateSamples, measurements)
+        function logValues = logLikelihood(obj, stateSamples, measurement)
             px = stateSamples(1, :);
             py = stateSamples(2, :);
             
@@ -16,9 +16,9 @@ classdef PolarMeasLikelihood < Likelihood
                  atan2(py, px)      ];
             
             % Compute differences y - h(x)
-            diffs = bsxfun(@minus, measurements, h);
+            diffs = bsxfun(@minus, measurement, h);
             
-            % Evaluate the measurement noise logarithmic pdf
+            % Evaluate the measurement noise logarithmic Gaussian PDF
             logValues = obj.measNoise.logPdf(diffs);
         end
     end
