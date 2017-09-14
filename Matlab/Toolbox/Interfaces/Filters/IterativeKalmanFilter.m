@@ -217,7 +217,7 @@ classdef IterativeKalmanFilter < LinearGaussianFilter
                     % Increment iteration counter
                     obj.numIterations = obj.numIterations + 1;
                     
-                    % % Perform measurement update for the current iteration
+                    % Perform measurement update for the current iteration
                     [measMean, measCov, ...
                      stateMeasCrossCov] = obj.getMeasMomentsIteration(priorStateMean, priorStateCov, priorStateCovSqrt, ...
                                                                       updatedStateMean, updatedStateCov, updatedStateCovSqrt);
