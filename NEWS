@@ -125,10 +125,8 @@ includes new estimators.
   - Added SmartSamplingLinearGaussianFilter.
   - Added UnscentedLinearGaussianFilter.
   - Added IterativeKalmanFilter.
-  - Added TaylorBasedIterativeKalmanFilter.
-  - Added SampleBasedIterativeKalmanFilter.
   - Added RecursiveUpdateFilter.
-  - Added TaylorBasedRecursiveUpdateFilter.
+  - Added SampleBasedIterativeKalmanFilter.
   - Added SampleBasedRecursiveUpdateFilter.
   - Renamed BasePF to ParticleFilter.
   - Removed AnalyticMeasurementModel.
