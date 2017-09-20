@@ -159,10 +159,10 @@ classdef Filter < handle & matlab.mixin.Copyable
                           'state must be a subclass of Distribution.');
             end
             
-            obj.performSetState(state);
-            
             % Set system state dimension
             obj.dimState = state.getDim();
+            
+            obj.performSetState(state);
         end
         
         function setStateMeanAndCov(obj, stateMean, stateCov, stateCovSqrt)
