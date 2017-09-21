@@ -83,7 +83,7 @@ classdef FilterSet < handle
             obj.filters    = obj.filterMap.values();
             obj.numFilters = obj.filterMap.length();
         end
-         
+        
         function remove(obj, filterName)
             % Remove a filter from the set.
             %
