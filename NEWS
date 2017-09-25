@@ -1,4 +1,16 @@
 
+Changes in Nonlinear Estimation Toolbox 2.0.1
+=============================================
+
+* Set compiler flags for MacOS X in compileMexOpenMP() correctly.
+* Added a Mac OS X GLCD MEX file. This means that the LCD-based Gaussian sampling technique (GaussianSamplingLCD) and the
+  estimators using it (S2KF, S2RUF, and PGF) now also work out of the box on Mac OS X.
+* The dimension of a new system state is now set in Filter.setState() before the code of a subclass is executed.
+  Thus, obj.dimState can now be used correctly when setting the system state.
+* Added several MEX file examples for system models, measurement models, likelihoods, and their parallelization with OpenMP.
+* Minor code cleanups.
+
+
 Changes in Nonlinear Estimation Toolbox 2.0
 =============================================
 
